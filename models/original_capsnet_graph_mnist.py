@@ -15,7 +15,7 @@
 
 import numpy as np
 import tensorflow as tf
-from utils.layers_hinton import PrimaryCaps, DigitCaps, Length, Mask
+from models.layers.layers_hinton import PrimaryCaps, DigitCaps, Length, Mask
 import tensorflow_addons as tfa
 
 

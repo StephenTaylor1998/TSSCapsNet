@@ -15,7 +15,7 @@
 
 import numpy as np
 import tensorflow as tf
-from utils.layers import PrimaryCaps, FCCaps, Length
+from models.layers.layers import PrimaryCaps, FCCaps, Length
 from utils.tools import get_callbacks, marginLoss, multiAccuracy
 from utils.dataset import Dataset
 from utils import pre_process_multimnist
