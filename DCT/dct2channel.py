@@ -1,7 +1,8 @@
 import numpy as np
+import scipy
 
 
-def DCT_Block2Channel(np_array_2d, block_shape, channel_first=True, check_shape=True):
+def block2channel(np_array_2d, block_shape, channel_first=True, check_shape=True):
     array_h = np_array_2d.shape[0]
     array_w = np_array_2d.shape[-1]
     block_h = block_shape[0]
@@ -23,3 +24,6 @@ def DCT_Block2Channel(np_array_2d, block_shape, channel_first=True, check_shape=
         out = np.reshape(t2, (array_h // block_h, array_w // block_w, block_h * block_w))
 
     return out
+
+
+
