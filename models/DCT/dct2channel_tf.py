@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-def block2channel_2d(tf_tensor_2d, block_shape, channel_first=True, check_shape=True):
+def block2channel_2d(tf_tensor_2d, block_shape, output_channel_first=False, check_shape=True):
     """
     example:
     block_shape=(2, 2)
@@ -24,10 +24,10 @@ def block2channel_2d(tf_tensor_2d, block_shape, channel_first=True, check_shape=
     \  1  1/ 2 3 4 /
      \  1/ 2 3 4 /
       \/-------/
-    :param tf_tensor_2d: input tf tensor
+    :param tf_tensor_2d: input tf tensor ([h, w] or [batch, h, w])
     (Attention: support batch, like shape[batch, h, w])
     :param block_shape: block shape should < & = input tensor shape
-    :param channel_first: channel first ==>> True & channel last ==>> False;
+    :param output_channel_first: channel first ==>> True & channel last ==>> False;
     :param check_shape: check shape before operator
     :return: 3d tf tensor
     """
@@ -45,7 +45,7 @@ def block2channel_2d(tf_tensor_2d, block_shape, channel_first=True, check_shape=
 
     t1 = tf.reshape(tf_tensor_2d, (None, tensor_h // block_h, block_h, tensor_w // block_w, block_w))
 
-    if channel_first:
+    if output_channel_first:
         t2 = tf.transpose(t1, (None, -3, -1, -4, -2))
         out = tf.reshape(t2, (None, block_h * block_w, tensor_h // block_h, tensor_w // block_w))
     else:
@@ -55,6 +55,6 @@ def block2channel_2d(tf_tensor_2d, block_shape, channel_first=True, check_shape=
     return out
 
 
-def dct2channel(tf_tensor_2d, block_shape, channel_first=True, check_shape=True):
-    out = block2channel_2d(tf_tensor_2d, block_shape, channel_first, check_shape)
-    return tf.signal.dct(out)
+def dct2channel(tf_tensor_2d, block_shape, output_channel_first=False, check_shape=True):
+    out = block2channel_2d(tf_tensor_2d, block_shape, output_channel_first, check_shape)
+    return tf.signal.dct(out.astype(tf.float32))
