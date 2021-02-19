@@ -1,6 +1,7 @@
 import numpy as np
 
-from models.DCT.dct2channel import block2channel_np
+from models.DCT.dct2channel import block2channel_2d
+from models.DCT.dct2channel_np import block2channel_2d as block2channel_2d_np
 
 
 def dct2channel_test():
@@ -44,18 +45,26 @@ def dct2channel_test():
 
     print(array_9x9_block_3x3)
 
-    channel_first = block2channel_np(array_9x9_block_3x3, block_shape=(3, 3), channel_first=True)
+    channel_first = block2channel_2d_np(array_9x9_block_3x3, block_shape=(3, 3), channel_first=True)
+    print(channel_first[0, :, :])
+    channel_first = block2channel_2d(array_9x9_block_3x3, block_shape=(3, 3), channel_first=True)
     print(channel_first[0, :, :])
 
-    channel_last = block2channel_np(array_9x9_block_3x3, block_shape=(3, 3), channel_first=False)
+    channel_last = block2channel_2d_np(array_9x9_block_3x3, block_shape=(3, 3), channel_first=False)
+    print(channel_last[:, :, 0])
+    channel_last = block2channel_2d(array_9x9_block_3x3, block_shape=(3, 3), channel_first=False)
     print(channel_last[:, :, 0])
 
     print(array_16x12_block_4x4)
 
-    channel_first = block2channel_np(array_16x12_block_4x4, block_shape=(4, 4), channel_first=True)
+    channel_first = block2channel_2d_np(array_16x12_block_4x4, block_shape=(4, 4), channel_first=True)
+    print(channel_first[0, :, :])
+    channel_first = block2channel_2d(array_16x12_block_4x4, block_shape=(4, 4), channel_first=True)
     print(channel_first[0, :, :])
 
-    channel_last = block2channel_np(array_16x12_block_4x4, block_shape=(4, 4), channel_first=False)
+    channel_last = block2channel_2d_np(array_16x12_block_4x4, block_shape=(4, 4), channel_first=False)
+    print(channel_last[:, :, 0])
+    channel_last = block2channel_2d(array_16x12_block_4x4, block_shape=(4, 4), channel_first=False)
     print(channel_last[:, :, 0])
 
     return channel_first, channel_last
@@ -65,13 +74,13 @@ if __name__ == '__main__':
     from scipy.fft import dct
     import tensorflow
 
-    channel_frist, channel_last = dct2channel_test()
+    c_frist, c_last = dct2channel_test()
 
-    out = dct(channel_last)
+    out = dct(c_last)
 
     print(out)
 
-    out = tensorflow.signal.dct(channel_last.astype(np.float32))
+    out = tensorflow.signal.dct(c_last.astype(np.float32))
 
     print(out[0, 0])
 
