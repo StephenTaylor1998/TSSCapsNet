@@ -27,7 +27,8 @@ def block2channel_2d(np_array_2d, block_shape, output_channel_first=False, check
       \/-------/
     :param np_array_2d: input numpy array([h, w])
     (Waring: Do not support batch, like shape[batch, h, w])
-    :param block_shape: block shape should < & = input array shape
+    :param block_shape: (block_h, block_w) example (2, 2),
+    block shape should <= input tensor shape
     :param output_channel_first: channel first ==>> True & channel last ==>> False;
     :param check_shape: check shape before operator
     :return: 3d numpy array
@@ -35,7 +36,7 @@ def block2channel_2d(np_array_2d, block_shape, output_channel_first=False, check
     array_h = np_array_2d.shape[-2]
     array_w = np_array_2d.shape[-1]
 
-    block_h = block_shape[-2]
+    block_h = block_shape[0]
     block_w = block_shape[-1]
 
     if check_shape:
@@ -82,7 +83,8 @@ def block2channel_3d(np_array_3d, block_shape, output_channel_first=False, check
      \/------/--------/
     :param np_array_3d: input numpy array([h, w, channel])
     (Waring: Do not support batch, like shape[batch, h, w, channel])
-    :param block_shape: block shape should < & = input array shape
+    :param block_shape: (block_h, block_w) example (2, 2),
+    block shape should <= input tensor shape
     :param output_channel_first: channel first ==>> True & channel last ==>> False;
     :param check_shape: check shape before operator
     :return: 3d numpy array
@@ -91,7 +93,7 @@ def block2channel_3d(np_array_3d, block_shape, output_channel_first=False, check
     array_w = np_array_3d.shape[-2]
     array_c = np_array_3d.shape[-1]
 
-    block_h = block_shape[-2]
+    block_h = block_shape[0]
     block_w = block_shape[-1]
 
     if check_shape:
@@ -116,11 +118,12 @@ def block2channel_3d(np_array_3d, block_shape, output_channel_first=False, check
 
 def dct2channel(np_array, block_shape, check_shape=True):
     """
-    Convert 2d or 3d numpy array to 3d, then do DCT op to last dimension.
+    Convert 2d or 3d numpy array to 3d, then do DCT op at last dimension.
     :param np_array: 2d or 3d array
-    :param block_shape: block shape should < & = input array shape
+    :param block_shape: (block_h, block_w) example (2, 2),
+    block shape should <= input tensor shape
     :param check_shape: check shape while run block2channel_2d(...) or block2channel_3d(...)
-    :return: 3d numpy array, the same like output of block2channel_2d(...) and block2channel_2d(...)
+    :return: 3d numpy array, the same like output of block2channel_2d(...) or block2channel_3d(...)
     """
     if len(np_array.shape) == 2:
         out = block2channel_2d(np_array, block_shape, False, check_shape)
