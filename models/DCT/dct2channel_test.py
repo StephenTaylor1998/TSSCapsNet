@@ -1,19 +1,13 @@
 import numpy as np
 # block2channel_test
-from models.DCT.dct2channel_tf import Block2Channel2d, Block2Channel3d
 from models.DCT.dct2channel_np import block2channel_2d as block2channel_2d_np
-
+from models.DCT.dct2channel_np import block2channel_3d as block2channel_3d_np
 # dct2channel_test
 from models.DCT.dct2channel_np import dct2channel as dct2channel_np
-from models.DCT.dct2channel_np import block2channel_3d as block2channel_3d_np
+# test_in_model
 from models.DCT.dct2channel_tf import DCTLayer3d, DCTLayer2d
-from models.DCT.dct2channel_tf import Block2Channel3d as block2channel_3d_tf
-
-# test in model
 from tensorflow.keras import Model
 from tensorflow.keras import layers
-from tensorflow.keras import optimizers
-from tensorflow.keras import losses
 
 
 def block2channel_test():
@@ -68,7 +62,6 @@ def block2channel_test():
 
     channel_last = block2channel_2d_np(array_16x12_block_4x4, block_shape=(4, 4), output_channel_first=False)
     print(channel_last[:, :, 0])
-
 
 
 def dct2channel_test():
