@@ -5,7 +5,7 @@ class Block2Channel2d(tf.keras.layers.Layer):
     """
         example:
         block_shape=(2, 2)
-        channel_first=False
+        output_channel_first=False
         input=
         [1, 2,  1, 2,  1, 2],
         [3, 4,  3, 4,  3, 4],
@@ -64,14 +64,12 @@ class Block2Channel2d(tf.keras.layers.Layer):
 
         if self.output_channel_first:
             t2 = tf.transpose(t1, (0, 2, 4, 1, 3))
-            # t2 = tf.transpose(t1, (1, 3, 0, 2))
             out = tf.keras.layers.Reshape((self.block_h * self.block_w,
                                            self.tensor_h // self.block_h,
                                            self.tensor_w // self.block_w))(t2)
 
         else:
             t2 = tf.transpose(t1, (0, 1, 3, 2, 4))
-            # t2 = tf.transpose(t1, (0, 2, 1, 3))
             out = tf.keras.layers.Reshape((self.tensor_h // self.block_h,
                                            self.tensor_w // self.block_w,
                                            self.block_h * self.block_w))(t2)
@@ -84,7 +82,7 @@ class Block2Channel3d(tf.keras.layers.Layer):
     """
     example:
     block_shape=(2, 2)
-    channel_first=False
+    output_channel_first=False
     input=
             /\-------------/\
           / 1 \----------/-5 \
@@ -143,13 +141,11 @@ class Block2Channel3d(tf.keras.layers.Layer):
 
         if self.output_channel_first:
             t2 = tf.transpose(t1, (0, 1, 3, 5, 2, 4))
-            # t2 = tf.transpose(t1, (0, 2, 4, 1, 3))
             out = tf.keras.layers.Reshape((self.tensor_c * self.block_h * self.block_w,
                                            self.tensor_h // self.block_h,
                                            self.tensor_w // self.block_w))(t2)
         else:
             t2 = tf.transpose(t1, (0, 2, 4, 1, 3, 5))
-            # t2 = tf.transpose(t1, (1, 3, 0, 2, 4))
             out = tf.keras.layers.Reshape((self.tensor_h // self.block_h,
                                            self.tensor_w // self.block_w,
                                            self.tensor_c * self.block_h * self.block_w))(t2)
