@@ -57,25 +57,18 @@ def block2channel_test():
 
     channel_first = block2channel_2d_np(array_9x9_block_3x3, block_shape=(3, 3), output_channel_first=True)
     print(channel_first[0, :, :])
-    channel_first = Block2Channel2d(array_9x9_block_3x3, block_shape=(3, 3), output_channel_first=True)
-    print(channel_first[0, :, :])
 
     channel_last = block2channel_2d_np(array_9x9_block_3x3, block_shape=(3, 3), output_channel_first=False)
-    print(channel_last[:, :, 0])
-    channel_last = Block2Channel2d(array_9x9_block_3x3, block_shape=(3, 3), output_channel_first=False)
     print(channel_last[:, :, 0])
 
     print(array_16x12_block_4x4)
 
     channel_first = block2channel_2d_np(array_16x12_block_4x4, block_shape=(4, 4), output_channel_first=True)
     print(channel_first[0, :, :])
-    channel_first = Block2Channel2d(array_16x12_block_4x4, block_shape=(4, 4), output_channel_first=True)
-    print(channel_first[0, :, :])
 
     channel_last = block2channel_2d_np(array_16x12_block_4x4, block_shape=(4, 4), output_channel_first=False)
     print(channel_last[:, :, 0])
-    channel_last = Block2Channel2d(array_16x12_block_4x4, block_shape=(4, 4), output_channel_first=False)
-    print(channel_last[:, :, 0])
+
 
 
 def dct2channel_test():
@@ -134,41 +127,22 @@ def test_in_model():
     out = model(array_2x4x4x2)
     print(out)
 
-    # input_tensor = layers.Input((4, 4))
-    # print(input_tensor)
-    # # output_tensor = Block2Channel2d((2, 2))(input_tensor)
-    # output_tensor = DCTLayer2d((2, 2))(input_tensor)
-    # model = Model(inputs=input_tensor, outputs=output_tensor)
-    # model.compile()
-    #
-    # array_2x4x4 = np.array(array_2x4x4x2[:, :, :, 0])
-    # print(array_2x4x4.shape)
-    # out = model(array_2x4x4)
-    # print(out)
+    input_tensor = layers.Input((4, 4))
+    print(input_tensor)
+    # output_tensor = Block2Channel2d((2, 2))(input_tensor)
+    output_tensor = DCTLayer2d((2, 2))(input_tensor)
+    model = Model(inputs=input_tensor, outputs=output_tensor)
+    model.compile()
+
+    array_2x4x4 = np.array(array_2x4x4x2[:, :, :, 0])
+    print(array_2x4x4.shape)
+    out = model(array_2x4x4)
+    print(out)
 
     pass
 
 
 if __name__ == '__main__':
-    # block2channel_test()
-    # dct2channel_test()
+    block2channel_test()
+    dct2channel_test()
     test_in_model()
-    # import tensorflow as tf
-    #
-    # conv = tf.keras.layers.Conv2D(filters=1, kernel_size=3)
-    # array_2x4x4 = np.array([
-    #     [[1, 2,  1, 2],
-    #      [3, 4,  3, 4],
-    #
-    #      [1, 2,  1, 2],
-    #      [3, 4,  3, 4]],
-    #
-    #     [[5, 6,  5, 6],
-    #      [7, 8,  7, 8],
-    #
-    #      [5, 6,  5, 6],
-    #      [7, 8,  7, 8]],
-    # ])
-    # # convert to channel last
-    # array_4x4x2 = np.transpose(array_2x4x4, (1, 2, 0))
-    # print(conv(array_4x4x2))
