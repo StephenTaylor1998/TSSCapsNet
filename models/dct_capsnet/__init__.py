@@ -1,0 +1,1 @@
+from .dct_capsnet_h1_graph_mnist import build_graph as dct_capsnet_h1_graph_mnist_build_graph

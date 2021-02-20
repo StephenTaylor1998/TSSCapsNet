@@ -31,8 +31,9 @@ def capsnet_graph(input_shape, routing):
         number of routing iterations
     """
     inputs = tf.keras.Input(input_shape)
-
+    # (28, 28, 1) ==>> (20, 20, 256)
     x = tf.keras.layers.Conv2D(256, 9, activation="relu")(inputs)
+    # (20, 20, 256) ==>> (6, 6, 256) ==>> (6, 6, 32, 8)
     primary = PrimaryCaps(C=32, L=8, k=9, s=2)(x)
     digit_caps = DigitCaps(10, 16, routing=routing)(primary)
     digit_caps_len = Length(name='capsnet_output_len')(digit_caps)
