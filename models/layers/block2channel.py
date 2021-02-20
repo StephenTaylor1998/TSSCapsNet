@@ -1,4 +1,119 @@
+import numpy as np
 import tensorflow as tf
+
+
+def block2channel_2d(np_array_2d, block_shape, output_channel_first=False, check_shape=True):
+    """
+    example:
+    block_shape=(2, 2)
+    channel_first=False
+    np_array_2d=
+    [1, 2,  1, 2,  1, 2],
+    [3, 4,  3, 4,  3, 4],
+
+    [1, 2,  1, 2,  1, 2],
+    [3, 4,  3, 4,  3, 4],
+
+    [1, 2,  1, 2,  1, 2],
+    [3, 4,  3, 4,  3, 4],
+
+    output=
+          /\-------\
+        / 1 \2 3 4  \
+      / 1  1 \2 3 4  \
+    / 1  1  1/ 2 3 4 /
+    \  1  1/ 2 3 4 /
+     \  1/ 2 3 4 /
+      \/-------/
+    :param np_array_2d: input numpy array([h, w])
+    (Waring: Do not support batch, like shape[batch, h, w])
+    :param block_shape: (block_h, block_w) example (2, 2),
+    block shape should <= input tensor shape
+    :param output_channel_first: channel first ==>> True & channel last ==>> False;
+    :param check_shape: check shape before operator
+    :return: 3d numpy array
+    """
+    array_h = np_array_2d.shape[-2]
+    array_w = np_array_2d.shape[-1]
+
+    block_h = block_shape[0]
+    block_w = block_shape[-1]
+
+    if check_shape:
+        assert len(np_array_2d.shape) == 2, \
+            "check the dims of np_array_2d, the func recommend len(np_array_2d.shape) == 2"
+        assert array_h % block_h == 0, \
+            "check the array_h and block_h, the func recommend array_h % block_h == 0"
+        assert array_w % block_w == 0, \
+            "check the array_w and block_w, the func recommend array_w % block_w == 0"
+
+    t1 = np.reshape(np_array_2d, (array_h // block_h, block_h, array_w // block_w, block_w))
+
+    if output_channel_first:
+        t2 = np.transpose(t1, (1, 3, 0, 2))
+        out = np.reshape(t2, (block_h * block_w, array_h // block_h, array_w // block_w))
+    else:
+        t2 = np.transpose(t1, (0, 2, 1, 3))
+        out = np.reshape(t2, (array_h // block_h, array_w // block_w, block_h * block_w))
+
+    return out
+
+
+def block2channel_3d(np_array_3d, block_shape, output_channel_first=False, check_shape=True):
+    """
+    example:
+    block_shape=(2, 2)
+    channel_first=False
+    np_array_3d=
+            /\-------------/\
+          / 1 \----------/-5 \
+        / 3  2 \-------/-7--6 \
+      / 1  4  1 \----/-5--8--5 \
+    / 3  2  3  2/--/-7--6--7--6/
+    \  4  1  4/----\--8--5--8/
+     \  3  2/-------\--7--6/
+      \  4/----------\--8/
+       \/-------------\/
+
+    output=
+        /\------\--------\
+      / 1 \2 3 4 \5 6 7 8 \
+    / 1  1/ 2 3 4/ 5 6 7 8/
+    \  1/ 2 3 4/ 5 6 7 8/
+     \/------/--------/
+    :param np_array_3d: input numpy array([h, w, channel])
+    (Waring: Do not support batch, like shape[batch, h, w, channel])
+    :param block_shape: (block_h, block_w) example (2, 2),
+    block shape should <= input tensor shape
+    :param output_channel_first: channel first ==>> True & channel last ==>> False;
+    :param check_shape: check shape before operator
+    :return: 3d numpy array
+    """
+    array_h = np_array_3d.shape[-3]
+    array_w = np_array_3d.shape[-2]
+    array_c = np_array_3d.shape[-1]
+
+    block_h = block_shape[0]
+    block_w = block_shape[-1]
+
+    if check_shape:
+        assert len(np_array_3d.shape) == 3, \
+            "check the dims of np_array_2d, the func recommend len(np_array_3d.shape) == 3"
+        assert array_h % block_h == 0, \
+            "check the array_h and block_h, the func recommend array_h % block_h == 0"
+        assert array_w % block_w == 0, \
+            "check the array_w and block_w, the func recommend array_w % block_w == 0"
+
+    t1 = np.reshape(np_array_3d, (array_h // block_h, block_h, array_w // block_w, block_w, array_c))
+
+    if output_channel_first:
+        t2 = np.transpose(t1, (4, 1, 3, 0, 2))
+        out = np.reshape(t2, (array_c * block_h * block_w, array_h // block_h, array_w // block_w))
+    else:
+        t2 = np.transpose(t1, (0, 2, 4, 1, 3))
+        out = np.reshape(t2, (array_h // block_h, array_w // block_w, array_c * block_h * block_w))
+
+    return out
 
 
 class Block2Channel2d(tf.keras.layers.Layer):
@@ -73,7 +188,6 @@ class Block2Channel2d(tf.keras.layers.Layer):
             out = tf.keras.layers.Reshape((self.tensor_h // self.block_h,
                                            self.tensor_w // self.block_w,
                                            self.block_h * self.block_w))(t2)
-
 
         return out
 
@@ -151,53 +265,3 @@ class Block2Channel3d(tf.keras.layers.Layer):
                                            self.tensor_c * self.block_h * self.block_w))(t2)
 
         return out
-
-
-class DCTLayer2d(tf.keras.layers.Layer):
-    """
-    Convert tf tensor with batch(like [batch, h, w]) to [h//block_H, w//block_w, block_h*block_w]
-    then do DCT op at last dimension.
-    :param block_shape: (block_h, block_w) example (2, 2),
-    block shape should <= input tensor shape
-    :param check_shape: check shape while run block2channel_2d(...)
-    :return: [batch, h//block_H, w//block_w, block_h*block_w]
-    """
-
-    def __init__(self, block_shape, check_shape=True, **kwargs):
-        super(DCTLayer2d, self).__init__(**kwargs)
-        self.block_shape = block_shape
-        self.check_shape = check_shape
-        self.block2Channel2d = None
-
-    def build(self, input_shape):
-        self.block2Channel2d = Block2Channel2d(self.block_shape, False, self.check_shape)
-
-    def call(self, inputs, **kwargs):
-        # [batch, h, w] ==>> [batch, h//block_H, w//block_w, block_h*block_w]
-        out = self.block2Channel2d(inputs)
-        return tf.signal.dct(tf.cast(out, dtype=tf.float32))
-
-
-class DCTLayer3d(tf.keras.layers.Layer):
-    """
-    Convert tf tensor with batch [batch, h, w, channel] to [batch, h//block_H, w//block_w, channel*block_h*block_w],
-    then do DCT op at last dimension.
-    :param block_shape: (block_h, block_w) example (2, 2),
-    block shape should <= input tensor shape
-    :param check_shape: check shape while run block2channel_3d(...)
-    :return: [batch, h//block_H, w//block_w, channel*block_h*block_w]
-    """
-    def __init__(self, block_shape, check_shape=True, **kwargs):
-        super(DCTLayer3d, self).__init__(**kwargs)
-        self.block_shape = block_shape
-        self.check_shape = check_shape
-        self.block2Channel3d = None
-
-    def build(self, input_shape):
-        self.block2Channel3d = Block2Channel3d(self.block_shape, False, self.check_shape)
-
-    def call(self, inputs, **kwargs):
-        # [batch, h, w, channel] ==>> [batch, h//block_H, w//block_w, channel*block_h*block_w]
-        out = self.block2Channel3d(inputs)
-        return tf.signal.dct(tf.cast(out, dtype=tf.float32))
-

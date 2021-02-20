@@ -15,7 +15,7 @@
 
 import numpy as np
 import tensorflow as tf
-from models.layers.layers import PrimaryCaps, FCCaps, Length, Mask
+from models.layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask
 import tensorflow_addons as tfa
 
 
