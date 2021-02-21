@@ -40,7 +40,7 @@ class Dataset(object):
     load_config():
         load configuration file
     get_dataset():
-        load the dataset defined by model_name and pre_process it
+        load the dataset defined by data_name and pre_process it
     get_tf_data():
         get a tf.data.Dataset object of the loaded dataset. 
     """

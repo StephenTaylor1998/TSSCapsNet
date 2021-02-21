@@ -10,7 +10,7 @@ tf.config.experimental.set_memory_growth(gpus[5], True)
 # some parameters
 
 model_name = 'MNIST'  # only MNIST is available
-# model_name = 'MULTIMNIST'
+# data_name = 'MULTIMNIST'
 
 # 1.0 Import the Dataset
 

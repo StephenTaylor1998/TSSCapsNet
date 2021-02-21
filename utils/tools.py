@@ -25,22 +25,34 @@ def learn_scheduler(lr_dec, lr):
     return learning_scheduler_fn
 
 
-def get_callbacks(tb_log_save_path, saved_model_path, lr_dec, lr):
+def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
     tb = tf.keras.callbacks.TensorBoard(log_dir=tb_log_save_path, histogram_freq=0)
-
-    model_checkpoint = tf.keras.callbacks.ModelCheckpoint(saved_model_path, monitor='val_Efficient_CapsNet_accuracy',
-                                                          save_best_only=True, save_weights_only=True, verbose=1)
-
     lr_decay = tf.keras.callbacks.LearningRateScheduler(learn_scheduler(lr_dec, lr))
 
-    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_CapsNet_accuracy', factor=0.9,
-                                                     patience=4, min_lr=0.00001, min_delta=0.0001, mode='max')
+    if model_name == 'CapsNet':
+        model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+            saved_model_path, monitor='val_Original_CapsNet_loss:',
+            save_best_only=False, save_weights_only=True, verbose=1)
 
-    # # flags here
-    # return None
+        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+            monitor='val_CapsNet_accuracy', factor=0.9,
+            patience=4, min_lr=0.00001, min_delta=0.0001, mode='max')
+        return [tb, model_checkpoint, reduce_lr]
 
-    # origin code
-    return [tb, model_checkpoint, lr_decay]
+    elif model_name == 'EfficientCapsNet':
+        model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+            saved_model_path, monitor='val_Efficient_CapsNet_accuracy',
+            save_best_only=True, save_weights_only=True, verbose=1)
+        return [tb, model_checkpoint, lr_decay]
+
+    elif model_name == 'DCTCapsNet':
+        model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+            saved_model_path, monitor='val_DCT_CapsNet_loss',
+            save_best_only=True, save_weights_only=True, verbose=1)
+        return [tb, model_checkpoint, lr_decay]
+
+    else:
+        raise NotImplemented
 
 
 def marginLoss(y_true, y_pred):
@@ -61,4 +73,13 @@ def multiAccuracy(y_true, y_pred):
     acc = tf.reduce_sum(tf.cast(label_pred[:, :1] == label_true, tf.int8), axis=-1) + \
           tf.reduce_sum(tf.cast(label_pred[:, 1:] == label_true, tf.int8), axis=-1)
     acc /= 2
+    return tf.reduce_mean(acc, axis=-1)
+
+
+def Accuracy(y_true, y_pred):
+    label_pred = tf.argsort(y_pred, axis=-1)[:, -1:]
+    label_true = tf.argsort(y_true, axis=-1)[:, -1:]
+
+    acc = tf.reduce_sum(tf.cast(label_pred == label_true, tf.int8), axis=-1)
+
     return tf.reduce_mean(acc, axis=-1)

@@ -12,7 +12,7 @@ tf.config.experimental.set_visible_devices(gpus[2], 'GPU')
 tf.config.experimental.set_memory_growth(gpus[2], True)
 
 # some parameters
-# model_name = 'MULTIMNIST'
+# data_name = 'MULTIMNIST'
 model_name = 'MNIST'
 custom_path = None  # if you've trained a new model, insert here the full graph weights path
 

@@ -16,7 +16,8 @@
 import numpy as np
 import tensorflow as tf
 # from models.layers.layers_efficient import PrimaryCaps, FCCaps, Length
-from utils.tools import get_callbacks, marginLoss, multiAccuracy
+from utils.tools import get_callbacks, marginLoss, multiAccuracy, Accuracy
+# from tensorflow.keras.metrics import Accuracy
 from utils.dataset import Dataset
 from utils import pre_process_multimnist
 from models import original_capsnet_graph_mnist, dct_capsnet
@@ -35,8 +36,8 @@ class Model(object):
     
     Attributes
     ----------
-    model_name: str
-        name of the model (Ex. 'MNIST')
+    data_name: str
+        name of the data (Ex. 'MNIST')
     mode: str
         model modality (Ex. 'test')
     config_path: str
@@ -57,8 +58,8 @@ class Model(object):
         save model weights
     """
 
-    def __init__(self, model_name, mode='test', config_path='config.json', verbose=True):
-        self.model_name = model_name
+    def __init__(self, data_name, mode='test', config_path='config.json', verbose=True):
+        self.data_name = data_name
         self.model = None
         self.mode = mode
         self.config_path = config_path
@@ -83,8 +84,8 @@ class Model(object):
         return self.model.predict(dataset_test)
 
     def evaluate(self, X_test, y_test):
-        print('-' * 30 + f'{self.model_name} Evaluation' + '-' * 30)
-        if self.model_name == "MULTIMNIST":
+        print('-' * 30 + f'{self.data_name} Evaluation' + '-' * 30)
+        if self.data_name == "MULTIMNIST":
             dataset_test = pre_process_multimnist.generate_tf_data_test(X_test, y_test, self.config["shift_multimnist"],
                                                                         n_multi=self.config['n_overlay_multimnist'])
             acc = []
@@ -98,7 +99,7 @@ class Model(object):
         test_error = 1 - acc
         print('Test acc:', acc)
         print(f"Test error [%]: {(test_error):.4%}")
-        if self.model_name == "MULTIMNIST":
+        if self.data_name == "MULTIMNIST":
             print(
                 f"N° misclassified images: {int(test_error * len(y_test) * self.config['n_overlay_multimnist'])} out of {len(y_test) * self.config['n_overlay_multimnist']}")
         else:
@@ -110,14 +111,14 @@ class Model(object):
 
 class EfficientCapsNet(Model):
     """
-    A class used to manage an Efficiet-CapsNet model. 'model_name' and 'mode' define the particular architecure and modality of the 
+    A class used to manage an Efficiet-CapsNet model. 'data_name' and 'mode' define the particular architecure and modality of the
     generated network.
     
     ...
     
     Attributes
     ----------
-    model_name: str
+    data_name: str
         name of the model (Ex. 'MNIST')
     mode: str
         model modality (Ex. 'test')
@@ -130,42 +131,47 @@ class EfficientCapsNet(Model):
     Methods
     -------
     load_graph():
-        load the network graph given the model_name
+        load the network graph given the data_name
     train(dataset, initial_epoch)
         train the constructed network with a given dataset. All train hyperparameters are defined in the configuration file
 
     """
 
-    def __init__(self, model_name, mode='test', config_path='config.json', custom_path=None, verbose=True):
-        Model.__init__(self, model_name, mode, config_path, verbose)
+    def __init__(self, data_name, mode='test', config_path='config.json', custom_path=None, verbose=True):
+        Model.__init__(self, data_name, mode, config_path, verbose)
+        self.model_name = 'EfficientCapsNet'
         if custom_path != None:
             self.model_path = custom_path
         else:
-            self.model_path = os.path.join(self.config['saved_model_dir'], f"efficient_capsnet_{self.model_name}.h5")
+            self.model_path = os.path.join(self.config['saved_model_dir'], f"efficient_capsnet_{self.data_name}.h5")
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
-                                                 f"original_capsnet_{self.model_name}_new_train.h5")
-        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"efficient_capsnet_{self.model_name}")
+                                                 f"original_capsnet_{self.data_name}_new_train.h5")
+        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"efficient_capsnet_{self.data_name}")
         self.load_graph()
 
     def load_graph(self):
-        if self.model_name == 'MNIST':
+        if self.data_name == 'MNIST':
             self.model = efficient_capsnet_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                    self.verbose)
-        elif self.model_name == 'SMALLNORB':
+        elif self.data_name == 'SMALLNORB':
             self.model = efficient_capsnet_graph_smallnorb.build_graph(self.config['SMALLNORB_INPUT_SHAPE'], self.mode,
                                                                        self.verbose)
-        elif self.model_name == 'MULTIMNIST':
+        elif self.data_name == 'MULTIMNIST':
             self.model = efficient_capsnet_graph_multimnist.build_graph(self.config['MULTIMNIST_INPUT_SHAPE'],
                                                                         self.mode, self.verbose)
 
     def train(self, dataset=None, initial_epoch=0):
-        callbacks = get_callbacks(self.tb_path, self.model_path_new_train, self.config['lr_dec'], self.config['lr'])
+        callbacks = get_callbacks(self.model_name,
+                                  self.tb_path,
+                                  self.model_path_new_train,
+                                  self.config['lr_dec'],
+                                  self.config['lr'])
 
         if dataset == None:
-            dataset = Dataset(self.model_name, self.config_path)
+            dataset = Dataset(self.data_name, self.config_path)
         dataset_train, dataset_val = dataset.get_tf_data()
 
-        if self.model_name == 'MULTIMNIST':
+        if self.data_name == 'MULTIMNIST':
             self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
                                loss=[marginLoss, 'mse', 'mse'],
                                loss_weights=[1., self.config['lmd_gen'] / 2, self.config['lmd_gen'] / 2],
@@ -178,7 +184,7 @@ class EfficientCapsNet(Model):
                                metrics={'Efficient_CapsNet': 'accuracy'})
             steps = None
 
-        print('-' * 30 + f'{self.model_name} train' + '-' * 30)
+        print('-' * 30 + f'{self.data_name} train' + '-' * 30)
 
         history = self.model.fit(dataset_train,
                                  epochs=self.config[f'epochs'], steps_per_epoch=steps,
@@ -197,7 +203,7 @@ class CapsNet(Model):
     
     Attributes
     ----------
-    model_name: str
+    data_name: str
         name of the model (only MNIST provided)
     mode: str
         model modality (Ex. 'test')
@@ -210,22 +216,23 @@ class CapsNet(Model):
     Methods
     -------
     load_graph():
-        load the network graph given the model_name
+        load the network graph given the data_name
     train():
         train the constructed network with a given dataset. All train hyperparameters are defined in the configuration file
     """
 
-    def __init__(self, model_name, mode='test', config_path='config.json', custom_path=None, verbose=True, n_routing=3):
-        Model.__init__(self, model_name, mode, config_path, verbose)
+    def __init__(self, data_name, mode='test', config_path='config.json', custom_path=None, verbose=True, n_routing=3):
+        Model.__init__(self, data_name, mode, config_path, verbose)
+        self.model_name = 'CapsNet'
         self.n_routing = n_routing
         self.load_config()
         if custom_path != None:
             self.model_path = custom_path
         else:
-            self.model_path = os.path.join(self.config['saved_model_dir'], f"efficient_capsnet_{self.model_name}.h5")
+            self.model_path = os.path.join(self.config['saved_model_dir'], f"efficient_capsnet_{self.data_name}.h5")
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
-                                                 f"original_capsnet_{self.model_name}_new_train.h5")
-        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"original_capsnet_{self.model_name}")
+                                                 f"original_capsnet_{self.data_name}_new_train.h5")
+        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"original_capsnet_{self.data_name}")
         self.load_graph()
 
     def load_graph(self):
@@ -233,18 +240,27 @@ class CapsNet(Model):
                                                               self.n_routing, self.verbose)
 
     def train(self, dataset=None, initial_epoch=0):
-        callbacks = get_callbacks(self.tb_path, self.model_path_new_train, self.config['lr_dec'], self.config['lr'])
+        callbacks = get_callbacks(self.model_name,
+                                  self.tb_path,
+                                  self.model_path_new_train,
+                                  self.config['lr_dec'],
+                                  self.config['lr'])
 
         if dataset == None:
-            dataset = Dataset(self.model_name, self.config_path)
+            dataset = Dataset(self.data_name, self.config_path)
         dataset_train, dataset_val = dataset.get_tf_data()
+
+        # self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
+        #                    loss=[marginLoss, 'mse'],
+        #                    loss_weights=[1., self.config['lmd_gen']],
+        #                    metrics={'Original_CapsNet': multiAccuracy})
 
         self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
                            loss=[marginLoss, 'mse'],
                            loss_weights=[1., self.config['lmd_gen']],
-                           metrics={'Original_CapsNet': multiAccuracy})
+                           metrics={'Original_CapsNet': Accuracy})
 
-        print('-' * 30 + f'{self.model_name} train' + '-' * 30)
+        print('-' * 30 + f'{self.data_name} train' + '-' * 30)
 
         history = self.model.fit(dataset_train,
                                  epochs=self.config['epochs'],
@@ -263,7 +279,7 @@ class DCTCapsNet(Model):
 
     Attributes
     ----------
-    model_name: str
+    data_name: str
         name of the model (only MNIST provided)
     mode: str
         model modality (Ex. 'test')
@@ -276,44 +292,49 @@ class DCTCapsNet(Model):
     Methods
     -------
     load_graph():
-        load the network graph given the model_name
+        load the network graph given the data_name
     train():
         train the constructed network with a given dataset. All train hyperparameters are defined in the configuration file
     """
 
-    def __init__(self, model_name, mode='test', config_path='config.json', custom_path=None, verbose=True, n_routing=3):
-        Model.__init__(self, model_name, mode, config_path, verbose)
+    def __init__(self, data_name, mode='test', config_path='config.json', custom_path=None, verbose=True, n_routing=3):
+        Model.__init__(self, data_name, mode, config_path, verbose)
+        self.model_name = 'DCTCapsNet'
         self.n_routing = n_routing
         self.load_config()
         if custom_path != None:
             self.model_path = custom_path
         else:
-            self.model_path = os.path.join(self.config['saved_model_dir'], f"efficient_capsnet_{self.model_name}.h5")
+            self.model_path = os.path.join(self.config['saved_model_dir'], f"dct_capsnet_{self.data_name}.h5")
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
-                                                 f"original_capsnet_{self.model_name}_new_train.h5")
-        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"original_capsnet_{self.model_name}")
+                                                 f"dct_capsnet_{self.data_name}_new_train.h5")
+        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"dct_capsnet_{self.data_name}")
         self.load_graph()
 
     def load_graph(self):
-        if self.model_name == 'DCT_H1_MNIST':
+        if self.data_name == 'DCT_H1_MNIST':
             self.model = dct_capsnet.dct_capsnet_h1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                   self.n_routing, self.verbose)
         else:
             raise NotImplemented
 
     def train(self, dataset=None, initial_epoch=0):
-        callbacks = get_callbacks(self.tb_path, self.model_path_new_train, self.config['lr_dec'], self.config['lr'])
+        callbacks = get_callbacks(self.model_name,
+                                  self.tb_path,
+                                  self.model_path_new_train,
+                                  self.config['lr_dec'],
+                                  self.config['lr'])
 
         if dataset == None:
-            dataset = Dataset(self.model_name, self.config_path)
+            dataset = Dataset(self.data_name, self.config_path)
         dataset_train, dataset_val = dataset.get_tf_data()
 
         self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
                            loss=[marginLoss, 'mse'],
                            loss_weights=[1., self.config['lmd_gen']],
-                           metrics={'DCT_CapsNet': multiAccuracy})
+                           metrics={'DCT_CapsNet': Accuracy})
 
-        print('-' * 30 + f'{self.model_name} train' + '-' * 30)
+        print('-' * 30 + f'{self.data_name} train' + '-' * 30)
 
         history = self.model.fit(dataset_train,
                                  epochs=self.config['epochs'],
