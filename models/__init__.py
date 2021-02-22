@@ -1,1 +1,1 @@
-from models.model_zoo import EfficientCapsNet, CapsNet, DCTCapsNet
+from models.model_zoo import EfficientCapsNet, CapsNet, DCTCapsNet, DCTEfficientCapsNet

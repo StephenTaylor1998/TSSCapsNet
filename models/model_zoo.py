@@ -20,8 +20,12 @@ from utils.tools import get_callbacks, marginLoss, multiAccuracy, Accuracy
 # from tensorflow.keras.metrics import Accuracy
 from utils.dataset import Dataset
 from utils import pre_process_multimnist
-from models import original_capsnet_graph_mnist, dct_capsnet
-from models.efficient_capsnet import efficient_capsnet_graph_multimnist, efficient_capsnet_graph_mnist, \
+from models import \
+    original_capsnet_graph_mnist, \
+    dct_capsnet
+from models.efficient_capsnet import \
+    efficient_capsnet_graph_multimnist, \
+    efficient_capsnet_graph_mnist, \
     efficient_capsnet_graph_smallnorb
 import os
 import json
@@ -137,16 +141,16 @@ class EfficientCapsNet(Model):
 
     """
 
-    def __init__(self, data_name, mode='test', config_path='config.json', custom_path=None, verbose=True):
+    def __init__(self, data_name, mode='test', model_name='EfficientCapsNet', config_path='config.json', custom_path=None, verbose=True):
         Model.__init__(self, data_name, mode, config_path, verbose)
-        self.model_name = 'EfficientCapsNet'
+        self.model_name = model_name
         if custom_path != None:
             self.model_path = custom_path
         else:
-            self.model_path = os.path.join(self.config['saved_model_dir'], f"efficient_capsnet_{self.data_name}.h5")
+            self.model_path = os.path.join(self.config['saved_model_dir'], f"{self.model_name}_{self.data_name}.h5")
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
-                                                 f"efficient_capsnet_{self.data_name}_{'{epoch:02d}'}.h5")
-        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"efficient_capsnet_{self.data_name}")
+                                                 f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")
+        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
 
     def load_graph(self):
@@ -221,9 +225,9 @@ class CapsNet(Model):
         train the constructed network with a given dataset. All train hyperparameters are defined in the configuration file
     """
 
-    def __init__(self, data_name, mode='test', config_path='config.json', custom_path=None, verbose=True, n_routing=3):
+    def __init__(self, data_name, model_name='CapsNet', mode='test', config_path='config.json', custom_path=None, verbose=True, n_routing=3):
         Model.__init__(self, data_name, mode, config_path, verbose)
-        self.model_name = 'CapsNet'
+        self.model_name = model_name
         self.n_routing = n_routing
         self.load_config()
         if custom_path != None:
@@ -231,10 +235,10 @@ class CapsNet(Model):
         else:
             # "original_capsnet_{}.{}.h5".format(self.data_name, "{epoch:02d}")
             self.model_path = os.path.join(self.config['saved_model_dir'],
-                                           "original_capsnet_{}.h5".format(self.data_name))
+                                           f"{self.model_name}_{self.data_name}.h5")
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
-                                                 f"original_capsnet_{self.data_name}_{'{epoch:02d}'}.h5")
-        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"original_capsnet_{self.data_name}")
+                                                 f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")
+        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
 
     def load_graph(self):
@@ -299,22 +303,22 @@ class DCTCapsNet(Model):
         train the constructed network with a given dataset. All train hyperparameters are defined in the configuration file
     """
 
-    def __init__(self, data_name, mode='test', config_path='config.json', custom_path=None, verbose=True, n_routing=3):
+    def __init__(self, data_name, model_name='DCTCapsNet', mode='test', config_path='config.json', custom_path=None, verbose=True, n_routing=3):
         Model.__init__(self, data_name, mode, config_path, verbose)
-        self.model_name = 'DCTCapsNet'
+        self.model_name = model_name
         self.n_routing = n_routing
         self.load_config()
         if custom_path != None:
             self.model_path = custom_path
         else:
-            self.model_path = os.path.join(self.config['saved_model_dir'], f"dct_capsnet_{self.data_name}.h5")
+            self.model_path = os.path.join(self.config['saved_model_dir'], f"{self.model_name}_{self.data_name}.h5")
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
-                                                 f"dct_capsnet_{self.data_name}_{'{epoch:02d}'}.h5")
-        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"dct_capsnet_{self.data_name}")
+                                                 f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")
+        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
 
     def load_graph(self):
-        if self.data_name == 'DCT_H1_MNIST':
+        if self.data_name == 'MNIST':
             self.model = dct_capsnet.dct_capsnet_h1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                             self.n_routing, self.verbose)
         else:
@@ -375,22 +379,22 @@ class DCTEfficientCapsNet(Model):
 
     """
 
-    def __init__(self, data_name, mode='test', config_path='config.json', custom_path=None, verbose=True):
+    def __init__(self, data_name, model_name='DCTEfficientCapsNet', mode='test', config_path='config.json', custom_path=None, verbose=True):
         Model.__init__(self, data_name, mode, config_path, verbose)
-        self.model_name = 'DCTEfficientCapsNet'
+        self.model_name = model_name
         if custom_path != None:
             self.model_path = custom_path
         else:
-            self.model_path = os.path.join(self.config['saved_model_dir'], f"dct_efficient_capsnet_{self.data_name}.h5")
+            self.model_path = os.path.join(self.config['saved_model_dir'], f"{self.model_name}_{self.data_name}.h5")
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
-                                                 f"dct_efficient_capsnet_{self.data_name}_{'{epoch:02d}'}.h5")
-        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"dct_efficient_capsnet_{self.data_name}")
+                                                 f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")
+        self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
 
     def load_graph(self):
         if self.data_name == 'MNIST':
-            self.model = efficient_capsnet_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                   self.verbose)
+            self.model = dct_capsnet.dct_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
+                                                                            self.verbose)
         elif self.data_name == 'SMALLNORB':
             self.model = efficient_capsnet_graph_smallnorb.build_graph(self.config['SMALLNORB_INPUT_SHAPE'], self.mode,
                                                                        self.verbose)

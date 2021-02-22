@@ -30,7 +30,7 @@ class Dataset(object):
     
     Attributes
     ----------
-    model_name: str
+    data_name: str
         name of the model (Ex. 'MNIST')
     config_path: str
         path configuration file
@@ -45,8 +45,8 @@ class Dataset(object):
         get a tf.data.Dataset object of the loaded dataset. 
     """
 
-    def __init__(self, model_name, config_path='config.json'):
-        self.model_name = model_name
+    def __init__(self, data_name, config_path='config.json'):
+        self.data_name = data_name
         self.config_path = config_path
         self.config = None
         self.X_train = None
@@ -66,7 +66,7 @@ class Dataset(object):
             self.config = json.load(json_data_file)
 
     def get_dataset(self):
-        if self.model_name == 'MNIST':
+        if self.data_name == 'MNIST':
             (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.mnist.load_data(
                 path=self.config['mnist_path'])
             # prepare the data
@@ -74,7 +74,7 @@ class Dataset(object):
             self.X_test, self.y_test = pre_process_mnist.pre_process(self.X_test, self.y_test)
             self.class_names = list(range(10))
             print("[INFO] Dataset loaded!")
-        elif self.model_name == 'SMALLNORB':
+        elif self.data_name == 'SMALLNORB':
             # import the datatset
             (ds_train, ds_test), ds_info = tfds.load(
                 'smallnorb',
@@ -92,7 +92,7 @@ class Dataset(object):
             self.X_test_patch, self.y_test = pre_process_smallnorb.test_patches(self.X_test, self.y_test, self.config)
             self.class_names = ds_info.features['label_category'].names
             print("[INFO] Dataset loaded!")
-        elif self.model_name == 'MULTIMNIST':
+        elif self.data_name == 'MULTIMNIST':
             (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.mnist.load_data(
                 path=self.config['mnist_path'])
             # prepare the data
@@ -104,14 +104,14 @@ class Dataset(object):
             print("[INFO] Dataset loaded!")
 
     def get_tf_data(self):
-        if self.model_name == 'MNIST':
+        if self.data_name == 'MNIST':
             dataset_train, dataset_test = pre_process_mnist.generate_tf_data(self.X_train, self.y_train, self.X_test,
                                                                              self.y_test, self.config['batch_size'])
-        elif self.model_name == 'SMALLNORB':
+        elif self.data_name == 'SMALLNORB':
             dataset_train, dataset_test = pre_process_smallnorb.generate_tf_data(self.X_train, self.y_train,
                                                                                  self.X_test_patch, self.y_test,
                                                                                  self.config['batch_size'])
-        elif self.model_name == 'MULTIMNIST':
+        elif self.data_name == 'MULTIMNIST':
             dataset_train, dataset_test = pre_process_multimnist.generate_tf_data(self.X_train, self.y_train,
                                                                                   self.X_test, self.y_test,
                                                                                   self.config['batch_size'],
