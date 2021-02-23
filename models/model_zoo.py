@@ -141,7 +141,8 @@ class EfficientCapsNet(Model):
 
     """
 
-    def __init__(self, data_name, mode='test', model_name='EfficientCapsNet', config_path='config.json', custom_path=None, verbose=True):
+    def __init__(self, data_name, mode='test', model_name='EfficientCapsNet', config_path='config.json',
+                 custom_path=None, verbose=True):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         if custom_path != None:
@@ -154,7 +155,7 @@ class EfficientCapsNet(Model):
         self.load_graph()
 
     def load_graph(self):
-        if self.data_name == 'MNIST':
+        if self.data_name == 'MNIST' or self.data_name == 'MNIST_SHIFT':
             self.model = efficient_capsnet_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                    self.verbose)
         elif self.data_name == 'SMALLNORB':
@@ -191,10 +192,13 @@ class EfficientCapsNet(Model):
         print('-' * 30 + f'{self.data_name} train' + '-' * 30)
 
         history = self.model.fit(dataset_train,
-                                 epochs=self.config[f'epochs'], steps_per_epoch=steps,
-                                 validation_data=(dataset_val), batch_size=self.config['batch_size'],
+                                 epochs=self.config[f'epochs'],
+                                 steps_per_epoch=steps,
+                                 validation_data=(dataset_val),
+                                 batch_size=self.config['batch_size'],
                                  initial_epoch=initial_epoch,
-                                 callbacks=callbacks)
+                                 callbacks=callbacks,
+                                 workers=self.config['num_workers'])
 
         return history
 
@@ -225,7 +229,8 @@ class CapsNet(Model):
         train the constructed network with a given dataset. All train hyperparameters are defined in the configuration file
     """
 
-    def __init__(self, data_name, model_name='CapsNet', mode='test', config_path='config.json', custom_path=None, verbose=True, n_routing=3):
+    def __init__(self, data_name, model_name='CapsNet', mode='test', config_path='config.json', custom_path=None,
+                 verbose=True, n_routing=3):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         self.n_routing = n_routing
@@ -264,22 +269,24 @@ class CapsNet(Model):
         self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
                            loss=[marginLoss, 'mse'],
                            loss_weights=[1., self.config['lmd_gen']],
-                           metrics={'Original_CapsNet': Accuracy})
+                           metrics={'Original_CapsNet': 'accuracy'})
 
         print('-' * 30 + f'{self.data_name} train' + '-' * 30)
 
         history = self.model.fit(dataset_train,
                                  epochs=self.config['epochs'],
-                                 validation_data=(dataset_val), batch_size=self.config['batch_size'],
+                                 validation_data=(dataset_val),
+                                 batch_size=self.config['batch_size'],
                                  initial_epoch=initial_epoch,
-                                 callbacks=callbacks)
+                                 callbacks=callbacks,
+                                 workers=self.config['num_workers'])
 
         return history
 
 
 class DCTCapsNet(Model):
     """
-    A class used to manage the original CapsNet architecture.
+    A class used to manage the DCTCapsNet architecture.
 
     ...
 
@@ -303,7 +310,8 @@ class DCTCapsNet(Model):
         train the constructed network with a given dataset. All train hyperparameters are defined in the configuration file
     """
 
-    def __init__(self, data_name, model_name='DCTCapsNet', mode='test', config_path='config.json', custom_path=None, verbose=True, n_routing=3):
+    def __init__(self, data_name, model_name='DCTCapsNet', mode='test', config_path='config.json', custom_path=None,
+                 verbose=True, n_routing=3):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         self.n_routing = n_routing
@@ -318,7 +326,7 @@ class DCTCapsNet(Model):
         self.load_graph()
 
     def load_graph(self):
-        if self.data_name == 'MNIST':
+        if self.data_name == 'MNIST' or self.data_name == 'MNIST_SHIFT':
             self.model = dct_capsnet.dct_capsnet_h1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                             self.n_routing, self.verbose)
         else:
@@ -344,9 +352,11 @@ class DCTCapsNet(Model):
 
         history = self.model.fit(dataset_train,
                                  epochs=self.config['epochs'],
-                                 validation_data=(dataset_val), batch_size=self.config['batch_size'],
+                                 validation_data=(dataset_val),
+                                 batch_size=self.config['batch_size'],
                                  initial_epoch=initial_epoch,
-                                 callbacks=callbacks)
+                                 callbacks=callbacks,
+                                 workers=self.config['num_workers'])
 
         return history
 
@@ -379,7 +389,8 @@ class DCTEfficientCapsNet(Model):
 
     """
 
-    def __init__(self, data_name, model_name='DCTEfficientCapsNet', mode='test', config_path='config.json', custom_path=None, verbose=True):
+    def __init__(self, data_name, model_name='DCTEfficientCapsNet', mode='test', config_path='config.json',
+                 custom_path=None, verbose=True):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         if custom_path != None:
@@ -392,7 +403,7 @@ class DCTEfficientCapsNet(Model):
         self.load_graph()
 
     def load_graph(self):
-        if self.data_name == 'MNIST':
+        if self.data_name == 'MNIST' or self.data_name == 'MNIST_SHIFT':
             self.model = dct_capsnet.dct_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                             self.verbose)
         elif self.data_name == 'SMALLNORB':
@@ -432,6 +443,7 @@ class DCTEfficientCapsNet(Model):
                                  epochs=self.config[f'epochs'], steps_per_epoch=steps,
                                  validation_data=(dataset_val), batch_size=self.config['batch_size'],
                                  initial_epoch=initial_epoch,
-                                 callbacks=callbacks)
+                                 callbacks=callbacks,
+                                 workers=self.config['num_workers'])
 
         return history

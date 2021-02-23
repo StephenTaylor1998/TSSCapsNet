@@ -9,12 +9,13 @@ tf.config.experimental.set_memory_growth(gpus[5], True)
 
 # some parameters
 
-model_name = 'MNIST'  # only MNIST is available
+# model_name = 'MNIST'  # only MNIST is available
 # data_name = 'MULTIMNIST'
+data_name = 'MNIST_SHIFT'
 
 # 1.0 Import the Dataset
 
-dataset = Dataset(model_name, config_path='config.json')
+dataset = Dataset(data_name, config_path='config.json')
 
 # 1.1 Visualize imported dataset
 
@@ -23,7 +24,7 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-model_train = EfficientCapsNet(model_name, mode='train', verbose=True)
+model_train = EfficientCapsNet(data_name, mode='train', verbose=True)
 
 # 3.0 Train the Model
 

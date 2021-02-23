@@ -6,17 +6,18 @@ from utils import Dataset, plotImages, plotWrongImages, plotHistory
 from models import EfficientCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[8], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[8], True)
+tf.config.experimental.set_visible_devices(gpus[3], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[3], True)
 
 # some parameters
 
-model_name = 'MNIST'  # only MNIST is available
+# model_name = 'MNIST'  # only MNIST is available
 # data_name = 'MULTIMNIST'
+data_name = 'MNIST_SHIFT'
 
 # 1.0 Import the Dataset
 
-dataset = Dataset(model_name, config_path='config.json')
+dataset = Dataset(data_name, config_path='config.json')
 
 # 1.1 Visualize imported dataset
 
@@ -25,7 +26,7 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-model_train = DCTEfficientCapsNet(model_name, mode='train', verbose=True)
+model_train = DCTEfficientCapsNet(data_name, mode='train', verbose=True)
 
 # 3.0 Train the Model
 

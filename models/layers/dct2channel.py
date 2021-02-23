@@ -60,13 +60,16 @@ class DCTLayer3d(tf.keras.layers.Layer):
     then do DCT op at last dimension.
     :param block_shape: (block_h, block_w) example (2, 2),
     block shape should <= input tensor shape
+    :param dct_type: default 2, example tf.signal.dct(tensor, type=dct_type)
     :param check_shape: check shape while run block2channel_3d(...)
     :return: [batch, h//block_H, w//block_w, channel*block_h*block_w]
     """
 
-    def __init__(self, block_shape, check_shape=True, **kwargs):
+    def __init__(self, block_shape, groups=None, dct_type=2, check_shape=True, **kwargs):
         super(DCTLayer3d, self).__init__(**kwargs)
         self.block_shape = block_shape
+        self.groups = groups
+        self.dct_type = dct_type
         self.check_shape = check_shape
         self.block2Channel3d = None
 
@@ -76,4 +79,9 @@ class DCTLayer3d(tf.keras.layers.Layer):
     def call(self, inputs, **kwargs):
         # [batch, h, w, channel] ==>> [batch, h//block_H, w//block_w, channel*block_h*block_w]
         out = self.block2Channel3d(inputs)
-        return tf.signal.dct(tf.cast(out, dtype=tf.float32))
+        if self.groups:
+            print("NotImplemented!")
+            raise NotImplemented
+
+        else:
+            return tf.signal.dct(tf.cast(out, dtype=tf.float32), self.dct_type)

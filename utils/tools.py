@@ -31,11 +31,11 @@ def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
 
     if model_name == 'CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            saved_model_path, monitor='val_Original_CapsNet_loss:',
+            saved_model_path, monitor='val_Original_CapsNet_accuracy:',
             save_best_only=False, save_weights_only=True, verbose=1)
 
         reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
-            monitor='val_CapsNet_accuracy', factor=0.9,
+            monitor='val_Original_CapsNet_accuracy', factor=0.9,
             patience=4, min_lr=0.00001, min_delta=0.0001, mode='max')
         return [tb, model_checkpoint, reduce_lr]
 
@@ -47,7 +47,7 @@ def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
 
     elif model_name == 'DCTCapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            saved_model_path, monitor='val_DCT_CapsNet_loss',
+            saved_model_path, monitor='val_DCT_CapsNet_accuracy',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 

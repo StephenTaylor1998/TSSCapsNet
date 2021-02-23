@@ -18,7 +18,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 import matplotlib.pyplot as plt
 import os
-from utils import pre_process_mnist, pre_process_multimnist, pre_process_smallnorb
+from utils import pre_process_mnist, pre_process_multimnist, pre_process_smallnorb, pre_process_mnist_shift
 import json
 
 
@@ -74,6 +74,16 @@ class Dataset(object):
             self.X_test, self.y_test = pre_process_mnist.pre_process(self.X_test, self.y_test)
             self.class_names = list(range(10))
             print("[INFO] Dataset loaded!")
+
+        elif self.data_name == 'MNIST_SHIFT':
+            (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.mnist.load_data(
+                path=self.config['mnist_path'])
+            # prepare the data
+            self.X_train, self.y_train = pre_process_mnist_shift.pre_process(self.X_train, self.y_train)
+            self.X_test, self.y_test = pre_process_mnist_shift.pre_process(self.X_test, self.y_test)
+            self.class_names = list(range(10))
+            print("[INFO] Dataset loaded!")
+
         elif self.data_name == 'SMALLNORB':
             # import the datatset
             (ds_train, ds_test), ds_info = tfds.load(
@@ -107,10 +117,16 @@ class Dataset(object):
         if self.data_name == 'MNIST':
             dataset_train, dataset_test = pre_process_mnist.generate_tf_data(self.X_train, self.y_train, self.X_test,
                                                                              self.y_test, self.config['batch_size'])
+
+        elif self.data_name == 'MNIST_SHIFT':
+            dataset_train, dataset_test = pre_process_mnist_shift.generate_tf_data(self.X_train, self.y_train, self.X_test,
+                                                                             self.y_test, self.config['batch_size'])
+
         elif self.data_name == 'SMALLNORB':
             dataset_train, dataset_test = pre_process_smallnorb.generate_tf_data(self.X_train, self.y_train,
                                                                                  self.X_test_patch, self.y_test,
                                                                                  self.config['batch_size'])
+
         elif self.data_name == 'MULTIMNIST':
             dataset_train, dataset_test = pre_process_multimnist.generate_tf_data(self.X_train, self.y_train,
                                                                                   self.X_test, self.y_test,
