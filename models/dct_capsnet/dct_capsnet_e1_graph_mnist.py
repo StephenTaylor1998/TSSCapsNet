@@ -16,8 +16,8 @@
 import numpy as np
 import tensorflow as tf
 
-from models.layers import DCTLayer3d
-from models.layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask
+from ..layers import DCTLayer3d
+from ..layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask
 
 
 def efficient_capsnet_graph(input_shape):

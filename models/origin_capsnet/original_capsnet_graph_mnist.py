@@ -15,8 +15,8 @@
 
 import numpy as np
 import tensorflow as tf
-from models.layers.layers_hinton import PrimaryCaps, DigitCaps, Length, Mask
-import tensorflow_addons as tfa
+
+from ..layers.layers_hinton import PrimaryCaps, DigitCaps, Length, Mask
 
 
 def capsnet_graph(input_shape, routing):

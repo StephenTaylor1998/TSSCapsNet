@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
-from models.layers import DCTLayer3d
-from models.layers.layers_hinton import PrimaryCaps, DigitCaps, Length, Mask
+from ..layers import DCTLayer3d
+from ..layers.layers_hinton import PrimaryCaps, DigitCaps, Length, Mask
 
 
 def dct_capsnet_graph(input_shape, routing):
