@@ -57,8 +57,8 @@ class Model(object):
         except Exception as e:
             print("[ERROR] Graph Weights not found '{}'".format(self.model_path))
 
-    def predict(self, dataset_test):
-        return self.model.predict(dataset_test)
+    def predict(self, dataset_test, batch_size=None):
+        return self.model.predict(dataset_test, batch_size=batch_size)
 
     def evaluate(self, X_test, y_test):
         print('-' * 30 + f'{self.data_name} Evaluation' + '-' * 30)
