@@ -8,7 +8,7 @@ Python3 and Tensorflow 2.x are required and should be installed on the host mach
 
 1. Clone this repository
    ```bash
-   git clone https://github.com/EscVM/Efficient-CapsNet.git
+   git clone https://github.com/StephenTerror/CapsNet.git
    ```
 2. Install the required packages
    ```bash
