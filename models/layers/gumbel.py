@@ -66,7 +66,10 @@ class GumbelSoftmax(tf.keras.layers.Layer):
             # in torch code, output ==>> torch.Size([batch, 192, 2, 1]), but will be used as hatten_d[:, :, 1]
             # so, we can change output as tf.Tensor([batch, 192]) or tf.Tensor([batch, 1, 1, 192])
             # Waring, in tf2 code input shape will change to tf.Tensor([batch, 192, 2])
-            # todo: here still some problems with compute loss, while use tf.identity.
+            # todo: there may still some problems with loss computing, while use tf.identity.
+            # tried tf.Variable, but can cause exception while build graph.
+            # This is an implementation of Gumbel-SoftMax.
+            # Any help will be appreciated!!!
             no_grade_logits = tf.identity(logits)
             argmax = tf.argmax(no_grade_logits, axis=2, output_type=tf.int32)
             y_hard = tf.cast(argmax, dtype=tf.float32)
