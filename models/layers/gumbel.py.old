@@ -54,8 +54,6 @@ class GumbelSoftmax(tf.keras.layers.Layer):
         """
         # y shape ==>> (batch, channel, 2)
         y = self.gumbel_softmax_sample(logits, temperature)
-        # y shape ==>> (batch, channel)
-        y = y[:, :, 0]
         if hard:
             # from torch code
             # _, max_value_indexes = y.data.max(2, keepdim=True)
@@ -66,20 +64,24 @@ class GumbelSoftmax(tf.keras.layers.Layer):
             # in torch code, output ==>> torch.Size([batch, 192, 2, 1]), but will be used as hatten_d[:, :, 1]
             # so, we can change output as tf.Tensor([batch, 192]) or tf.Tensor([batch, 1, 1, 192])
             # Waring, in tf2 code input shape will change to tf.Tensor([batch, 192, 2])
-            # todo: here still some problems with compute loss, while use tf.identity.
-            no_grade_logits = tf.identity(logits)
+            no_grade_logits = tf.Variable(logits, trainable=False, dtype=tf.float32)
             argmax = tf.argmax(no_grade_logits, axis=2, output_type=tf.int32)
             y_hard = tf.cast(argmax, dtype=tf.float32)
             # output shape ==>> (batch, channel)
-            y = tf.identity(y_hard - tf.identity(y)) + y
+            y = tf.Variable(y_hard - tf.Variable(y[:, :, 0], trainable=False)) + y[:, :, 0]
         return y
 
     def build(self, input_shape):
         self.built = True
 
-    def call(self, logits, temp=1, force_hard=False, training=None, **kwargs):
-        # samplesize = logits.size()
+    def call(self, logits, temp=1., force_hard=False, training=None, **kwargs):
+        y = self.gumbel_softmax_sample(logits, temp)
         if training and not force_hard:
-            return self.gumbel_softmax(logits, temperature=temp, hard=False)
+            return y[:, :, 0]
         else:
-            return self.gumbel_softmax(logits, temperature=temp, hard=True)
+            no_grade_logits = tf.identity(logits)
+            argmax = tf.argmax(no_grade_logits, axis=2, output_type=tf.int32)
+            y_hard = tf.cast(argmax, dtype=tf.float32)
+            # output shape ==>> (batch, channel)
+            y = tf.identity(y_hard - tf.identity(y[:, :, 0])) + y[:, :, 0]
+            return y

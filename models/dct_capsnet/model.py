@@ -1,7 +1,9 @@
 import os
 import tensorflow as tf
 
-from . import dct_capsnet_h1_graph_mnist, dct_capsnet_e1_graph_mnist
+from . import dct_capsnet_h1_graph_mnist
+from . import dct_capsnet_e1_graph_mnist
+from . import dct_capsnet_h1_gumbel_gate_mnist
 from ..layers.model_base import Model
 
 from utils.dataset import Dataset
@@ -34,7 +36,7 @@ class DCTCapsNet(Model):
         train the constructed network with a given dataset. All train hyperparameters are defined in the configuration file
     """
 
-    def __init__(self, data_name, model_name='DCTCapsNet', mode='test', config_path='config.json', custom_path=None,
+    def __init__(self, data_name, model_name='DCT_CapsNet', mode='test', config_path='config.json', custom_path=None,
                  verbose=True, n_routing=3):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
@@ -51,8 +53,13 @@ class DCTCapsNet(Model):
 
     def load_graph(self):
         if self.data_name == 'MNIST' or self.data_name == 'MNIST_SHIFT':
-            self.model = dct_capsnet_h1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                            self.n_routing, self.verbose)
+            if self.model_name == 'DCT_CapsNet':
+                self.model = dct_capsnet_h1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
+                                                                                self.n_routing, self.verbose)
+            elif self.model_name == 'DCT_CapsNet_GumbelGate':
+                self.model = dct_capsnet_h1_gumbel_gate_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
+                                                                    self.n_routing, self.verbose)
+
         else:
             raise NotImplemented
 
@@ -70,7 +77,7 @@ class DCTCapsNet(Model):
         self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
                            loss=[marginLoss, 'mse'],
                            loss_weights=[1., self.config['lmd_gen']],
-                           metrics={'DCT_CapsNet': 'accuracy'})
+                           metrics={self.model_name: 'accuracy'})
 
         print('-' * 30 + f'{self.data_name} train' + '-' * 30)
 

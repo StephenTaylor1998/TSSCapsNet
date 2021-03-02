@@ -7,6 +7,7 @@ from .block2channel import Block2Channel3d
 from .dct2channel import dct2channel
 from .dct2channel import DCTLayer2d
 from .dct2channel import DCTLayer3d
-
-
-
+# models/layers/gumbel.py
+from .gumbel import GumbelSoftmax
+# models/layers/gate.py
+from .gate import GateModule

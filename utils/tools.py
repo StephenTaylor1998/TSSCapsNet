@@ -45,9 +45,15 @@ def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
-    elif model_name == 'DCTCapsNet':
+    elif model_name == 'DCT_CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
             saved_model_path, monitor='val_DCT_CapsNet_accuracy',
+            save_best_only=True, save_weights_only=True, verbose=1)
+        return [tb, model_checkpoint, lr_decay]
+
+    elif model_name == 'DCT_CapsNet_GumbelGate':
+        model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+            saved_model_path, monitor='val_DCT_CapsNet_GumbelGate_accuracy',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
