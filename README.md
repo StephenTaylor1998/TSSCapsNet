@@ -12,7 +12,7 @@ Python3 and Tensorflow 2.x are required and should be installed on the host mach
    ```
 2. Install the required packages
    ```bash
-   pip3 install -r requirements.txt
+   pip3 install -r tutorial/requirements.txt
    ```
 Peek inside the requirements file if you have everything already installed. Most of the dependencies are common libraries.
 
