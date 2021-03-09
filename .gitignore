@@ -1,3 +1,7 @@
 /media/
 /Zdemo/
 /bin/*
+/weights/
+/notebook/
+/logs/
+
