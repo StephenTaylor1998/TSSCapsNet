@@ -98,9 +98,9 @@ class DigitCaps(tf.keras.layers.Layer):
     Attributes
     ----------
     C: int
-        number of primary capsules
+        number of Digit capsules
     L: int
-        primary capsules dimension (number of properties)
+        Digit capsules dimension (number of properties)
     routing: int
         number of routing iterations
     kernel_initializer:
