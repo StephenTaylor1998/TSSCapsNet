@@ -3,6 +3,7 @@ import tensorflow as tf
 
 from . import dct_capsnet_h1_graph_mnist
 from . import dct_capsnet_e1_graph_mnist
+from . import dct_capsnet_h1_attention_mnist
 from . import dct_capsnet_h1_gumbel_gate_mnist
 from ..layers.model_base import Model
 
@@ -55,10 +56,13 @@ class DCTCapsNet(Model):
         if self.data_name == 'MNIST' or self.data_name == 'MNIST_SHIFT':
             if self.model_name == 'DCT_CapsNet':
                 self.model = dct_capsnet_h1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                                self.n_routing, self.verbose)
+                                                                    self.n_routing, self.verbose)
             elif self.model_name == 'DCT_CapsNet_GumbelGate':
                 self.model = dct_capsnet_h1_gumbel_gate_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                    self.n_routing, self.verbose)
+                                                                          self.n_routing, self.verbose)
+            elif self.model_name == 'DCT_CapsNet_Attention':
+                self.model = dct_capsnet_h1_attention_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
+                                                                        self.n_routing, self.verbose)
 
         else:
             raise NotImplemented
@@ -136,7 +140,7 @@ class DCTEfficientCapsNet(Model):
     def load_graph(self):
         if self.data_name == 'MNIST' or self.data_name == 'MNIST_SHIFT':
             self.model = dct_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                            self.verbose)
+                                                                self.verbose)
         elif self.data_name == 'SMALLNORB':
             raise NotImplemented
             # self.model = efficient_capsnet_graph_smallnorb.build_graph(self.config['SMALLNORB_INPUT_SHAPE'],
@@ -181,4 +185,3 @@ class DCTEfficientCapsNet(Model):
                                  workers=self.config['num_workers'])
 
         return history
-

@@ -24,7 +24,8 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-model_train = DCTCapsNet(data_name, mode='train', verbose=True, n_routing=n_routing)
+model_train = DCTCapsNet(data_name, model_name='DCT_CapsNet_Attention',
+                         mode='train', verbose=True, n_routing=3)
 
 # 3.0 Train the Model
 
