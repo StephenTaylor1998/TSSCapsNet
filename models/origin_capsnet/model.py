@@ -86,4 +86,7 @@ class CapsNet(Model):
                                  callbacks=callbacks,
                                  workers=self.config['num_workers'])
 
+        self.model.save_weights(os.path.join(self.config['saved_model_dir'],
+                                             f"{self.model_name}_{self.data_name}.h5"))
+
         return history

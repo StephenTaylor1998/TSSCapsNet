@@ -12,6 +12,7 @@ tf.config.experimental.set_memory_growth(gpus[0], True)
 data_name = 'MNIST_SHIFT'
 
 n_routing = 3
+# n_routing = None
 
 # 1.0 Import the Dataset
 dataset = Dataset(data_name, config_path='config.json')
