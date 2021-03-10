@@ -1,3 +1,5 @@
+# models/layers/attention.py
+from .attention import CapsuleAttentionBlock
 # models/layers/block2channel.py
 from .block2channel import block2channel_2d
 from .block2channel import block2channel_3d
