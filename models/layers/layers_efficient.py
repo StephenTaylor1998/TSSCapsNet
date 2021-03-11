@@ -38,7 +38,7 @@ class SquashHinton(tf.keras.layers.Layer):
         super().__init__(**kwargs)
         self.eps = eps
 
-    def call(self, s):
+    def call(self, s, **kwargs):
         n = tf.norm(s, axis=-1, keepdims=True)
         return tf.multiply(n ** 2 / (1 + n ** 2) / (n + self.eps), s)
 
@@ -71,7 +71,7 @@ class Squash(tf.keras.layers.Layer):
         super().__init__(**kwargs)
         self.eps = eps
 
-    def call(self, s):
+    def call(self, s, **kwargs):
         n = tf.norm(s, axis=-1, keepdims=True)
         return (1 - 1 / (tf.math.exp(n) + self.eps)) * (s / (n + self.eps))
 
@@ -122,7 +122,7 @@ class PrimaryCaps(tf.keras.layers.Layer):
 
         self.built = True
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         x = self.DW_Conv2D(inputs)
         x = tf.keras.layers.Reshape((self.N, self.D))(x)
         x = Squash()(x)
@@ -168,7 +168,7 @@ class FCCaps(tf.keras.layers.Layer):
         self.b = self.add_weight(shape=[self.N, input_N, 1], initializer=tf.zeros_initializer(), name='b')
         self.built = True
 
-    def call(self, inputs, training=None):
+    def call(self, inputs, training=None, **kwargs):
         u = tf.einsum('...ji,kjiz->...kjz', inputs, self.W)  # u shape=(None,N,H*W*input_N,D)
 
         c = tf.einsum('...ij,...kj->...i', u, u)[..., None]  # b shape=(None,N,H*W*input_N,1) -> (None,j,i,1)

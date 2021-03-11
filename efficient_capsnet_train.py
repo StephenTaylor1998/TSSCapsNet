@@ -4,8 +4,8 @@ from utils import Dataset, plotImages, plotWrongImages, plotHistory
 from models import EfficientCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[5], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[5], True)
+tf.config.experimental.set_visible_devices(gpus[4], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[4], True)
 
 # some parameters
 

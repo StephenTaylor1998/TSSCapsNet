@@ -47,6 +47,9 @@ class CapsNet(Model):
             self.model_path = os.path.join(self.config['saved_model_dir'],
                                            f"{self.model_name}",
                                            f"{self.model_name}", f"{self.model_name}_{self.data_name}.h5")
+
+        os.makedirs(os.path.join(self.config['saved_model_dir'], f"{self.model_name}"), exist_ok=True)
+
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
                                                  f"{self.model_name}",
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")
@@ -67,11 +70,6 @@ class CapsNet(Model):
         if dataset == None:
             dataset = Dataset(self.data_name, self.config_path)
         dataset_train, dataset_val = dataset.get_tf_data()
-
-        # self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
-        #                    loss=[marginLoss, 'mse'],
-        #                    loss_weights=[1., self.config['lmd_gen']],
-        #                    metrics={'Original_CapsNet': multiAccuracy})
 
         self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
                            loss=[marginLoss, 'mse'],

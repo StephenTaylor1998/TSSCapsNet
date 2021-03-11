@@ -65,7 +65,7 @@ class PrimaryCaps(tf.keras.layers.Layer):
         self.biases = self.add_weight(shape=(self.C, self.L), initializer='zeros', name='biases')
         self.built = True
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         x = tf.nn.conv2d(inputs, self.kernel, self.s, 'VALID')
         H, W = x.shape[1:3]
         x = tf.keras.layers.Reshape((H, W, self.C, self.L))(x)
@@ -131,7 +131,7 @@ class DigitCaps(tf.keras.layers.Layer):
         self.biases = self.add_weight(shape=[self.C, self.L], initializer='zeros', name='biases')
         self.built = True
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         H, W, input_C, input_L = inputs.shape[1:]  # input shape=(None,H,W,input_C,input_L)
         x = tf.reshape(inputs, (-1, H * W * input_C, input_L))  # x shape=(None,H*W*input_C,input_L)
 

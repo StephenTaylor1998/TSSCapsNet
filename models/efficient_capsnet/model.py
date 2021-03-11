@@ -43,7 +43,12 @@ class EfficientCapsNet(Model):
         if custom_path != None:
             self.model_path = custom_path
         else:
-            self.model_path = os.path.join(self.config['saved_model_dir'], f"{self.model_name}_{self.data_name}.h5")
+            self.model_path = os.path.join(self.config['saved_model_dir'],
+                                           f"{self.model_name}",
+                                           f"{self.model_name}_{self.data_name}.h5")
+
+        os.makedirs(os.path.join(self.config['saved_model_dir'], f"{self.model_name}"), exist_ok=True)
+
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
                                                  f"{self.model_name}",
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")

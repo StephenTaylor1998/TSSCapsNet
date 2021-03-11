@@ -8,8 +8,8 @@ from utils import Dataset, plotImages, plotWrongImages
 from models import DCTEfficientCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[2], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[2], True)
+tf.config.experimental.set_visible_devices(gpus[3], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[3], True)
 
 # some parameters
 # data_name = 'MULTIMNIST'
