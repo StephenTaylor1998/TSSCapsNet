@@ -13,7 +13,8 @@ tf.config.experimental.set_memory_growth(gpus[8], True)
 # data_name = 'MNIST'
 data_name = 'MNIST_SHIFT'
 
-n_routing = 3
+# n_routing = 3
+n_routing = None
 
 dataset = Dataset(data_name, config_path='config.json')  # only MNIST
 
@@ -25,7 +26,7 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 # 2.0 Load the Model
 
 model_train = DCTCapsNet(data_name, model_name='DCT_CapsNet_Attention',
-                         mode='train', verbose=True, n_routing=3)
+                         mode='train', verbose=True, n_routing=n_routing)
 
 # 3.0 Train the Model
 

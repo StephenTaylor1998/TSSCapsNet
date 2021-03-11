@@ -46,8 +46,11 @@ class DCTCapsNet(Model):
         if custom_path != None:
             self.model_path = custom_path
         else:
-            self.model_path = os.path.join(self.config['saved_model_dir'], f"{self.model_name}_{self.data_name}.h5")
+            self.model_path = os.path.join(self.config['saved_model_dir'],
+                                           f"{self.model_name}",
+                                           f"{self.model_name}_{self.data_name}.h5")
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
+                                                 f"{self.model_name}",
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
@@ -94,6 +97,7 @@ class DCTCapsNet(Model):
                                  workers=self.config['num_workers'])
 
         self.model.save_weights(os.path.join(self.config['saved_model_dir'],
+                                             f"{self.model_name}",
                                              f"{self.model_name}_{self.data_name}.h5"))
         return history
 
@@ -133,8 +137,11 @@ class DCTEfficientCapsNet(Model):
         if custom_path != None:
             self.model_path = custom_path
         else:
-            self.model_path = os.path.join(self.config['saved_model_dir'], f"{self.model_name}_{self.data_name}.h5")
+            self.model_path = os.path.join(self.config['saved_model_dir'],
+                                           f"{self.model_name}",
+                                           f"{self.model_name}_{self.data_name}.h5")
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
+                                                 f"{self.model_name}",
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
@@ -185,5 +192,9 @@ class DCTEfficientCapsNet(Model):
                                  initial_epoch=initial_epoch,
                                  callbacks=callbacks,
                                  workers=self.config['num_workers'])
+
+        self.model.save_weights(os.path.join(self.config['saved_model_dir'],
+                                             f"{self.model_name}",
+                                             f"{self.model_name}_{self.data_name}.h5"))
 
         return history

@@ -1,4 +1,6 @@
 import json
+import os
+
 import numpy as np
 from tqdm.notebook import tqdm
 from utils.tools import multiAccuracy
@@ -43,6 +45,7 @@ class Model(object):
         self.config = None
         self.verbose = verbose
         self.load_config()
+        self.model_path = None
 
     def load_config(self):
         """
@@ -55,7 +58,10 @@ class Model(object):
         try:
             self.model.load_weights(self.model_path)
         except Exception as e:
-            print("[ERROR] Graph Weights not found '{}'".format(self.model_path))
+            if os.path.exists(self.model_path):
+                print("[ERROR] Loading Graph Weights '{}'".format(self.model_path))
+            else:
+                print("[ERROR] Graph Weights not found '{}'".format(self.model_path))
 
     def predict(self, dataset_test, batch_size=None):
         return self.model.predict(dataset_test, batch_size=batch_size)

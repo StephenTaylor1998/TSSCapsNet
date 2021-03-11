@@ -45,8 +45,10 @@ class CapsNet(Model):
         else:
             # "original_capsnet_{}.{}.h5".format(self.data_name, "{epoch:02d}")
             self.model_path = os.path.join(self.config['saved_model_dir'],
-                                           f"{self.model_name}_{self.data_name}.h5")
+                                           f"{self.model_name}",
+                                           f"{self.model_name}", f"{self.model_name}_{self.data_name}.h5")
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
+                                                 f"{self.model_name}",
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
@@ -87,6 +89,7 @@ class CapsNet(Model):
                                  workers=self.config['num_workers'])
 
         self.model.save_weights(os.path.join(self.config['saved_model_dir'],
+                                             f"{self.model_name}",
                                              f"{self.model_name}_{self.data_name}.h5"))
 
         return history
