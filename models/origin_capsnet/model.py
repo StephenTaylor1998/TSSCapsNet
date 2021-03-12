@@ -43,16 +43,16 @@ class CapsNet(Model):
         if custom_path != None:
             self.model_path = custom_path
         else:
-            # "original_capsnet_{}.{}.h5".format(self.data_name, "{epoch:02d}")
+            # "original_capsnet_{}.{}.h5".format(self.data_name, "{epoch:03d}")
             self.model_path = os.path.join(self.config['saved_model_dir'],
                                            f"{self.model_name}",
-                                           f"{self.model_name}", f"{self.model_name}_{self.data_name}.h5")
+                                           f"{self.model_name}_{self.data_name}.h5")
 
         os.makedirs(os.path.join(self.config['saved_model_dir'], f"{self.model_name}"), exist_ok=True)
 
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
                                                  f"{self.model_name}",
-                                                 f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")
+                                                 f"{self.model_name}_{self.data_name}_{'{epoch:03d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
 

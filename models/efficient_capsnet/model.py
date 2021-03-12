@@ -36,7 +36,7 @@ class EfficientCapsNet(Model):
 
     """
 
-    def __init__(self, data_name, mode='test', model_name='EfficientCapsNet', config_path='config.json',
+    def __init__(self, data_name, mode='test', model_name='Efficient_CapsNet', config_path='config.json',
                  custom_path=None, verbose=True):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
@@ -51,7 +51,7 @@ class EfficientCapsNet(Model):
 
         self.model_path_new_train = os.path.join(self.config['saved_model_dir'],
                                                  f"{self.model_name}",
-                                                 f"{self.model_name}_{self.data_name}_{'{epoch:02d}'}.h5")
+                                                 f"{self.model_name}_{self.data_name}_{'{epoch:03d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
 

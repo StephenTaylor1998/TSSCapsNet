@@ -51,6 +51,7 @@ class GateModule(tf.keras.layers.Layer):
         hatten_d = self.channel_reshape(hatten_d)
         # (batch, channel, 2) ==>> (batch, channel)
         hatten_d = self.gumbel_softmax(hatten_d, temp=temperature, force_hard=True)
+        # hatten_d = self.gumbel_softmax(hatten_d, temp=temperature, force_hard=False)
         # (batch, channel) ==>> (batch, 1, 1, channel)
         hatten_d = self.reshape(hatten_d)
         # (batch, h, w, channel) * (batch, 1, 1, channel) ==>> (batch, h, w, channel)

@@ -28,15 +28,16 @@ class GumbelSoftmax(tf.keras.layers.Layer):
 
     def gumbel_softmax_sample(self, logits, temperature):
         """
-            Draw a sample from the Gumbel-Softmax distribution
-        """
-        # dim = logits.size(2)
-        dim = logits.shape[2]
-        # gumble_samples_tensor = self.sample_gumbel_like(logits.data)
-        gumble_samples_tensor = self.sample_gumbel_like(logits)
-        # gumble_trick_log_prob_samples = logits + gumble_samples_tensor
+        Draw a sample from the Gumbel-Softmax distribution
+        from torch code:
+        dim = logits.size(2)
+        gumble_samples_tensor = self.sample_gumbel_like(logits.data)
         gumble_trick_log_prob_samples = logits + gumble_samples_tensor
-        # soft_samples = F.softmax(gumble_trick_log_prob_samples / temperature, dim)
+        soft_samples = F.softmax(gumble_trick_log_prob_samples / temperature, dim)
+        """
+        dim = logits.shape[2]
+        gumble_samples_tensor = self.sample_gumbel_like(logits)
+        gumble_trick_log_prob_samples = logits + gumble_samples_tensor
         soft_samples = tf.math.softmax(gumble_trick_log_prob_samples / temperature, dim)
         return soft_samples
 
@@ -71,12 +72,13 @@ class GumbelSoftmax(tf.keras.layers.Layer):
             # tried tf.Variable, but can cause exception while build graph.
             # This is an implementation of Gumbel-SoftMax.
             # Any help will be appreciated!!!
-            no_grade_logits = tf.identity(logits)
+            no_grade_logits = tf.stop_gradient(logits)
             argmax = tf.argmax(no_grade_logits, axis=2, output_type=tf.int32)
             y_hard = tf.cast(argmax, dtype=tf.float32)
             # output shape ==>> (batch, channel)
             # y = tf.identity(y_hard - tf.identity(y)) + y
-            y = tf.stop_gradient(y_hard - y) + y
+            no_grade = tf.stop_gradient(y_hard - y)
+            y = no_grade + y
         return y
 
     def build(self, input_shape):

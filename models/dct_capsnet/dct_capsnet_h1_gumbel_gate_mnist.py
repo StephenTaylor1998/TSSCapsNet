@@ -22,7 +22,7 @@ def dct_capsnet_graph(input_shape, routing):
     # (20, 20, 16) ==>> (10, 10, 64)
     x = DCTLayer3d(block_shape=(2, 2))(x)
     x = tf.keras.layers.BatchNormalization()(x)
-    x, key = GateModule(act='relu')(x)
+    x, key = GateModule(act='relu')(x, temperature=1e-3)
     # (10, 10, 64) == >> (10, 10, 256) ==>> (6, 6, 32, 8)
     primary = PrimaryCaps(C=32, L=8, k=5, s=1)(x)
     digit_caps = DigitCaps(10, 16, routing=routing)(primary)
