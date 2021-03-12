@@ -39,7 +39,7 @@ def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
             patience=4, min_lr=0.00001, min_delta=0.0001, mode='max')
         return [tb, model_checkpoint, reduce_lr]
 
-    elif model_name == 'EfficientCapsNet':
+    elif model_name == 'Efficient_CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
             saved_model_path, monitor='val_Efficient_CapsNet_accuracy',
             save_best_only=True, save_weights_only=True, verbose=1)
@@ -66,6 +66,12 @@ def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
     elif model_name == 'DCT_CapsNet_Attention':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
             saved_model_path, monitor='val_DCT_CapsNet_Attention_accuracy',
+            save_best_only=True, save_weights_only=True, verbose=1)
+        return [tb, model_checkpoint, lr_decay]
+
+    elif model_name == 'RFFT_Efficient_CapsNet':
+        model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+            saved_model_path, monitor='val_RFFT_Efficient_CapsNet_accuracy',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 

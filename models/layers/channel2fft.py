@@ -7,9 +7,9 @@ from .block2channel import block2channel_2d
 from .block2channel import block2channel_3d
 
 
-def dct2channel(np_array, block_shape, check_shape=True):
+def channel2fft(np_array, block_shape, check_shape=True):
     """
-    Convert 2d or 3d numpy array to 3d, then do DCT op at last dimension.
+    Convert 2d or 3d numpy array to 3d, then do fft op at last dimension.
     :param np_array: 2d or 3d array
     :param block_shape: (block_h, block_w) example (2, 2),
     block shape should <= input tensor shape
@@ -25,11 +25,11 @@ def dct2channel(np_array, block_shape, check_shape=True):
     else:
         print("shape {} not support, recommend [h, w] or [h, w, channel]".format(np_array.shape))
         raise NotImplementedError
+    # todo: fix bugs here
+    return fft.rfft(out.astype(np.float32))
 
-    return fft.dct(out.astype(np.float32))
 
-
-class DCTLayer2d(tf.keras.layers.Layer):
+class RFFTLayer2d(tf.keras.layers.Layer):
     """
     Convert tf tensor with batch(like [batch, h, w]) to [h//block_H, w//block_w, block_h*block_w]
     then do DCT op at last dimension.
@@ -40,7 +40,7 @@ class DCTLayer2d(tf.keras.layers.Layer):
     """
 
     def __init__(self, block_shape, groups=None, dct_type=2, check_shape=True, **kwargs):
-        super(DCTLayer2d, self).__init__(**kwargs)
+        super(RFFTLayer2d, self).__init__(**kwargs)
         self.block_shape = block_shape
         self.groups = groups
         self.dct_type = dct_type
@@ -57,13 +57,13 @@ class DCTLayer2d(tf.keras.layers.Layer):
             print("NotImplemented!")
             raise NotImplemented
         else:
-            return tf.signal.dct(tf.cast(out, dtype=tf.float32), self.dct_type)
+            return tf.cast(tf.signal.rfft(tf.cast(out, dtype=tf.float32)), dtype=tf.float32)
 
 
-class DCTLayer3d(tf.keras.layers.Layer):
+class RFFTLayer3d(tf.keras.layers.Layer):
     """
     Convert tf tensor with batch [batch, h, w, channel] to [batch, h//block_H, w//block_w, channel*block_h*block_w],
-    then do DCT op at last dimension.
+    then do rfft op at last dimension.
     :param block_shape: (block_h, block_w) example (2, 2),
     block shape should <= input tensor shape
     :param dct_type: default 2, example tf.signal.dct(tensor, type=dct_type)
@@ -71,11 +71,11 @@ class DCTLayer3d(tf.keras.layers.Layer):
     :return: [batch, h//block_H, w//block_w, channel*block_h*block_w]
     """
 
-    def __init__(self, block_shape, groups=None, dct_type=2, check_shape=True, **kwargs):
-        super(DCTLayer3d, self).__init__(**kwargs)
+    def __init__(self, block_shape, groups=None, data_type=tf.float32, check_shape=True, **kwargs):
+        super(RFFTLayer3d, self).__init__(**kwargs)
         self.block_shape = block_shape
         self.groups = groups
-        self.dct_type = dct_type
+        self.data_type = data_type
         self.check_shape = check_shape
         self.block2Channel3d = None
 
@@ -90,4 +90,4 @@ class DCTLayer3d(tf.keras.layers.Layer):
             raise NotImplemented
 
         else:
-            return tf.signal.dct(tf.cast(out, dtype=tf.float32), self.dct_type)
+            return tf.cast(tf.signal.rfft(tf.cast(out, dtype=tf.float32)), dtype=self.data_type)

@@ -5,15 +5,16 @@ from . import dct_capsnet_h1_graph_mnist
 from . import dct_capsnet_e1_graph_mnist
 from . import dct_capsnet_h1_attention_mnist
 from . import dct_capsnet_h1_gumbel_gate_mnist
+from . import rfft_capsnet_e1_graph_mnist
 from ..layers.model_base import Model
 
 from utils.dataset import Dataset
 from utils.tools import get_callbacks, marginLoss
 
 
-class DCTCapsNet(Model):
+class FFTCapsNet(Model):
     """
-    A class used to manage the DCTCapsNet architecture.
+    A class used to manage the FFTCapsNet architecture.
 
     ...
 
@@ -105,7 +106,7 @@ class DCTCapsNet(Model):
         return history
 
 
-class DCTEfficientCapsNet(Model):
+class FFTEfficientCapsNet(Model):
     """
     A class used to manage an DCT-Efficiet-CapsNet model. 'data_name' and 'mode' define the particular architecure and modality of the
     generated network.
@@ -154,8 +155,13 @@ class DCTEfficientCapsNet(Model):
 
     def load_graph(self):
         if self.data_name == 'MNIST' or self.data_name == 'MNIST_SHIFT':
-            self.model = dct_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                self.verbose)
+            if self.model_name == "DCT_Efficient_CapsNet":
+                self.model = dct_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
+                                                                    self.verbose)
+
+            if self.model_name == "RFFT_Efficient_CapsNet":
+                self.model = rfft_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
+                                                                     self.verbose)
         elif self.data_name == 'SMALLNORB':
             raise NotImplemented
             # self.model = efficient_capsnet_graph_smallnorb.build_graph(self.config['SMALLNORB_INPUT_SHAPE'],
@@ -183,11 +189,12 @@ class DCTEfficientCapsNet(Model):
                                loss_weights=[1., self.config['lmd_gen'] / 2, self.config['lmd_gen'] / 2],
                                metrics={'DCT_Efficient_CapsNet': 'accuracy'})
             steps = 10 * int(dataset.y_train.shape[0] / self.config['batch_size'])
+
         else:
             self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
                                loss=[marginLoss, 'mse'],
                                loss_weights=[1., self.config['lmd_gen']],
-                               metrics={'DCT_Efficient_CapsNet': 'accuracy'})
+                               metrics={self.model_name: 'accuracy'})
             steps = None
 
         print('-' * 30 + f'{self.data_name} train' + '-' * 30)

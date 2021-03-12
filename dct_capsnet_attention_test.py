@@ -1,7 +1,7 @@
 # DCT CapsNet Model Test
 import tensorflow as tf
 from utils import Dataset, plotImages, plotWrongImages
-from models import DCTCapsNet
+from models import FFTCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
@@ -22,7 +22,7 @@ n_images = 20  # number of images to be plotted
 plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_images, dataset.class_names)
 
 # 2.0 Load the Model
-model_test = DCTCapsNet(data_name, model_name='DCT_CapsNet_Attention',
+model_test = FFTCapsNet(data_name, model_name='DCT_CapsNet_Attention',
                         mode='test', verbose=True, n_routing=n_routing)
 model_test.load_graph_weights()
 

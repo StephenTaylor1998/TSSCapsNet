@@ -30,7 +30,7 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-model_test = FFTEfficientCapsNet(data_name, mode='test', verbose=True, custom_path=custom_path)
+model_test = FFTEfficientCapsNet(data_name, model_name='RFFT_Efficient_CapsNet', mode='test', verbose=True, custom_path=custom_path)
 
 model_test.load_graph_weights()  # load graph weights (bin folder)
 
