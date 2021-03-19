@@ -5,6 +5,7 @@ from . import dct_capsnet_h1_graph_mnist
 from . import dct_capsnet_e1_graph_mnist
 from . import dct_capsnet_h1_attention_mnist
 from . import dct_capsnet_h1_gumbel_gate_mnist
+from . import dwt_capsnet_e1_graph_mnist
 from . import rfft_capsnet_e1_graph_mnist
 from ..layers.model_base import Model
 
@@ -158,9 +159,11 @@ class FFTEfficientCapsNet(Model):
             if self.model_name == "DCT_Efficient_CapsNet":
                 self.model = dct_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                     self.verbose)
-
             if self.model_name == "RFFT_Efficient_CapsNet":
                 self.model = rfft_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
+                                                                     self.verbose)
+            if self.model_name == "DWT_Efficient_CapsNet":
+                self.model = dwt_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                      self.verbose)
         elif self.data_name == 'SMALLNORB':
             raise NotImplemented
