@@ -1,7 +1,7 @@
 # Efficient-CapsNet Model Train
 import tensorflow as tf
 
-from models.model_zoo import FFTEfficientCapsNet
+from models.model_zoo import TSSEfficientCapsNet
 from utils import Dataset, plotImages, plotWrongImages, plotHistory
 from models import EfficientCapsNet
 
@@ -26,7 +26,7 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-model_train = FFTEfficientCapsNet(data_name, mode='train', verbose=True)
+model_train = TSSEfficientCapsNet(data_name, mode='train', verbose=True)
 
 # 3.0 Train the Model
 

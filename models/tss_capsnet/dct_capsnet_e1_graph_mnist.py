@@ -42,7 +42,7 @@ def efficient_capsnet_graph(input_shape):
     # (20, 20, 64) ==>> (18, 18, 32)
     x = tf.keras.layers.Conv2D(32, 3, activation='relu', padding='valid', kernel_initializer='he_normal')(x)
     x = tf.keras.layers.BatchNormalization()(x)
-    # (18, 18, 32) ==>> (18, 18, 128)
+    # (18, 18, 32) ==>> (9, 9, 128)
     x = DCTLayer3d(block_shape=(2, 2))(x)
     x = tf.keras.layers.BatchNormalization()(x)
     x = PrimaryCaps(128, 9, 16, 8)(x)

@@ -16,7 +16,7 @@
 import numpy as np
 import tensorflow as tf
 
-from ..layers.transform.dwt import DWT
+from kymatio.keras import Scattering2D
 from ..layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask
 
 
@@ -42,8 +42,12 @@ def efficient_capsnet_graph(input_shape):
     # (20, 20, 64) ==>> (18, 18, 32)
     x = tf.keras.layers.Conv2D(32, 3, activation='relu', padding='valid', kernel_initializer='he_normal')(x)
     x = tf.keras.layers.BatchNormalization()(x)
+
     # (18, 18, 32) ==>> (9, 9, 128)
-    x = DWT()(x)
+    x = tf.transpose(x, (0, 3, 1, 2))
+    x = Scattering2D(J=1, L=3)(x)
+    x = tf.keras.layers.Reshape(target_shape=(128, 9, 9))(x)
+    x = tf.transpose(x, (0, 2, 3, 1))
 
     x = tf.keras.layers.BatchNormalization()(x)
     x = PrimaryCaps(128, 9, 16, 8)(x)
@@ -52,7 +56,7 @@ def efficient_capsnet_graph(input_shape):
 
     digit_caps_len = Length(name='length_capsnet_output')(digit_caps)
 
-    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name='DWT_Efficient_CapsNet')
+    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name='WST_Efficient_CapsNet')
 
 
 def generator_graph(input_shape):
@@ -116,11 +120,11 @@ def build_graph(input_shape, mode, verbose):
 
     if mode == 'train':
         return tf.keras.models.Model([inputs, y_true], [digit_caps_len, x_gen_train],
-                                     name='DWT_Efficinet_CapsNet_Generator')
+                                     name='WST_Efficinet_CapsNet_Generator')
     elif mode == 'test':
-        return tf.keras.models.Model(inputs, [digit_caps_len, x_gen_eval], name='DWT_Efficinet_CapsNet_Generator')
+        return tf.keras.models.Model(inputs, [digit_caps_len, x_gen_eval], name='WST_Efficinet_CapsNet_Generator')
     elif mode == 'play':
         return tf.keras.models.Model([inputs, y_true, noise], [digit_caps_len, x_gen_play],
-                                     name='DWT_Efficinet_CapsNet_Generator')
+                                     name='WST_Efficinet_CapsNet_Generator')
     else:
         raise RuntimeError('mode not recognized')

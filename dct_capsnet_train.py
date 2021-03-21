@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 from utils import Dataset, plotImages, plotWrongImages
-from models import FFTCapsNet
+from models import TSSCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 tf.config.experimental.set_visible_devices(gpus[2], 'GPU')
@@ -24,7 +24,7 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-model_train = FFTCapsNet(data_name, mode='train', verbose=True, n_routing=n_routing)
+model_train = TSSCapsNet(data_name, mode='train', verbose=True, n_routing=n_routing)
 
 # 3.0 Train the Model
 

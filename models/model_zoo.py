@@ -1,4 +1,4 @@
-from .tss_capsnet import FFTCapsNet
-from .tss_capsnet import FFTEfficientCapsNet
+from .tss_capsnet import TSSCapsNet
+from .tss_capsnet import TSSEfficientCapsNet
 from .efficient_capsnet import EfficientCapsNet
 from .origin_capsnet import CapsNet

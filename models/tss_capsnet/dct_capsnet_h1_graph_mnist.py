@@ -29,7 +29,7 @@ def dct_capsnet_graph(input_shape, routing):
     pr_shape = primary.shape
     primary = tf.reshape(primary, (-1, pr_shape[1] * pr_shape[2] * pr_shape[3], pr_shape[-1]))
 
-    return tf.keras.Model(inputs=inputs, outputs=[primary, digit_caps, digit_caps_len], name='FFTCapsNet')
+    return tf.keras.Model(inputs=inputs, outputs=[primary, digit_caps, digit_caps_len], name='TSSCapsNet')
 
 
 def generator_graph(input_shape):

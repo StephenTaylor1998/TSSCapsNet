@@ -5,7 +5,7 @@
 
 import tensorflow as tf
 from utils import Dataset, plotImages, plotWrongImages
-from models import FFTEfficientCapsNet
+from models import TSSEfficientCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 tf.config.experimental.set_visible_devices(gpus[3], 'GPU')
@@ -30,7 +30,7 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-model_test = FFTEfficientCapsNet(data_name, model_name="DWT_Efficient_CapsNet", mode='test', verbose=True, custom_path=custom_path)
+model_test = TSSEfficientCapsNet(data_name, model_name="DWT_Efficient_CapsNet", mode='test', verbose=True, custom_path=custom_path)
 
 model_test.load_graph_weights()  # load graph weights (bin folder)
 

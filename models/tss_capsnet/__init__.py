@@ -1,3 +1,3 @@
-from .model import FFTCapsNet
-from .model import FFTEfficientCapsNet
+from .model import TSSCapsNet
+from .model import TSSEfficientCapsNet
 

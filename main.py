@@ -24,7 +24,7 @@ tf.config.experimental.set_memory_growth(gpus[3], True)
 dataset = Dataset(data_name, config_path='config.json')
 
 # 2.0 Load the Model
-model = FFTEfficientCapsNet(data_name, model_name=model_name, mode='train', verbose=True)
+model = TSSEfficientCapsNet(data_name, model_name=model_name, mode='train', verbose=True)
 
 # 3.0 Train the Model
 dataset_train, dataset_val = dataset.get_tf_data()
@@ -34,7 +34,7 @@ dataset_train, dataset_val = dataset.get_tf_data()
 # plotHistory(history)
 
 # 5.0 Load weights
-model_test = FFTEfficientCapsNet(data_name, model_name='RFFT_Efficient_CapsNet', mode='test', verbose=True)
+model_test = TSSEfficientCapsNet(data_name, model_name='RFFT_Efficient_CapsNet', mode='test', verbose=True)
 model.load_graph_weights()  # load graph weights (bin folder)
 
 # 4.0 Test the Model

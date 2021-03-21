@@ -7,15 +7,16 @@ from . import dct_capsnet_h1_attention_mnist
 from . import dct_capsnet_h1_gumbel_gate_mnist
 from . import dwt_capsnet_e1_graph_mnist
 from . import rfft_capsnet_e1_graph_mnist
+from . import wst_capsnet_e1_graph_mnist
 from ..layers.model_base import Model
 
 from utils.dataset import Dataset
 from utils.tools import get_callbacks, marginLoss
 
 
-class FFTCapsNet(Model):
+class TSSCapsNet(Model):
     """
-    A class used to manage the FFTCapsNet architecture.
+    A class used to manage the TSSCapsNet architecture.
 
     ...
 
@@ -107,7 +108,7 @@ class FFTCapsNet(Model):
         return history
 
 
-class FFTEfficientCapsNet(Model):
+class TSSEfficientCapsNet(Model):
     """
     A class used to manage an DCT-Efficiet-CapsNet model. 'data_name' and 'mode' define the particular architecure and modality of the
     generated network.
@@ -165,6 +166,10 @@ class FFTEfficientCapsNet(Model):
             if self.model_name == "DWT_Efficient_CapsNet":
                 self.model = dwt_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                      self.verbose)
+            if self.model_name == "WST_Efficient_CapsNet":
+                self.model = wst_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
+                                                                     self.verbose)
+
         elif self.data_name == 'SMALLNORB':
             raise NotImplemented
             # self.model = efficient_capsnet_graph_smallnorb.build_graph(self.config['SMALLNORB_INPUT_SHAPE'],
