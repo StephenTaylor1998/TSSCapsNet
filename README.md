@@ -1,4 +1,4 @@
-<h1 align="center"> CapsNet </h1>
+<h1 align="center"> Time Series Signal CapsNet </h1>
 
 # 1.0 Getting Started
 
