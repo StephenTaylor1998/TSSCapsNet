@@ -39,13 +39,3 @@ history = model.train(dataset, initial_epoch=0)
 
 # 4.0 Plot history
 plotHistory(history)
-
-# 5.0 Load weights
-model_test = TSSCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
-# model_test = TSSEfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
-# model_test = EfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
-# model_test = CapsNet(data_name, model_name=model_name, mode='test', verbose=True)
-model.load_graph_weights()  # load graph weights (bin folder)
-
-# 6.0 Test the Model
-model_test.evaluate(dataset.X_test, dataset.y_test)  # if "smallnorb" use X_test_patch

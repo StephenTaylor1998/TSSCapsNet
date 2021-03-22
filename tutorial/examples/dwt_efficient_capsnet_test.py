@@ -5,16 +5,14 @@
 
 import tensorflow as tf
 from utils import Dataset, plotImages, plotWrongImages
-from models import EfficientCapsNet
+from models import TSSEfficientCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[5], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[5], True)
+tf.config.experimental.set_visible_devices(gpus[4], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[4], True)
 
 # some parameters
 # data_name = 'MULTIMNIST'
-# model_name = 'MNIST'
-# data_name = 'MNIST_SHIFT'
 data_name = 'FASHION_MNIST_SHIFT'
 
 custom_path = None  # if you've trained a new model, insert here the full graph weights path
@@ -22,7 +20,7 @@ custom_path = None  # if you've trained a new model, insert here the full graph 
 # 1.0 Import the Dataset
 
 
-dataset = Dataset(data_name, config_path='config.json')
+dataset = Dataset(data_name, config_path='../../config.json')
 
 # 1.1 Visualize imported dataset
 
@@ -32,7 +30,7 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-model_test = EfficientCapsNet(data_name, mode='test', verbose=True, custom_path=custom_path)
+model_test = TSSEfficientCapsNet(data_name, model_name="DWT_Efficient_CapsNet", mode='test', verbose=True, custom_path=custom_path)
 
 model_test.load_graph_weights()  # load graph weights (bin folder)
 

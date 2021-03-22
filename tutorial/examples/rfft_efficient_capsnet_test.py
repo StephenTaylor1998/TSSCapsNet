@@ -21,7 +21,7 @@ custom_path = None  # if you've trained a new model, insert here the full graph 
 # 1.0 Import the Dataset
 
 
-dataset = Dataset(data_name, config_path='config.json')
+dataset = Dataset(data_name, config_path='../../config.json')
 
 # 1.1 Visualize imported dataset
 

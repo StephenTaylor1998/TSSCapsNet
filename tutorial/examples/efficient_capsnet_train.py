@@ -1,13 +1,11 @@
 # Efficient-CapsNet Model Train
 import tensorflow as tf
-
-from models.model_zoo import TSSEfficientCapsNet
 from utils import Dataset, plotImages, plotWrongImages, plotHistory
 from models import EfficientCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[3], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[3], True)
+tf.config.experimental.set_visible_devices(gpus[5], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[5], True)
 
 # some parameters
 
@@ -18,7 +16,7 @@ data_name = 'FASHION_MNIST_SHIFT'
 
 # 1.0 Import the Dataset
 
-dataset = Dataset(data_name, config_path='config.json')
+dataset = Dataset(data_name, config_path='../../config.json')
 
 # 1.1 Visualize imported dataset
 
@@ -27,7 +25,7 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-model_train = TSSEfficientCapsNet(data_name, model_name='RFFT_Efficient_CapsNet', mode='train', verbose=True)
+model_train = EfficientCapsNet(data_name, mode='train', verbose=True)
 
 # 3.0 Train the Model
 

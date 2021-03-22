@@ -3,19 +3,21 @@
 
 import tensorflow as tf
 from utils import Dataset, plotImages, plotWrongImages
-from models import CapsNet
+from models import TSSCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[6], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[6], True)
+tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[0], True)
 
 # some parameters
-# model_name = 'MNIST'  # only MNIST is available
+# data_name = 'MNIST'
 # data_name = 'MNIST_SHIFT'
 data_name = 'FASHION_MNIST_SHIFT'
-n_routing = 3
 
-dataset = Dataset(data_name, config_path='config.json')  # only MNIST
+# n_routing = 3
+n_routing = None
+
+dataset = Dataset(data_name, config_path='../../config.json')  # only MNIST
 
 # 1.1 Visualize imported dataset
 
@@ -24,7 +26,8 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-model_train = CapsNet(data_name, mode='train', verbose=True, n_routing=n_routing)
+model_train = TSSCapsNet(data_name, model_name='DCT_CapsNet_Attention',
+                         mode='train', verbose=True, n_routing=n_routing)
 
 # 3.0 Train the Model
 

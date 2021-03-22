@@ -18,7 +18,7 @@ data_name = 'FASHION_MNIST_SHIFT'
 
 # 1.0 Import the Dataset
 
-dataset = Dataset(data_name, config_path='config.json')
+dataset = Dataset(data_name, config_path='../../config.json')
 
 # 1.1 Visualize imported dataset
 
