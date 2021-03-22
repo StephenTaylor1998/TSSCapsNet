@@ -7,6 +7,6 @@ matplotlib
 opencv-python
 tensorflow-addons
 tensorflow==2.3.0
-tensorflow-datasets
+tensorflow-datasets==2.1.0
 kymatio
 # tensorflow >= 2.3.0

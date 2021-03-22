@@ -1,4 +1,6 @@
 import tensorflow as tf
+from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
+
 from utils import Dataset, plotHistory
 from models import TSSCapsNet
 from models import TSSEfficientCapsNet
@@ -21,8 +23,8 @@ model_name = 'RFFT_Efficient_CapsNet'       # TSSEfficientCapsNet
 data_name = 'FASHION_MNIST_SHIFT'
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[3], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[3], True)
+tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[0], True)
 
 # 1.0 Import the Dataset
 dataset = Dataset(data_name, config_path='config.json')
@@ -49,3 +51,4 @@ model.load_graph_weights()  # load graph weights (bin folder)
 
 # 6.0 Test the Model
 model_test.evaluate(dataset.X_test, dataset.y_test)  # if "smallnorb" use X_test_patch
+

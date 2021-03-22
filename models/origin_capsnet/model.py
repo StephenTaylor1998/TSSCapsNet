@@ -1,5 +1,6 @@
 import os
 import tensorflow as tf
+from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 
 from ..layers.model_base import Model
 from . import original_capsnet_graph_mnist
@@ -35,7 +36,7 @@ class CapsNet(Model):
     """
 
     def __init__(self, data_name, model_name='CapsNet', mode='test', config_path='config.json', custom_path=None,
-                 verbose=True, n_routing=3):
+                 verbose=True, n_routing=3, gpu_number=None):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         self.n_routing = n_routing
@@ -55,6 +56,8 @@ class CapsNet(Model):
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:03d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
+        if gpu_number:
+            self.model = multi_gpu_model(self.model, gpu_number)
 
     def load_graph(self):
         self.model = original_capsnet_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,

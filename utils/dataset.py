@@ -75,8 +75,16 @@ class Dataset(object):
             self.class_names = list(range(10))
             print("[INFO] Dataset loaded!")
 
-        if self.data_name == 'FASHION_MNIST':
+        elif self.data_name == 'FASHION_MNIST':
             (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.fashion_mnist.load_data()
+            # prepare the data
+            self.X_train, self.y_train = pre_process_mnist.pre_process(self.X_train, self.y_train)
+            self.X_test, self.y_test = pre_process_mnist.pre_process(self.X_test, self.y_test)
+            self.class_names = list(range(10))
+            print("[INFO] Dataset loaded!")
+
+        elif self.data_name == 'CIFAR10':
+            (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.cifar10.load_data()
             # prepare the data
             self.X_train, self.y_train = pre_process_mnist.pre_process(self.X_train, self.y_train)
             self.X_test, self.y_test = pre_process_mnist.pre_process(self.X_test, self.y_test)

@@ -1,5 +1,6 @@
 import os
 import tensorflow as tf
+from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 
 from . import dct_capsnet_h1_graph_mnist
 from . import dct_capsnet_e1_graph_mnist
@@ -41,7 +42,7 @@ class TSSCapsNet(Model):
     """
 
     def __init__(self, data_name, model_name='DCT_CapsNet', mode='test', config_path='config.json', custom_path=None,
-                 verbose=True, n_routing=3):
+                 verbose=True, n_routing=3, gpu_number=None):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         self.n_routing = n_routing
@@ -60,6 +61,8 @@ class TSSCapsNet(Model):
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:03d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
+        if gpu_number:
+            self.model = multi_gpu_model(self.model, gpu_number)
 
     def load_graph(self):
         if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
@@ -137,7 +140,7 @@ class TSSEfficientCapsNet(Model):
     """
 
     def __init__(self, data_name, model_name='DCT_Efficient_CapsNet', mode='test', config_path='config.json',
-                 custom_path=None, verbose=True):
+                 custom_path=None, verbose=True, gpu_number=None):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         if custom_path != None:
@@ -154,6 +157,8 @@ class TSSEfficientCapsNet(Model):
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:03d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
+        if gpu_number:
+            self.model = multi_gpu_model(self.model, gpu_number)
 
     def load_graph(self):
         if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:

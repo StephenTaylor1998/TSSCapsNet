@@ -1,5 +1,7 @@
 import os
 import tensorflow as tf
+from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
+
 from ..layers.model_base import Model
 from . import efficient_capsnet_graph_multimnist
 from . import efficient_capsnet_graph_mnist
@@ -37,7 +39,7 @@ class EfficientCapsNet(Model):
     """
 
     def __init__(self, data_name, mode='test', model_name='Efficient_CapsNet', config_path='config.json',
-                 custom_path=None, verbose=True):
+                 custom_path=None, verbose=True, gpu_number=None):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         if custom_path != None:
@@ -54,6 +56,8 @@ class EfficientCapsNet(Model):
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:03d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.load_graph()
+        if gpu_number:
+            self.model = multi_gpu_model(self.model, gpu_number)
 
     def load_graph(self):
         if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
