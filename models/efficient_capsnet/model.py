@@ -56,7 +56,7 @@ class EfficientCapsNet(Model):
         self.load_graph()
 
     def load_graph(self):
-        if self.data_name == 'MNIST' or self.data_name == 'MNIST_SHIFT':
+        if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
             self.model = efficient_capsnet_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                    self.verbose)
         elif self.data_name == 'SMALLNORB':

@@ -13,7 +13,8 @@ tf.config.experimental.set_memory_growth(gpus[3], True)
 
 # some parameters
 # data_name = 'MULTIMNIST'
-data_name = 'MNIST_SHIFT'
+# data_name = 'MNIST_SHIFT'
+data_name = 'FASHION_MNIST_SHIFT'
 
 custom_path = None  # if you've trained a new model, insert here the full graph weights path
 

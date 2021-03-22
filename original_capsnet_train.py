@@ -6,12 +6,13 @@ from utils import Dataset, plotImages, plotWrongImages
 from models import CapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[5], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[5], True)
+tf.config.experimental.set_visible_devices(gpus[6], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[6], True)
 
 # some parameters
 # model_name = 'MNIST'  # only MNIST is available
-data_name = 'MNIST_SHIFT'
+# data_name = 'MNIST_SHIFT'
+data_name = 'FASHION_MNIST_SHIFT'
 n_routing = 3
 
 dataset = Dataset(data_name, config_path='config.json')  # only MNIST

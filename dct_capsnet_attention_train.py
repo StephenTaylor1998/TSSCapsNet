@@ -11,7 +11,8 @@ tf.config.experimental.set_memory_growth(gpus[0], True)
 
 # some parameters
 # data_name = 'MNIST'
-data_name = 'MNIST_SHIFT'
+# data_name = 'MNIST_SHIFT'
+data_name = 'FASHION_MNIST_SHIFT'
 
 # n_routing = 3
 n_routing = None

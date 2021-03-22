@@ -8,12 +8,13 @@ from utils import Dataset, plotImages, plotWrongImages
 from models import TSSEfficientCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[3], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[3], True)
+tf.config.experimental.set_visible_devices(gpus[8], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[8], True)
 
 # some parameters
 # data_name = 'MULTIMNIST'
-data_name = 'MNIST_SHIFT'
+# data_name = 'MNIST_SHIFT'
+data_name = 'FASHION_MNIST_SHIFT'
 
 custom_path = None  # if you've trained a new model, insert here the full graph weights path
 

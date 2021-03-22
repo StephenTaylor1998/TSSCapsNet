@@ -41,49 +41,57 @@ def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
 
     elif model_name == 'Efficient_CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            saved_model_path, monitor='val_Efficient_CapsNet_accuracy',
+            # saved_model_path, monitor='val_Efficient_CapsNet_accuracy',
+            saved_model_path, monitor='val_Efficient_CapsNet_loss',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
     elif model_name == 'DCT_CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            saved_model_path, monitor='val_DCT_CapsNet_accuracy',
+            # saved_model_path, monitor='val_DCT_CapsNet_accuracy',
+            saved_model_path, monitor='val_DCT_CapsNet_loss',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
     elif model_name == 'DCT_CapsNet_GumbelGate':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            saved_model_path, monitor='val_DCT_CapsNet_GumbelGate_accuracy',
+            # saved_model_path, monitor='val_DCT_CapsNet_GumbelGate_accuracy',
+            saved_model_path, monitor='val_DCT_CapsNet_GumbelGate_loss',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
     elif model_name == 'DCT_Efficient_CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            saved_model_path, monitor='val_DCT_Efficient_CapsNet_accuracy',
+            # saved_model_path, monitor='val_DCT_Efficient_CapsNet_accuracy',
+            saved_model_path, monitor='val_DCT_Efficient_CapsNet_loss',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
     elif model_name == 'DCT_CapsNet_Attention':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            saved_model_path, monitor='val_DCT_CapsNet_Attention_accuracy',
+            # saved_model_path, monitor='val_DCT_CapsNet_Attention_accuracy',
+            saved_model_path, monitor='val_DCT_CapsNet_Attention_loss',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
     elif model_name == 'RFFT_Efficient_CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            saved_model_path, monitor='val_RFFT_Efficient_CapsNet_accuracy',
+            # saved_model_path, monitor='val_RFFT_Efficient_CapsNet_accuracy',
+            saved_model_path, monitor='val_RFFT_Efficient_CapsNet_loss',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
     elif model_name == 'DWT_Efficient_CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            saved_model_path, monitor='val_DWT_Efficient_CapsNet_accuracy',
+            # saved_model_path, monitor='val_DWT_Efficient_CapsNet_accuracy',
+            saved_model_path, monitor='val_DWT_Efficient_CapsNet_loss',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
     elif model_name == 'WST_Efficient_CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            saved_model_path, monitor='val_WST_Efficient_CapsNet_accuracy',
+            # saved_model_path, monitor='val_WST_Efficient_CapsNet_accuracy',
+            saved_model_path, monitor='val_WST_Efficient_CapsNet_loss',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 

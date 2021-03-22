@@ -8,14 +8,14 @@ from utils import Dataset, plotImages, plotWrongImages, plotHistory
 from models import EfficientCapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[3], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[3], True)
+tf.config.experimental.set_visible_devices(gpus[4], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[4], True)
 
 # some parameters
 
 # model_name = 'MNIST'  # only MNIST is available
 # data_name = 'MULTIMNIST'
-data_name = 'MNIST_SHIFT'
+data_name = 'FASHION_MNIST_SHIFT'
 
 # 1.0 Import the Dataset
 
@@ -28,8 +28,8 @@ plotImages(dataset.X_test[:n_images, ..., 0], dataset.y_test[:n_images], n_image
 
 # 2.0 Load the Model
 
-# model_train = TSSEfficientCapsNet(data_name, model_name="DWT_Efficient_CapsNet", mode='train', verbose=True)
-model_train = TSSEfficientCapsNet(data_name, model_name="WST_Efficient_CapsNet", mode='train', verbose=True)
+model_train = TSSEfficientCapsNet(data_name, model_name="DWT_Efficient_CapsNet", mode='train', verbose=True)
+# model_train = TSSEfficientCapsNet(data_name, model_name="WST_Efficient_CapsNet", mode='train', verbose=True)
 
 # 3.0 Train the Model
 

@@ -13,7 +13,8 @@ tf.config.experimental.set_memory_growth(gpus[3], True)
 
 # model_name = 'MNIST'  # only MNIST is available
 # data_name = 'MULTIMNIST'
-data_name = 'MNIST_SHIFT'
+# data_name = 'MNIST_SHIFT'
+data_name = 'FASHION_MNIST_SHIFT'
 
 # 1.0 Import the Dataset
 

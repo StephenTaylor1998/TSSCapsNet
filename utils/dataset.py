@@ -75,9 +75,30 @@ class Dataset(object):
             self.class_names = list(range(10))
             print("[INFO] Dataset loaded!")
 
-        elif self.data_name == 'MNIST_SHIFT':
-            (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.mnist.load_data(
+        if self.data_name == 'FASHION_MNIST':
+            (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.fashion_mnist.load_data(
                 path=self.config['mnist_path'])
+            # prepare the data
+            self.X_train, self.y_train = pre_process_mnist.pre_process(self.X_train, self.y_train)
+            self.X_test, self.y_test = pre_process_mnist.pre_process(self.X_test, self.y_test)
+            self.class_names = list(range(10))
+            print("[INFO] Dataset loaded!")
+
+        elif self.data_name == 'MNIST_SHIFT':
+            # raise NotImplementedError
+            # (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.mnist.load_data(
+            #     path=self.config['mnist_path'])
+            (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.mnist.load_data()
+            # prepare the data
+            self.X_train, self.y_train = pre_process_mnist_shift.pre_process(self.X_train, self.y_train)
+            self.X_test, self.y_test = pre_process_mnist_shift.pre_process(self.X_test, self.y_test)
+            self.class_names = list(range(10))
+            print("[INFO] Dataset loaded!")
+
+        elif self.data_name == 'FASHION_MNIST_SHIFT':
+            # (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.fashion_mnist.load_data(
+            #     path=self.config['mnist_path'])
+            (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.fashion_mnist.load_data()
             # prepare the data
             self.X_train, self.y_train = pre_process_mnist_shift.pre_process(self.X_train, self.y_train)
             self.X_test, self.y_test = pre_process_mnist_shift.pre_process(self.X_test, self.y_test)
@@ -118,7 +139,15 @@ class Dataset(object):
             dataset_train, dataset_test = pre_process_mnist.generate_tf_data(self.X_train, self.y_train, self.X_test,
                                                                              self.y_test, self.config['batch_size'])
 
+        if self.data_name == 'FASHION_MNIST':
+            dataset_train, dataset_test = pre_process_mnist.generate_tf_data(self.X_train, self.y_train, self.X_test,
+                                                                             self.y_test, self.config['batch_size'])
+
         elif self.data_name == 'MNIST_SHIFT':
+            dataset_train, dataset_test = pre_process_mnist_shift.generate_tf_data(self.X_train, self.y_train, self.X_test,
+                                                                             self.y_test, self.config['batch_size'])
+
+        elif self.data_name == 'FASHION_MNIST_SHIFT':
             dataset_train, dataset_test = pre_process_mnist_shift.generate_tf_data(self.X_train, self.y_train, self.X_test,
                                                                              self.y_test, self.config['batch_size'])
 

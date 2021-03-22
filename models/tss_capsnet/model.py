@@ -62,7 +62,7 @@ class TSSCapsNet(Model):
         self.load_graph()
 
     def load_graph(self):
-        if self.data_name == 'MNIST' or self.data_name == 'MNIST_SHIFT':
+        if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
             if self.model_name == 'DCT_CapsNet':
                 self.model = dct_capsnet_h1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                     self.n_routing, self.verbose)
@@ -156,7 +156,7 @@ class TSSEfficientCapsNet(Model):
         self.load_graph()
 
     def load_graph(self):
-        if self.data_name == 'MNIST' or self.data_name == 'MNIST_SHIFT':
+        if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
             if self.model_name == "DCT_Efficient_CapsNet":
                 self.model = dct_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                     self.verbose)
@@ -179,6 +179,8 @@ class TSSEfficientCapsNet(Model):
             raise NotImplemented
             # self.model = efficient_capsnet_graph_multimnist.build_graph(self.config['MULTIMNIST_INPUT_SHAPE'],
             #                                                             self.mode, self.verbose)
+        else:
+            raise NotImplementedError
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_name,
