@@ -32,8 +32,8 @@ dataset = Dataset(data_name, config_path='config.json')
 # 2.0 Load the Model
 # model_test = TSSCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 # model_test = TSSEfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
-model_test = EfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
-# model_test = CapsNet(data_name, model_name=model_name, mode='test', verbose=True)
+# model_test = EfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
+model_test = CapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 
 # 3.0 Load weights
 model_test.load_graph_weights()  # load graph weights (bin folder)

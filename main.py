@@ -47,7 +47,7 @@ model_test = TSSCapsNet(data_name, model_name=model_name, mode='test', verbose=T
 # model_test = TSSEfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 # model_test = EfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 # model_test = CapsNet(data_name, model_name=model_name, mode='test', verbose=True)
-model.load_graph_weights()  # load graph weights (bin folder)
+model_test.load_graph_weights()  # load graph weights (bin folder)
 
 # 6.0 Test the Model
 model_test.evaluate(dataset.X_test, dataset.y_test)  # if "smallnorb" use X_test_patch
