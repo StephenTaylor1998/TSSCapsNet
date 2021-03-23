@@ -66,16 +66,21 @@ class TSSCapsNet(Model):
 
     def load_graph(self):
         if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
-            if self.model_name == 'DCT_CapsNet':
-                self.model = dct_capsnet_h1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                    self.n_routing, self.verbose)
-            elif self.model_name == 'DCT_CapsNet_GumbelGate':
-                self.model = dct_capsnet_h1_gumbel_gate_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                          self.n_routing, self.verbose)
-            elif self.model_name == 'DCT_CapsNet_Attention':
-                self.model = dct_capsnet_h1_attention_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                        self.n_routing, self.verbose)
+            input_shape = self.config['MNIST_INPUT_SHAPE']
+        elif self.data_name in ['CIFAR10', 'CIFAR10_SHIFT']:
+            input_shape = self.config['CIFAR10_INPUT_SHAPE']
+        else:
+            raise NotImplemented
 
+        if self.model_name == 'DCT_CapsNet':
+            self.model = dct_capsnet_h1_graph_mnist.build_graph(input_shape, self.mode,
+                                                                self.n_routing, self.verbose)
+        elif self.model_name == 'DCT_CapsNet_GumbelGate':
+            self.model = dct_capsnet_h1_gumbel_gate_mnist.build_graph(input_shape, self.mode,
+                                                                      self.n_routing, self.verbose)
+        elif self.model_name == 'DCT_CapsNet_Attention':
+            self.model = dct_capsnet_h1_attention_mnist.build_graph(input_shape, self.mode,
+                                                                    self.n_routing, self.verbose)
         else:
             raise NotImplemented
 
@@ -162,19 +167,9 @@ class TSSEfficientCapsNet(Model):
 
     def load_graph(self):
         if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
-            if self.model_name == "DCT_Efficient_CapsNet":
-                self.model = dct_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                    self.verbose)
-            if self.model_name == "RFFT_Efficient_CapsNet":
-                self.model = rfft_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                     self.verbose)
-            if self.model_name == "DWT_Efficient_CapsNet":
-                self.model = dwt_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                     self.verbose)
-            if self.model_name == "WST_Efficient_CapsNet":
-                self.model = wst_capsnet_e1_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                                     self.verbose)
-
+            input_shape = self.config['MNIST_INPUT_SHAPE']
+        elif self.data_name in ['CIFAR10', 'CIFAR10_SHIFT']:
+            input_shape = self.config['CIFAR10_INPUT_SHAPE']
         elif self.data_name == 'SMALLNORB':
             raise NotImplemented
             # self.model = efficient_capsnet_graph_smallnorb.build_graph(self.config['SMALLNORB_INPUT_SHAPE'],
@@ -186,6 +181,19 @@ class TSSEfficientCapsNet(Model):
             #                                                             self.mode, self.verbose)
         else:
             raise NotImplementedError
+
+        if self.model_name == "DCT_Efficient_CapsNet":
+            self.model = dct_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
+                                                                self.verbose)
+        if self.model_name == "RFFT_Efficient_CapsNet":
+            self.model = rfft_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
+                                                                 self.verbose)
+        if self.model_name == "DWT_Efficient_CapsNet":
+            self.model = dwt_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
+                                                                self.verbose)
+        if self.model_name == "WST_Efficient_CapsNet":
+            self.model = wst_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
+                                                                self.verbose)
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_name,

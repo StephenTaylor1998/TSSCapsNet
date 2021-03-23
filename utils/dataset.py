@@ -18,7 +18,9 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 import matplotlib.pyplot as plt
 import os
-from utils import pre_process_mnist, pre_process_multimnist, pre_process_smallnorb, pre_process_mnist_shift
+from utils import pre_process_mnist, pre_process_multimnist, \
+    pre_process_smallnorb, pre_process_mnist_shift, \
+    pre_process_cifar10
 import json
 
 
@@ -143,30 +145,39 @@ class Dataset(object):
 
     def get_tf_data(self):
         if self.data_name == 'MNIST':
-            dataset_train, dataset_test = pre_process_mnist.generate_tf_data(self.X_train, self.y_train, self.X_test,
-                                                                             self.y_test, self.config['batch_size'])
+            dataset_train, dataset_test = pre_process_mnist.generate_tf_data(
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
 
-        if self.data_name == 'FASHION_MNIST':
-            dataset_train, dataset_test = pre_process_mnist.generate_tf_data(self.X_train, self.y_train, self.X_test,
-                                                                             self.y_test, self.config['batch_size'])
+        elif self.data_name == 'FASHION_MNIST':
+            dataset_train, dataset_test = pre_process_mnist.generate_tf_data(
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
 
         elif self.data_name == 'MNIST_SHIFT':
-            dataset_train, dataset_test = pre_process_mnist_shift.generate_tf_data(self.X_train, self.y_train, self.X_test,
-                                                                             self.y_test, self.config['batch_size'])
+            dataset_train, dataset_test = pre_process_mnist_shift.generate_tf_data(
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
 
         elif self.data_name == 'FASHION_MNIST_SHIFT':
-            dataset_train, dataset_test = pre_process_mnist_shift.generate_tf_data(self.X_train, self.y_train, self.X_test,
-                                                                             self.y_test, self.config['batch_size'])
+            dataset_train, dataset_test = pre_process_mnist_shift.generate_tf_data(
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
+
+        elif self.data_name == 'CIFAR10':
+            dataset_train, dataset_test = pre_process_cifar10.generate_tf_data(
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
+
+        elif self.data_name == 'CIFAR10_SHIFT':
+            raise NotImplementedError
+            # dataset_train, dataset_test = pre_process_cifar10.generate_tf_data(
+            #     self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
 
         elif self.data_name == 'SMALLNORB':
-            dataset_train, dataset_test = pre_process_smallnorb.generate_tf_data(self.X_train, self.y_train,
-                                                                                 self.X_test_patch, self.y_test,
-                                                                                 self.config['batch_size'])
+            dataset_train, dataset_test = pre_process_smallnorb.generate_tf_data(
+                self.X_train, self.y_train, self.X_test_patch, self.y_test, self.config['batch_size'])
 
         elif self.data_name == 'MULTIMNIST':
-            dataset_train, dataset_test = pre_process_multimnist.generate_tf_data(self.X_train, self.y_train,
-                                                                                  self.X_test, self.y_test,
-                                                                                  self.config['batch_size'],
-                                                                                  self.config["shift_multimnist"])
+            dataset_train, dataset_test = pre_process_multimnist.generate_tf_data(
+                self.X_train, self.y_train, self.X_test, self.y_test,
+                self.config['batch_size'], self.config["shift_multimnist"])
+        else:
+            raise NotImplementedError
 
         return dataset_train, dataset_test

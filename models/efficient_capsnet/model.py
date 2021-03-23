@@ -63,12 +63,17 @@ class EfficientCapsNet(Model):
         if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
             self.model = efficient_capsnet_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
                                                                    self.verbose)
+        elif self.data_name in ['CIFAR10', 'CIFAR10_SHIFT']:
+            self.model = efficient_capsnet_graph_mnist.build_graph(self.config['CIFAR10_INPUT_SHAPE'], self.mode,
+                                                                   self.verbose)
         elif self.data_name == 'SMALLNORB':
             self.model = efficient_capsnet_graph_smallnorb.build_graph(self.config['SMALLNORB_INPUT_SHAPE'], self.mode,
                                                                        self.verbose)
         elif self.data_name == 'MULTIMNIST':
             self.model = efficient_capsnet_graph_multimnist.build_graph(self.config['MULTIMNIST_INPUT_SHAPE'],
                                                                         self.mode, self.verbose)
+        else:
+            raise NotImplementedError
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_name,

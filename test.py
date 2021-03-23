@@ -17,8 +17,10 @@ model_name = 'Efficient_CapsNet'            # EfficientCapsNet
 
 # data_name = 'MNIST'
 # data_name = 'MNIST_SHIFT'
-data_name = 'FASHION_MNIST'
+# data_name = 'FASHION_MNIST'
 # data_name = 'FASHION_MNIST_SHIFT'
+data_name = 'CIFAR10'
+# data_name = 'CIFAR10_SHIFT'
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 tf.config.experimental.set_visible_devices(gpus[9], 'GPU')

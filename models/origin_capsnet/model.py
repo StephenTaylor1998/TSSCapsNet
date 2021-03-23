@@ -60,8 +60,16 @@ class CapsNet(Model):
             self.model = multi_gpu_model(self.model, gpu_number)
 
     def load_graph(self):
-        self.model = original_capsnet_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
-                                                              self.n_routing, self.verbose)
+        # self.model = original_capsnet_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
+        #                                                       self.n_routing, self.verbose)
+        if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
+            self.model = original_capsnet_graph_mnist.build_graph(self.config['MNIST_INPUT_SHAPE'], self.mode,
+                                                                   self.n_routing, self.verbose)
+        elif self.data_name in ['CIFAR10', 'CIFAR10_SHIFT']:
+            self.model = original_capsnet_graph_mnist.build_graph(self.config['CIFAR10_INPUT_SHAPE'], self.mode,
+                                                                   self.n_routing, self.verbose)
+        else:
+            raise NotImplementedError
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_name,
