@@ -25,7 +25,7 @@ data_name = 'CIFAR10'
 # data_name = 'CIFAR10_SHIFT'
 
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
+# gpus = tf.config.experimental.list_physical_devices('GPU')
 # tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
 # tf.config.experimental.set_memory_growth(gpus[0], True)
 gpu_number = None

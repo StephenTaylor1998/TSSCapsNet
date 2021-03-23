@@ -22,9 +22,9 @@ model_name = 'Efficient_CapsNet'            # EfficientCapsNet
 data_name = 'CIFAR10'
 # data_name = 'CIFAR10_SHIFT'
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[9], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[9], True)
+# gpus = tf.config.experimental.list_physical_devices('GPU')
+# tf.config.experimental.set_visible_devices(gpus[9], 'GPU')
+# tf.config.experimental.set_memory_growth(gpus[9], True)
 
 # 1.0 Import the Dataset
 dataset = Dataset(data_name, config_path='config.json')
