@@ -9,7 +9,7 @@ def get_terminal_args():
     parser.add_argument('--model-name', type=str, default="Efficient_CapsNet",
                         choices=["DCT_CapsNet_Attention", "DCT_CapsNet_GumbelGate", "DCT_CapsNet",
                                  "DCT_Efficient_CapsNet", "RFFT_Efficient_CapsNet", "Efficient_CapsNet",
-                                 "CapsNet"],
+                                 "CapsNet", "DWT_Efficient_CapsNet", "WST_Efficient_CapsNet"],
                         help='model name (default: DCT_CapsNet_Attention)')
     parser.add_argument('--data-name', type=str, default="MNIST",
                         choices=["MNIST", "MNIST_SHIFT", "FASHION_MNIST", "FASHION_MNIST_SHIFT",

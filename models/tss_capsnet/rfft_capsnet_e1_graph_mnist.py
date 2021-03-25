@@ -47,7 +47,7 @@ def efficient_capsnet_graph(input_shape):
     x = x[:, :, :, :-1]
     x = tf.keras.layers.BatchNormalization()(x)
     # x = PrimaryCaps(65, 9, 13, 5)(x)
-    x = PrimaryCaps(64, 9, 16, 4)(x)
+    x = PrimaryCaps(64, x.shape[1], 16, 4)(x)
 
     digit_caps = FCCaps(10, 16)(x)
     # digit_caps = FCCaps(10, 13)(x)

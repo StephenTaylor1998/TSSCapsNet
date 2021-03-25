@@ -43,14 +43,15 @@ def efficient_capsnet_graph(input_shape):
     x = tf.keras.layers.Conv2D(32, 3, activation='relu', padding='valid', kernel_initializer='he_normal')(x)
     x = tf.keras.layers.BatchNormalization()(x)
 
+    shape = x.shape
     # (18, 18, 32) ==>> (9, 9, 128)
     x = tf.transpose(x, (0, 3, 1, 2))
     x = Scattering2D(J=1, L=3)(x)
-    x = tf.keras.layers.Reshape(target_shape=(128, 9, 9))(x)
+    x = tf.keras.layers.Reshape(target_shape=(128, shape[1]//2, shape[2]//2))(x)
     x = tf.transpose(x, (0, 2, 3, 1))
 
     x = tf.keras.layers.BatchNormalization()(x)
-    x = PrimaryCaps(128, 9, 16, 8)(x)
+    x = PrimaryCaps(128, x.shape[1], 16, 8)(x)
 
     digit_caps = FCCaps(10, 16)(x)
 
