@@ -86,15 +86,15 @@ class Dataset(object):
         elif self.data_name == 'CIFAR10':
             (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.cifar10.load_data()
             # prepare the data
-            self.X_train, self.y_train = pre_process_mnist.pre_process(self.X_train, self.y_train)
-            self.X_test, self.y_test = pre_process_mnist.pre_process(self.X_test, self.y_test)
+            self.X_train, self.y_train = pre_process_cifar10.pre_process(self.X_train, self.y_train)
+            self.X_test, self.y_test = pre_process_cifar10.pre_process(self.X_test, self.y_test)
             self.class_names = list(range(10))
             print("[INFO] Dataset loaded!")
         elif self.data_name == 'CIFAR100':
             (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.cifar100.load_data()
             # prepare the data
-            self.X_train, self.y_train = pre_process_mnist.pre_process(self.X_train, self.y_train)
-            self.X_test, self.y_test = pre_process_mnist.pre_process(self.X_test, self.y_test)
+            self.X_train, self.y_train = pre_process_cifar100.pre_process(self.X_train, self.y_train)
+            self.X_test, self.y_test = pre_process_cifar100.pre_process(self.X_test, self.y_test)
             self.class_names = list(range(100))
             print("[INFO] Dataset loaded!")
         elif self.data_name == 'MNIST_SHIFT':
@@ -156,25 +156,33 @@ class Dataset(object):
         else:
             raise NotImplementedError
 
-    def get_tf_data(self):
+        return self.X_train, self.y_train, self.X_test, self.y_test
+
+    def get_tf_data(self, for_capsule=True):
         if self.data_name == 'MNIST':
             dataset_train, dataset_test = pre_process_mnist.generate_tf_data(
-                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'],
+                for_capsule)
         elif self.data_name == 'FASHION_MNIST':
             dataset_train, dataset_test = pre_process_mnist.generate_tf_data(
-                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'],
+                for_capsule)
         elif self.data_name == 'MNIST_SHIFT':
             dataset_train, dataset_test = pre_process_mnist_shift.generate_tf_data(
-                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'],
+                for_capsule)
         elif self.data_name == 'FASHION_MNIST_SHIFT':
             dataset_train, dataset_test = pre_process_mnist_shift.generate_tf_data(
-                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'],
+                for_capsule)
         elif self.data_name == 'CIFAR10':
             dataset_train, dataset_test = pre_process_cifar10.generate_tf_data(
-                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'],
+                for_capsule)
         elif self.data_name == 'CIFAR100':
             dataset_train, dataset_test = pre_process_cifar100.generate_tf_data(
-                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'])
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'],
+                for_capsule)
         elif self.data_name == 'SMALLNORB':
             dataset_train, dataset_test = pre_process_smallnorb.generate_tf_data(
                 self.X_train, self.y_train, self.X_test_patch, self.y_test, self.config['batch_size'])

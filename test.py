@@ -11,7 +11,8 @@ from models import CapsNet
 # model_name = 'DCT_CapsNet'                # TSSCapsNet
 # model_name = 'DCT_Efficient_CapsNet'      # TSSEfficientCapsNet
 # model_name = 'RFFT_Efficient_CapsNet'     # TSSEfficientCapsNet
-model_name = 'Efficient_CapsNet'            # EfficientCapsNet
+model_name = 'DWT_Efficient_CapsNet'
+# model_name = 'Efficient_CapsNet'          # EfficientCapsNet
 # model_name = 'CapsNet'                    # CapsNet
 
 
@@ -31,9 +32,9 @@ dataset = Dataset(data_name, config_path='config.json')
 
 # 2.0 Load the Model
 # model_test = TSSCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
-# model_test = TSSEfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
+model_test = TSSEfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 # model_test = EfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
-model_test = CapsNet(data_name, model_name=model_name, mode='test', verbose=True)
+# model_test = CapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 
 # 3.0 Load weights
 model_test.load_graph_weights()  # load graph weights (bin folder)

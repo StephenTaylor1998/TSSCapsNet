@@ -30,7 +30,8 @@ PARALLEL_INPUT_CALLS = 16
 
 # normalize dataset
 def pre_process(image, label):
-    return (image / 256)[..., None].astype('float32'), tf.keras.utils.to_categorical(label, num_classes=10)
+    print((image / 256).astype('float32'))
+    return (image / 256).astype('float32'), tf.keras.utils.to_categorical(label, num_classes=10)
 
 
 def image_shift_rand(image, label):
@@ -67,9 +68,9 @@ def image_shift_rand(image, label):
 
 
 def image_rotate_random_py_func(image, angle):
-    print(image.shape)
     rot_mat = cv2.getRotationMatrix2D(
         (CIFAR_IMG_SIZE / 2, CIFAR_IMG_SIZE / 2), int(angle), 1.0)
+    # image = tf.squeeze(image, axis=-1)
     rotated = cv2.warpAffine(image.numpy(), rot_mat,
                              (CIFAR_IMG_SIZE, CIFAR_IMG_SIZE))
     return rotated
@@ -121,25 +122,27 @@ def generator(image, label):
     return (image, label), (label, image)
 
 
-def generate_tf_data(X_train, y_train, X_test, y_test, batch_size):
+def generate_tf_data(X_train, y_train, X_test, y_test, batch_size, for_capsule=True):
     dataset_train = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     dataset_train = dataset_train.shuffle(buffer_size=CIFAR_TRAIN_IMAGE_COUNT)
-    # dataset_train = dataset_train.map(image_rotate_random)
-    # dataset_train = dataset_train.map(image_shift_rand,
-    #                                   num_parallel_calls=PARALLEL_INPUT_CALLS)
-    # dataset_train = dataset_train.map(image_squish_random,
-    #                                   num_parallel_calls=PARALLEL_INPUT_CALLS)
-    # dataset_train = dataset_train.map(image_erase_random,
-    #                                   num_parallel_calls=PARALLEL_INPUT_CALLS)
-    dataset_train = dataset_train.map(generator,
+    dataset_train = dataset_train.map(image_rotate_random)
+    dataset_train = dataset_train.map(image_shift_rand,
                                       num_parallel_calls=PARALLEL_INPUT_CALLS)
+    dataset_train = dataset_train.map(image_squish_random,
+                                      num_parallel_calls=PARALLEL_INPUT_CALLS)
+    dataset_train = dataset_train.map(image_erase_random,
+                                      num_parallel_calls=PARALLEL_INPUT_CALLS)
+    if for_capsule:
+        dataset_train = dataset_train.map(generator,
+                                          num_parallel_calls=PARALLEL_INPUT_CALLS)
     dataset_train = dataset_train.batch(batch_size)
     dataset_train = dataset_train.prefetch(-1)
 
     dataset_test = tf.data.Dataset.from_tensor_slices((X_test, y_test))
     dataset_test = dataset_test.cache()
-    dataset_test = dataset_test.map(generator,
-                                    num_parallel_calls=PARALLEL_INPUT_CALLS)
+    if for_capsule:
+        dataset_test = dataset_test.map(generator,
+                                        num_parallel_calls=PARALLEL_INPUT_CALLS)
     dataset_test = dataset_test.batch(batch_size)
     dataset_test = dataset_test.prefetch(-1)
 

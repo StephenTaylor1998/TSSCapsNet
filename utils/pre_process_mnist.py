@@ -119,7 +119,7 @@ def generator(image, label):
     return (image, label), (label, image)
 
 
-def generate_tf_data(X_train, y_train, X_test, y_test, batch_size):
+def generate_tf_data(X_train, y_train, X_test, y_test, batch_size, for_capsule=True):
     dataset_train = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     dataset_train = dataset_train.shuffle(buffer_size=MNIST_TRAIN_IMAGE_COUNT)
     dataset_train = dataset_train.map(image_rotate_random)
@@ -129,14 +129,17 @@ def generate_tf_data(X_train, y_train, X_test, y_test, batch_size):
                                       num_parallel_calls=PARALLEL_INPUT_CALLS)
     dataset_train = dataset_train.map(image_erase_random,
                                       num_parallel_calls=PARALLEL_INPUT_CALLS)
-    dataset_train = dataset_train.map(generator, num_parallel_calls=PARALLEL_INPUT_CALLS)
+    if for_capsule:
+        dataset_train = dataset_train.map(generator,
+                                          num_parallel_calls=PARALLEL_INPUT_CALLS)
     dataset_train = dataset_train.batch(batch_size)
     dataset_train = dataset_train.prefetch(-1)
 
     dataset_test = tf.data.Dataset.from_tensor_slices((X_test, y_test))
     dataset_test = dataset_test.cache()
-    dataset_test = dataset_test.map(generator,
-                                    num_parallel_calls=PARALLEL_INPUT_CALLS)
+    if for_capsule:
+        dataset_test = dataset_test.map(generator,
+                                        num_parallel_calls=PARALLEL_INPUT_CALLS)
     dataset_test = dataset_test.batch(batch_size)
     dataset_test = dataset_test.prefetch(-1)
 
