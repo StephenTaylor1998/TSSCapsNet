@@ -95,6 +95,13 @@ def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
+    elif model_name == 'RESNET20':
+        model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+            # saved_model_path, monitor='val_WST_Efficient_CapsNet_accuracy',
+            saved_model_path, monitor='val_RESNETV2_accuracy',
+            save_best_only=True, save_weights_only=True, verbose=1)
+        return [model_checkpoint, lr_decay]
+
     else:
         raise NotImplemented
 

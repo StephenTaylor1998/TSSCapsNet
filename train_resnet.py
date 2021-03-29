@@ -2,6 +2,8 @@ import os
 
 import numpy as np
 
+from models import ETCModel
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from utils import Dataset, plotHistory
@@ -22,41 +24,17 @@ data_name = 'CIFAR10'
 dataset = Dataset(data_name, config_path='config.json')
 batch_size = 128
 
-resnet50 = tf.keras.applications.ResNet50(
-    input_shape=(32, 32, 3),
-    classes=10,
-    include_top=True,
-    weights=None
-)
 
-resnet50.compile(optimizer=tf.optimizers.Adam(),
-                 # loss=tf.losses.SparseCategoricalCrossentropy(),
-                 loss=tf.losses.CategoricalCrossentropy(),
-                 metrics=['accuracy'])
-# resnet50 = tf.keras.applications.ResNet50()
-dataset_train, dataset_test = dataset.get_tf_data(for_capsule=False)
+model = ETCModel(data_name=data_name, model_name='RESNET20')
 
+# resume weight you trained before
+model.load_graph_weights()  # load graph weights (bin folder)
 
-def learn_scheduler(lr_dec, lr):
-    def learning_scheduler_fn(epoch):
-        lr_new = lr * (lr_dec ** epoch)
-        return lr_new if lr_new >= 5e-5 else 5e-5
+history = model.train(dataset)
 
-    return learning_scheduler_fn
-
-
-lr_decay = tf.keras.callbacks.LearningRateScheduler(learn_scheduler(0.9, 0.001))
-
-reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
-    monitor='val_accuracy', factor=0.9,
-    patience=4, min_lr=0.000005, min_delta=0.0001, mode='max')
-
-history = resnet50.fit(dataset_train, epochs=100, workers=16, batch_size=batch_size,
-                       validation_data=dataset_test,
-                       callbacks=[lr_decay]
-                       )
-
-resnet50.evaluate(x_test, y_test)
+model.evaluate(dataset.X_test, dataset.y_test)
 
 # 4.0 Plot history
 plotHistory(history)
+
+model.load_graph_weights()  # load graph weights (bin folder)

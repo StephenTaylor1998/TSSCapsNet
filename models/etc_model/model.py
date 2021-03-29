@@ -4,11 +4,12 @@ from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 
 from . import resnet_cifar
 from . import mobilenet_v2_cifar
+from .call_backs import get_callbacks
 
 from ..layers.model_base import Model
 
 from utils.dataset import Dataset
-from utils.tools import get_callbacks, marginLoss
+
 
 
 class ETCModel(Model):
@@ -77,36 +78,36 @@ class ETCModel(Model):
         else:
             raise NotImplementedError
 
-        if self.model_name == "RESNET":
-            self.model = resnet_cifar.build_graph(input_shape, self.mode,
-                                                                self.verbose)
+        if self.model_name == "RESNET20":
+            self.model = resnet_cifar.build_graph(input_shape, depth=20)
+        if self.model_name == "RESNET32":
+            self.model = resnet_cifar.build_graph(input_shape, depth=32)
+        if self.model_name == "RESNET56":
+            self.model = resnet_cifar.build_graph(input_shape, depth=56)
         if self.model_name == "MOBILENETv2":
-            self.model = mobilenet_v2_cifar.build_graph(input_shape, self.mode,
-                                                                 self.verbose)
+            self.model = mobilenet_v2_cifar.build_graph(input_shape)
 
 
     def train(self, dataset=None, initial_epoch=0):
-        callbacks = get_callbacks(self.model_name,
-                                  self.tb_path,
-                                  self.model_path_new_train,
-                                  self.config['lr_dec'],
-                                  self.config['lr'])
+        callbacks = get_callbacks(self.model_path_new_train)
 
-        if dataset == None:
+        if dataset is None:
             dataset = Dataset(self.data_name, self.config_path)
-        dataset_train, dataset_val = dataset.get_tf_data()
+        dataset_train, dataset_val = dataset.get_tf_data(for_capsule=False)
 
 
-        self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
-                           loss=[marginLoss, 'mse'],
-                           loss_weights=[1., self.config['lmd_gen']],
+        # self.model.compile(optimizer=tf.keras.optimizers.SGD(lr=self.config['ETC_MODEL_LR']),
+        #                    loss='categorical_crossentropy',
+        #                    metrics={self.model_name: 'accuracy'})
+        self.model.compile(optimizer=tf.keras.optimizers.Adam(lr=self.config['ETC_MODEL_LR']),
+                           loss='categorical_crossentropy',
                            metrics={self.model_name: 'accuracy'})
         steps = None
 
         print('-' * 30 + f'{self.data_name} train' + '-' * 30)
 
         history = self.model.fit(dataset_train,
-                                 epochs=self.config[f'epochs'], steps_per_epoch=steps,
+                                 epochs=self.config[f'ETC_MODEL_EPOCHS'], steps_per_epoch=steps,
                                  validation_data=(dataset_val), batch_size=self.config['batch_size'],
                                  initial_epoch=initial_epoch,
                                  callbacks=callbacks,

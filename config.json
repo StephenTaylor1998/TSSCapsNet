@@ -1,4 +1,5 @@
 {
+
   "eps": 10e-21,
   "MNIST_INPUT_SHAPE": [
     28,
@@ -33,5 +34,9 @@
   "n_overlay_multimnist": 1000,
   "shift_multimnist": 6,
   "pad_multimnist": 4,
-  "num_workers": 16
+  "num_workers": 16,
+  "<<<ETC_MODEL_PARAMETERS": "^^^^^^^^^^^^^^^^^^^ETC_MODEL_PARAMETERS^^^^^^^^^^^^^^^^^^^^^^^",
+  "ETC_MODEL_LR": 1e-1,
+  "ETC_MODEL_EPOCHS": 400,
+  "ETC_MODEL_PARAMETERS>>>": "^^^^^^^^^^^^^^^^^^^ETC_MODEL_PARAMETERS^^^^^^^^^^^^^^^^^^^^^^^"
 }
