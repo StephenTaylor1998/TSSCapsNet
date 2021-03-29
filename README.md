@@ -22,7 +22,7 @@ Peek inside the requirements file if you have everything already installed. Most
 
    ```bash
   # CapsuleNet
-  python main.py --arch CapsNet --model-name CapsNet --data-name CIFAR10 --initial-epoch 0 --select-gpu 9 --test True
+  python main.py --arch CapsNet --model-name CapsNet --data-name CIFAR10 --initial-epoch 0 --select-gpu 0 --test True
    ```
    ```bash
   # ResNet 
