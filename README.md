@@ -16,6 +16,33 @@ Python3 and Tensorflow 2.x are required and should be installed on the host mach
    ```
 Peek inside the requirements file if you have everything already installed. Most of the dependencies are common libraries.
 
+## 1.2 run model 
+
+### with terminal args
+
+   ```bash
+  # CapsuleNet
+  python main.py --arch CapsNet --model-name CapsNet --data-name CIFAR10 --initial-epoch 0 --select-gpu 9 --test True
+   ```
+   ```bash
+  # ResNet 
+  # (will be implement soon)   :)
+  # know please use this
+  python train_resnet.py
+   ```
+
+### train without args
+
+   ```bash
+   python train.py
+   ```
+
+### test without args
+
+   ```bash
+   python test.py
+   ```
+
 # Citation
 Use this bibtex if you enjoyed this repository and you want to cite it:
 

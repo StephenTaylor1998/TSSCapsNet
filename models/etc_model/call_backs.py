@@ -73,56 +73,51 @@ EXPONENT = 'exponent'
 
 def lr_schedule(epoch):
     """Learning Rate Schedule
-
-    Learning rate is scheduled to be reduced after 80, 120, 160, 180 epochs.
-    Called automatically every epoch as part of callbacks during training.
-
     # Arguments
         epoch (int): The number of epochs
-
     # Returns
         lr (float32): learning rate
+    >>>lr = 1e-3
+    >>>if epoch > 180:
+    >>>    lr *= 0.5e-3
+    >>>elif epoch > 160:
+    >>>    lr *= 1e-3
+    >>>elif epoch > 120:
+    >>>    lr *= 1e-2
+    >>>elif epoch > 80:
+    >>>    lr *= 1e-1
+    >>>print('Learning rate: ', lr)
+    >>>return lr
     """
-    '''
+    # for Adam Optimizer
     lr = 1e-3
-    if epoch > 180:
-        lr *= 0.5e-3
+    if epoch > 360:
+        lr = 1e-7
+    elif epoch > 300:
+        lr = 1e-6
+    elif epoch > 240:
+        lr = 1e-5
     elif epoch > 160:
-        lr *= 1e-3
-    elif epoch > 120:
-        lr *= 1e-2
+        lr = 1e-4
     elif epoch > 80:
-        lr *= 1e-1
+        lr = 1e-3
     print('Learning rate: ', lr)
     return lr
-    '''
-    # lr = 1e-3
+
+    # for SGD Optimizer
+    # lr = 1e-1
     # if epoch > 360:
-    #     lr = 1e-7
-    # elif epoch > 300:
-    #     lr = 1e-6
-    # elif epoch > 240:
     #     lr = 1e-5
-    # elif epoch > 160:
+    # elif epoch > 300:
     #     lr = 1e-4
-    # elif epoch > 80:
+    # elif epoch > 240:
     #     lr = 1e-3
+    # elif epoch > 160:
+    #     lr = 1e-2
+    # elif epoch > 80:
+    #     lr = 1e-1
     # print('Learning rate: ', lr)
     # return lr
-
-    lr = 1e-1
-    if epoch > 360:
-        lr = 1e-5
-    elif epoch > 300:
-        lr = 1e-4
-    elif epoch > 240:
-        lr = 1e-3
-    elif epoch > 160:
-        lr = 1e-2
-    elif epoch > 80:
-        lr = 1e-1
-    print('Learning rate: ', lr)
-    return lr
 
 
 def get_callbacks(weight_path):
