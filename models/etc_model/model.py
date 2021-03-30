@@ -96,12 +96,12 @@ class ETCModel(Model):
         dataset_train, dataset_val = dataset.get_tf_data(for_capsule=False)
 
 
-        # self.model.compile(optimizer=tf.keras.optimizers.SGD(lr=self.config['ETC_MODEL_LR']),
-        #                    loss='categorical_crossentropy',
-        #                    metrics={self.model_name: 'accuracy'})
-        self.model.compile(optimizer=tf.keras.optimizers.Adam(lr=self.config['ETC_MODEL_LR']),
+        self.model.compile(optimizer=tf.keras.optimizers.SGD(lr=self.config['ETC_MODEL_LR'], momentum=0.9),
                            loss='categorical_crossentropy',
                            metrics={self.model_name: 'accuracy'})
+        # self.model.compile(optimizer=tf.keras.optimizers.Adam(lr=self.config['ETC_MODEL_LR']),
+        #                    loss='categorical_crossentropy',
+        #                    metrics={self.model_name: 'accuracy'})
         steps = None
 
         print('-' * 30 + f'{self.data_name} train' + '-' * 30)

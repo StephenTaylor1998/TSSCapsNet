@@ -71,7 +71,8 @@ def resnet_v1(input_shape, depth, num_classes=10, **kwargs):
     y = Flatten()(x)
     outputs = Dense(num_classes,
                     activation='softmax',
-                    kernel_initializer='he_normal')(y)
+                    kernel_initializer='he_normal',
+                    name='RESNET20')(y)
 
     model = keras.Model(inputs=inputs, outputs=outputs)
     return model
@@ -144,11 +145,11 @@ def resnet_v2(input_shape, depth, num_classes=10, **kwargs):
                     kernel_initializer='he_normal',
                     name='RESNET20')(y)
 
-    model = keras.Model(inputs=inputs, outputs=outputs, name='RESNET20')
+    model = keras.Model(inputs=inputs, outputs=outputs)
     return model
 
 
-def build_graph(input_shape, version=2, depth=20, num_classes=10):
+def build_graph(input_shape, version=1, depth=20, num_classes=10):
     """
     version:1/2
     depth:20, 32, 44, 56, 110, 164, 1001

@@ -35,6 +35,7 @@ def pre_process(image, label):
 
 
 def image_shift_rand(image, label):
+    image = tf.transpose(image, (2, 0, 1))
     image = tf.reshape(image, [CIFAR_IMG_SIZE, CIFAR_IMG_SIZE, CIFAR_IMG_CHANNEL])
     nonzero_x_cols = tf.cast(tf.where(tf.greater(
         tf.reduce_sum(image, axis=0), 0)), tf.int32)
@@ -47,12 +48,10 @@ def image_shift_rand(image, label):
     rand_dirs = tf.random.uniform([2])
     dir_idxs = tf.cast(tf.floor(rand_dirs * 2), tf.int32)
     rand_amts = tf.minimum(tf.abs(tf.random.normal([2], 0, .33)), .9999)
-    x_amts = [tf.floor(-1.0 * rand_amts[0] *
-                       tf.cast(left_margin, tf.float32)), tf.floor(rand_amts[0] *
-                                                                   tf.cast(1 + right_margin, tf.float32))]
-    y_amts = [tf.floor(-1.0 * rand_amts[1] *
-                       tf.cast(top_margin, tf.float32)), tf.floor(rand_amts[1] *
-                                                                  tf.cast(1 + bot_margin, tf.float32))]
+    x_amts = [tf.floor(-1.0 * rand_amts[0] * tf.cast(left_margin, tf.float32)),
+              tf.floor(rand_amts[0] * tf.cast(1 + right_margin, tf.float32))]
+    y_amts = [tf.floor(-1.0 * rand_amts[1] * tf.cast(top_margin, tf.float32)),
+              tf.floor(rand_amts[1] * tf.cast(1 + bot_margin, tf.float32))]
     x_amt = tf.cast(tf.gather(x_amts, dir_idxs[1], axis=0), tf.int32)
     y_amt = tf.cast(tf.gather(y_amts, dir_idxs[0], axis=0), tf.int32)
     image = tf.reshape(image, [CIFAR_IMG_SIZE * CIFAR_IMG_SIZE * CIFAR_IMG_CHANNEL])
@@ -61,9 +60,13 @@ def image_shift_rand(image, label):
     image = tf.transpose(image)
     image = tf.reshape(image, [CIFAR_IMG_SIZE * CIFAR_IMG_SIZE * CIFAR_IMG_CHANNEL])
     image = tf.roll(image, x_amt * CIFAR_IMG_SIZE, axis=0)
-    image = tf.reshape(image, [CIFAR_IMG_SIZE, CIFAR_IMG_SIZE, CIFAR_IMG_CHANNEL])
+    # image = tf.reshape(image, [CIFAR_IMG_SIZE, CIFAR_IMG_SIZE, CIFAR_IMG_CHANNEL])
+    image = tf.reshape(image, [CIFAR_IMG_CHANNEL, CIFAR_IMG_SIZE, CIFAR_IMG_SIZE])
     image = tf.transpose(image)
-    image = tf.reshape(image, [CIFAR_IMG_SIZE, CIFAR_IMG_SIZE, CIFAR_IMG_CHANNEL])
+    # image = tf.reshape(image, [CIFAR_IMG_SIZE, CIFAR_IMG_SIZE, CIFAR_IMG_CHANNEL])
+    image = tf.reshape(image, [CIFAR_IMG_CHANNEL, CIFAR_IMG_SIZE, CIFAR_IMG_SIZE])
+
+    image = tf.transpose(image, (1, 2, 0))
     return image, label
 
 
@@ -106,6 +109,8 @@ def image_squish_random(image, label):
         (rand_amts[0] * (CIFAR_IMG_SIZE / 4)) + 1), tf.int32)
     offset_mod = tf.cast(tf.floor(rand_amts[1] * 2.0), tf.int32)
     offset = (width_mod // 2) + offset_mod
+    print(image)
+    print(type(image))
     image = tf.image.resize(image,
                             [CIFAR_IMG_SIZE, CIFAR_IMG_SIZE - width_mod],
                             method=tf2.image.ResizeMethod.LANCZOS3,
@@ -172,12 +177,12 @@ def generate_tf_data(X_train, y_train, X_test, y_test, batch_size, for_capsule=T
     dataset_train = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     dataset_train = dataset_train.shuffle(buffer_size=CIFAR_TRAIN_IMAGE_COUNT)
     dataset_train = dataset_train.map(image_rotate_random)
-    # dataset_train = dataset_train.map(image_shift_rand,
-    #                                   num_parallel_calls=PARALLEL_INPUT_CALLS)
-    # dataset_train = dataset_train.map(image_squish_random,
-    #                                   num_parallel_calls=PARALLEL_INPUT_CALLS)
-    # dataset_train = dataset_train.map(image_erase_random,
-    #                                   num_parallel_calls=PARALLEL_INPUT_CALLS)
+    dataset_train = dataset_train.map(image_shift_rand,
+                                      num_parallel_calls=PARALLEL_INPUT_CALLS)
+    dataset_train = dataset_train.map(image_squish_random,
+                                      num_parallel_calls=PARALLEL_INPUT_CALLS)
+    dataset_train = dataset_train.map(image_erase_random,
+                                      num_parallel_calls=PARALLEL_INPUT_CALLS)
     if for_capsule:
         dataset_train = dataset_train.map(generator,
                                           num_parallel_calls=PARALLEL_INPUT_CALLS)

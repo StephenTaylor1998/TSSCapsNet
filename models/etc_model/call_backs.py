@@ -89,35 +89,35 @@ def lr_schedule(epoch):
     >>>print('Learning rate: ', lr)
     >>>return lr
     """
-    # for Adam Optimizer
-    lr = 1e-3
-    if epoch > 360:
-        lr = 1e-7
-    elif epoch > 300:
-        lr = 1e-6
-    elif epoch > 240:
-        lr = 1e-5
-    elif epoch > 160:
-        lr = 1e-4
-    elif epoch > 80:
-        lr = 1e-3
-    print('Learning rate: ', lr)
-    return lr
-
-    # for SGD Optimizer
-    # lr = 1e-1
+    # # for Adam Optimizer
+    # lr = 1e-3
     # if epoch > 360:
-    #     lr = 1e-5
+    #     lr = 1e-7
     # elif epoch > 300:
-    #     lr = 1e-4
+    #     lr = 1e-6
     # elif epoch > 240:
-    #     lr = 1e-3
+    #     lr = 1e-5
     # elif epoch > 160:
-    #     lr = 1e-2
+    #     lr = 1e-4
     # elif epoch > 80:
-    #     lr = 1e-1
+    #     lr = 1e-3
     # print('Learning rate: ', lr)
     # return lr
+
+    # for SGD Optimizer
+    lr = 1e-1
+    if epoch > 390:
+        lr = 1e-5
+    elif epoch > 350:
+        lr = 1e-4
+    elif epoch > 300:
+        lr = 1e-3
+    elif epoch > 250:
+        lr = 1e-2
+    elif epoch > 150:
+        lr = 1e-1
+    print('Learning rate: ', lr)
+    return lr
 
 
 def get_callbacks(weight_path):

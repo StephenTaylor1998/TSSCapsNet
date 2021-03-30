@@ -28,7 +28,7 @@ batch_size = 128
 model = ETCModel(data_name=data_name, model_name='RESNET20')
 
 # resume weight you trained before
-model.load_graph_weights()  # load graph weights (bin folder)
+# model.load_graph_weights()  # load graph weights (bin folder)
 
 history = model.train(dataset)
 
