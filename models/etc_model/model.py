@@ -4,12 +4,12 @@ from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 
 from . import resnet_cifar
 from . import mobilenet_v2_cifar
+from . import ghostnet_cifar
 from .call_backs import get_callbacks
 
 from ..layers.model_base import Model
 
 from utils.dataset import Dataset
-
 
 
 class ETCModel(Model):
@@ -79,14 +79,15 @@ class ETCModel(Model):
             raise NotImplementedError
 
         if self.model_name == "RESNET20":
-            self.model = resnet_cifar.build_graph(input_shape, depth=20)
-        if self.model_name == "RESNET32":
-            self.model = resnet_cifar.build_graph(input_shape, depth=32)
-        if self.model_name == "RESNET56":
-            self.model = resnet_cifar.build_graph(input_shape, depth=56)
-        if self.model_name == "MOBILENETv2":
+            self.model = resnet_cifar.build_graph(input_shape, depth=18)
+        # if self.model_name == "RESNET32":
+        #     self.model = resnet_cifar.build_graph(input_shape, depth=32)
+        # if self.model_name == "RESNET56":
+        #     self.model = resnet_cifar.build_graph(input_shape, depth=56)
+        elif self.model_name == "GHOSTNET":
+            self.model = ghostnet_cifar.build_graph(input_shape)
+        elif self.model_name == "MOBILENETv2":
             self.model = mobilenet_v2_cifar.build_graph(input_shape)
-
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_path_new_train)
@@ -95,20 +96,19 @@ class ETCModel(Model):
             dataset = Dataset(self.data_name, self.config_path)
         dataset_train, dataset_val = dataset.get_tf_data(for_capsule=False)
 
-
-        self.model.compile(optimizer=tf.keras.optimizers.SGD(lr=self.config['ETC_MODEL_LR'], momentum=0.9),
-                           loss='categorical_crossentropy',
-                           metrics={self.model_name: 'accuracy'})
-        # self.model.compile(optimizer=tf.keras.optimizers.Adam(lr=self.config['ETC_MODEL_LR']),
+        # self.model.compile(optimizer=tf.keras.optimizers.SGD(lr=self.config['ETC_MODEL_LR'], momentum=0.9),
         #                    loss='categorical_crossentropy',
         #                    metrics={self.model_name: 'accuracy'})
+        self.model.compile(optimizer=tf.keras.optimizers.Adam(lr=self.config['ETC_MODEL_LR']),
+                           loss='categorical_crossentropy',
+                           metrics='accuracy')
         steps = None
 
         print('-' * 30 + f'{self.data_name} train' + '-' * 30)
 
         history = self.model.fit(dataset_train,
                                  epochs=self.config[f'ETC_MODEL_EPOCHS'], steps_per_epoch=steps,
-                                 validation_data=(dataset_val), batch_size=self.config['batch_size'],
+                                 validation_data=dataset_val, batch_size=self.config['batch_size'],
                                  initial_epoch=initial_epoch,
                                  callbacks=callbacks,
                                  workers=self.config['num_workers'])

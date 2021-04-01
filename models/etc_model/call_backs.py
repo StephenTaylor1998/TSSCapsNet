@@ -104,18 +104,38 @@ def lr_schedule(epoch):
     # print('Learning rate: ', lr)
     # return lr
 
-    # for SGD Optimizer
-    lr = 1e-1
-    if epoch > 390:
+    # # for SGD Optimizer (about 10 hours on single GPU)
+    # lr = 1e-1
+    # if epoch > 600:
+    #     lr = 5e-6
+    # elif epoch > 550:
+    #     lr = 1e-5
+    # elif epoch > 550:
+    #     lr = 5e-5
+    # elif epoch > 500:
+    #     lr = 1e-4
+    # elif epoch > 450:
+    #     lr = 5e-4
+    # elif epoch > 400:
+    #     lr = 1e-3
+    # elif epoch > 350:
+    #     lr = 5e-3
+    # elif epoch > 300:
+    #     lr = 1e-2
+    # elif epoch > 200:
+    #     lr = 5e-2
+    # print('Learning rate: ', lr)
+    # return lr
+
+    # for Adam Optimizer
+    lr = 1e-3
+
+    if epoch > 180:
+        lr = 1e-6
+    elif epoch > 120:
         lr = 1e-5
-    elif epoch > 350:
+    elif epoch > 60:
         lr = 1e-4
-    elif epoch > 300:
-        lr = 1e-3
-    elif epoch > 250:
-        lr = 1e-2
-    elif epoch > 150:
-        lr = 1e-1
     print('Learning rate: ', lr)
     return lr
 
