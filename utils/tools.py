@@ -88,6 +88,13 @@ def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
+    elif model_name == 'DWT_Multi_Attention_CapsNet':
+        model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+            # saved_model_path, monitor='val_DWT_Efficient_CapsNet_accuracy',
+            saved_model_path, monitor='val_DWT_Multi_Attention_CapsNet_loss',
+            save_best_only=True, save_weights_only=True, verbose=1)
+        return [tb, model_checkpoint, lr_decay]
+
     elif model_name == 'WST_Efficient_CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
             # saved_model_path, monitor='val_WST_Efficient_CapsNet_accuracy',
@@ -95,10 +102,9 @@ def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]
 
-    elif model_name == 'RESNET20':
+    elif model_name.startswith('RESNET'):
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            # saved_model_path, monitor='val_WST_Efficient_CapsNet_accuracy',
-            saved_model_path, monitor='val_RESNETV2_accuracy',
+            saved_model_path, monitor='val_accuracy',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [model_checkpoint, lr_decay]
 

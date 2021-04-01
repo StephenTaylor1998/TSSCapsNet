@@ -6,8 +6,8 @@ from utils import Dataset, plotImages, plotWrongImages
 from models import CapsNet
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[6], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[6], True)
+tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[0], True)
 
 # some parameters
 # model_name = 'MNIST'  # only MNIST is available

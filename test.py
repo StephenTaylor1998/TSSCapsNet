@@ -1,3 +1,6 @@
+import os
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from utils import Dataset, plotHistory
 from models import TSSCapsNet
@@ -11,7 +14,8 @@ from models import CapsNet
 # model_name = 'DCT_CapsNet'                # TSSCapsNet
 # model_name = 'DCT_Efficient_CapsNet'      # TSSEfficientCapsNet
 # model_name = 'RFFT_Efficient_CapsNet'     # TSSEfficientCapsNet
-model_name = 'DWT_Efficient_CapsNet'
+# model_name = 'DWT_Efficient_CapsNet'
+model_name = "DWT_Multi_Attention_CapsNet"
 # model_name = 'Efficient_CapsNet'          # EfficientCapsNet
 # model_name = 'CapsNet'                    # CapsNet
 

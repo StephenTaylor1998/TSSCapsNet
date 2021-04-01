@@ -7,6 +7,7 @@ from . import dct_capsnet_e1_graph_mnist
 from . import dct_capsnet_h1_attention_mnist
 from . import dct_capsnet_h1_gumbel_gate_mnist
 from . import dwt_capsnet_e1_graph_mnist
+from . import dwt_capsnet_e1_multi_attention
 from . import rfft_capsnet_e1_graph_mnist
 from . import wst_capsnet_e1_graph_mnist
 from ..layers.model_base import Model
@@ -185,14 +186,17 @@ class TSSEfficientCapsNet(Model):
         if self.model_name == "DCT_Efficient_CapsNet":
             self.model = dct_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
                                                                 self.verbose)
-        if self.model_name == "RFFT_Efficient_CapsNet":
+        elif self.model_name == "RFFT_Efficient_CapsNet":
             self.model = rfft_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
                                                                  self.verbose)
-        if self.model_name == "DWT_Efficient_CapsNet":
+        elif self.model_name == "DWT_Efficient_CapsNet":
             self.model = dwt_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
                                                                 self.verbose)
-        if self.model_name == "WST_Efficient_CapsNet":
+        elif self.model_name == "WST_Efficient_CapsNet":
             self.model = wst_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
+                                                                self.verbose)
+        elif self.model_name == 'DWT_Multi_Attention_CapsNet':
+            self.model = dwt_capsnet_e1_multi_attention.build_graph(input_shape, self.mode,
                                                                 self.verbose)
 
     def train(self, dataset=None, initial_epoch=0):

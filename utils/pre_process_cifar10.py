@@ -28,10 +28,17 @@ CIFAR_TRAIN_IMAGE_COUNT = 50000
 PARALLEL_INPUT_CALLS = 16
 
 
+def label_smoothing(label, smoothing=0.001):
+    label -= smoothing * (label - 1. / tf.cast(label.shape[-1], label.dtype))
+    return label
+
+
 # normalize dataset
 def pre_process(image, label):
-    # print((image / 256).astype('float32'))
-    return (image / 256).astype('float32'), tf.keras.utils.to_categorical(label, num_classes=10)
+    image = (image / 256).astype('float32')
+    label = tf.keras.utils.to_categorical(label, num_classes=10)
+    label = label_smoothing(label, smoothing=0.02)
+    return image, label
 
 
 def image_shift_rand(image, label):
@@ -82,7 +89,7 @@ def image_rotate_random_py_func(image, angle):
 def image_rotate_random(image, label):
     rand_amts = tf.maximum(tf.minimum(
         tf.random.normal([2], 0, .33), .9999), -.9999)
-    angle = rand_amts[0] * 30  # degrees
+    angle = rand_amts[0] * 180  # degrees
     new_image = tf.py_function(image_rotate_random_py_func,
                                (image, angle), tf.float32)
     new_image = tf.cond(rand_amts[1] > 0, lambda: image, lambda: new_image)

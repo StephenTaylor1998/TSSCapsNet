@@ -14,6 +14,7 @@ from models import CapsNet
 # model_name = 'DCT_Efficient_CapsNet'      # TSSEfficientCapsNet
 # model_name = 'RFFT_Efficient_CapsNet'     # TSSEfficientCapsNet
 model_name = 'DWT_Efficient_CapsNet'
+# model_name = "DWT_Multi_Attention_CapsNet"
 # model_name = 'Efficient_CapsNet'           # EfficientCapsNet
 # model_name = 'CapsNet'                     # CapsNet
 
