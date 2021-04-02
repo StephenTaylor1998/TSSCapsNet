@@ -42,6 +42,7 @@ class FFC(layers.Layer):
                15 15 15
                24 24 24
     """
+
     def __init__(self, out_length, kernel_size=1, strides=1, group=1, as_matrix=True):
         """
         "Folding Full Connection"
@@ -58,7 +59,7 @@ class FFC(layers.Layer):
         self.strides = strides
         self.group = group
         self.as_matrix = as_matrix
-        self.large_param_matmul = None
+        self.folding_full_connection = None
 
     def build(self, input_shape):
         if self.as_matrix:
@@ -67,9 +68,9 @@ class FFC(layers.Layer):
 
         assert self.group <= self.out_numbers, "[ERROR] self.group should <= self.out_numbers"
 
-        self.large_param_matmul = layers.Conv1D(self.out_numbers, self.kernel_size, strides=self.strides,
-                                                groups=self.group, use_bias=False)
+        self.folding_full_connection = layers.Conv1D(self.out_numbers, self.kernel_size, strides=self.strides,
+                                                     groups=self.group, use_bias=False)
 
     def call(self, inputs, **kwargs):
-        out = self.large_param_matmul(inputs)
+        out = self.folding_full_connection(inputs)
         return out
