@@ -42,7 +42,6 @@ class FFC(layers.Layer):
                15 15 15
                24 24 24
     """
-
     def __init__(self, out_length, kernel_size=1, strides=1, group=1, as_matrix=True):
         """
         "Folding Full Connection"
@@ -73,4 +72,28 @@ class FFC(layers.Layer):
 
     def call(self, inputs, **kwargs):
         out = self.folding_full_connection(inputs)
+        return out
+
+
+class Condense(layers.Layer):
+    """
+      A conv1d operator, support tensor shape [batch, N, D],
+    the operator will traverse dimension N, and perform a calculation on [batch, n:n+rate, :].
+    It is recommended to use rate == strings to avoid redundant computation.
+    Example:
+        parameter(input_shape=[1, 3, 4], out_length=2, rate=2, strides=2)
+        X:  1  1  1  1      W:                              Y:
+            1  1  1  1          1  1  1  1 | 2  2  2  2         12 | 12
+            2  2  2  2          2  2  2  2 | 1  1  1  1         24 | 24
+            2  2  2  2
+    Output:
+        [batch, N/rate, out_length]
+    """
+
+    def __init__(self, out_length, rate=2, strides=2):
+        super(Condense, self).__init__()
+        self.sparse_extraction = layers.Conv1D(out_length, rate, strides=strides, use_bias=False)
+
+    def call(self, inputs, **kwargs):
+        out = self.sparse_extraction(inputs)
         return out
