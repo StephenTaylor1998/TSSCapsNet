@@ -52,7 +52,7 @@ class SquashHinton(tf.keras.layers.Layer):
 
 class Squash(tf.keras.layers.Layer):
     """
-    Squash activation used in 'Efficient-CapsNet: Capsule Network with Self-Attention Routing'.
+    Squash activation used in 'Efficient-CapsNet: Capsule Network with Self-Attention RoutingTiny'.
     
     ...
     
@@ -85,7 +85,7 @@ class Squash(tf.keras.layers.Layer):
 
 class PrimaryCaps(tf.keras.layers.Layer):
     """
-    Create a primary capsule layer with the methodology described in 'Efficient-CapsNet: Capsule Network with Self-Attention Routing'. 
+    Create a primary capsule layer with the methodology described in 'Efficient-CapsNet: Capsule Network with Self-Attention RoutingTiny'.
     Properties of each capsule s_n are exatracted using a 2D depthwise convolution.
     
     ...
@@ -133,7 +133,7 @@ class PrimaryCaps(tf.keras.layers.Layer):
 class FCCaps(tf.keras.layers.Layer):
     """
     Fully-connected caps layer. It exploites the routing mechanism,
-    explained in 'Efficient-CapsNet: Capsule Network with Self-Attention Routing',
+    explained in 'Efficient-CapsNet: Capsule Network with Self-Attention RoutingTiny',
     to create a parent layer of capsules. 
     
     ...

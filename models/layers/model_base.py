@@ -57,7 +57,7 @@ class Model(object):
     def load_graph_weights(self):
         try:
             self.model.load_weights(self.model_path)
-        except Exception as e:
+        except Exception:
             if os.path.exists(self.model_path):
                 print("[ERROR] Loading Graph Weights '{}'".format(self.model_path))
             else:
@@ -66,7 +66,7 @@ class Model(object):
     def predict(self, dataset_test, batch_size=None):
         return self.model.predict(dataset_test, batch_size=batch_size)
 
-    def evaluate(self, X_test, y_test):
+    def evaluate(self, X_test, y_test, dataset_name="Test"):
         print('-' * 30 + f'{self.data_name} Evaluation' + '-' * 30)
         if self.data_name == "MULTIMNIST":
             dataset_test = pre_process_multimnist.generate_tf_data_test(X_test, y_test, self.config["shift_multimnist"],
@@ -80,8 +80,8 @@ class Model(object):
             y_pred, X_gen = self.model.predict(X_test)
             acc = np.sum(np.argmax(y_pred, 1) == np.argmax(y_test, 1)) / y_test.shape[0]
         test_error = 1 - acc
-        print('Test acc:', acc)
-        print(f"Test error [%]: {(test_error):.4%}")
+        print(f"{dataset_name} acc:", acc)
+        print(f"{dataset_name} error [%]: {test_error :.4%}")
         if self.data_name == "MULTIMNIST":
             print(
                 f"N° misclassified images: {int(test_error * len(y_test) * self.config['n_overlay_multimnist'])} out of {len(y_test) * self.config['n_overlay_multimnist']}")

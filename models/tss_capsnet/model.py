@@ -7,7 +7,7 @@ from . import dct_capsnet_e1_graph_mnist
 from . import dct_capsnet_h1_attention_mnist
 from . import dct_capsnet_h1_gumbel_gate_mnist
 from . import dwt_capsnet_e1_graph_mnist
-from . import dwt_capsnet_e1_multi_attention
+from . import dwt_resnet_capsnet_e1_multi_attention
 from . import rfft_capsnet_e1_graph_mnist
 from . import wst_capsnet_e1_graph_mnist
 from ..layers.model_base import Model
@@ -196,8 +196,8 @@ class TSSEfficientCapsNet(Model):
             self.model = wst_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
                                                                 self.verbose)
         elif self.model_name == 'DWT_Multi_Attention_CapsNet':
-            self.model = dwt_capsnet_e1_multi_attention.build_graph(input_shape, self.mode,
-                                                                self.verbose)
+            self.model = dwt_resnet_capsnet_e1_multi_attention.build_graph(input_shape, self.mode,
+                                                                           self.verbose)
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_name,
