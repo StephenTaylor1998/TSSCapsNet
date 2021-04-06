@@ -58,10 +58,10 @@ class FFC(layers.Layer):
         self.out_length = out_length
         self.groups = groups
         self.as_matrix = as_matrix
-        self.kernel_initializer = kernel_initializer
         self.folding = None
         self.reverse_folding = None
         self.W = None
+        self.kernel_initializer = tf.keras.initializers.get(kernel_initializer)
 
     def build(self, input_shape):
         if self.as_matrix:
@@ -76,7 +76,6 @@ class FFC(layers.Layer):
         n_shape = input_shape[1:-1]
         group_length = vector_length // self.groups
         assert group_length * self.groups == vector_length, "vector_length must be divisible by group"
-        self.kernel_initializer = tf.keras.initializers.get(self.kernel_initializer)
         self.W = self.add_weight(shape=[self.groups, group_length, self.out_length],
                                  initializer=self.kernel_initializer, name='W')
         # self.folding = layers.Reshape((-1, num_vector, self.groups, group_length))
@@ -112,13 +111,13 @@ class Condense(layers.Layer):
         self.rate = rate
         self.sparse_extraction = layers.Conv1D(out_length, rate, strides=strides, use_bias=False,
                                                kernel_regularizer=regularizers.L2(5e-5))
-        self.params = Variable(self.out_length * self.rate, dtype=float32, trainable=False, name='params')
+        # self.params = Variable(self.out_length * self.rate, dtype=float32, trainable=False, name='params')
 
         self.activation = layers.ELU()
 
     def call(self, inputs, **kwargs):
         out = self.sparse_extraction(inputs)
-        out = out / sqrt(self.params)
+        # out = out / sqrt(self.params)
         out = self.activation(out)
 
         return out
@@ -148,11 +147,11 @@ class CapsFPN(layers.Layer):
         l2 = self.layer_normal2(l2)
         l3 = self.condense3(l2)
         l3 = self.layer_normal3(l3)
-        l4 = self.condense3(l3)
+        l4 = self.condense4(l3)
         l4 = self.layer_normal4(l4)
-        feature_pyramid = self.feature_pyramid([l1, l2, l3, l4])
-        feature_pyramid = self.layer_normal5(feature_pyramid)
-        return feature_pyramid
+        pyramid = self.feature_pyramid([l1, l2, l3, l4])
+        pyramid = self.layer_normal5(pyramid)
+        return pyramid
 
 
 class Q(layers.Layer):
@@ -197,20 +196,22 @@ class Q(layers.Layer):
         return out
 
 
-class K(layers.Layer):
+class CapsSimilarity(layers.Layer):
 
     def __init__(self, **kwargs):
-        super(K, self).__init__(**kwargs)
-        self.get_center = tf.reduce_sum
+        super(CapsSimilarity, self).__init__(**kwargs)
         self.layer_normal1 = layers.LayerNormalization()
-        self.dot = layers.Dot((2, 2), normalize=True)
+        # self.dot = layers.Dot((2, 2), normalize=True)
+        self.dot = layers.Dot((2, 2))
         self.layer_normal2 = layers.LayerNormalization()
+        self.activation = layers.ELU()
 
     def call(self, inputs, **kwargs):
-        global_center = self.get_center(inputs, axis=1, keepdims=True)
+        global_center = tf.reduce_sum(inputs, axis=1, keepdims=True)
         global_center = self.layer_normal1(global_center)
         out = self.dot([inputs, global_center])
         out = self.layer_normal2(out)
+        out = self.activation(out)
         return out
 
 
@@ -232,12 +233,38 @@ class CapsuleMapping(layers.Layer):
         return out
 
 
+class FinalMapping(layers.Layer):
+    def __init__(self, num_caps, caps_length=None, kernel_initializer='glorot_uniform'):
+        super(FinalMapping, self).__init__()
+        self.num_caps = num_caps
+        self.caps_length = caps_length
+        self.W = None
+        self.kernel_initializer = tf.keras.initializers.get(kernel_initializer)
+
+    def build(self, input_shape):
+        i, k = input_shape[-2], input_shape[-1]
+        j, l = self.num_caps, self.caps_length
+        if self.caps_length:
+            weight_shape = [i, j, k, l]
+        else:
+            weight_shape = [i, j, k]
+        self.W = self.add_weight(shape=weight_shape,
+                                 initializer=self.kernel_initializer, name='W')
+
+    def call(self, inputs, **kwargs):
+        if self.caps_length:
+            out = tf.einsum("...ik,ijkl->...jl", inputs, self.W)
+        else:
+            out = tf.einsum("...ik,ijk->...jk", inputs, self.W)
+        return out
+
+
 class RoutingTiny(layers.Layer):
     def __init__(self, **kwargs):
         super(RoutingTiny, self).__init__(**kwargs)
         self.fpn = CapsFPN(out_length=8)
         self.q = Q()
-        self.k = K()
+        self.k = CapsSimilarity()
         self.mapping = CapsuleMapping()
 
     def call(self, inputs, **kwargs):
@@ -247,3 +274,21 @@ class RoutingTiny(layers.Layer):
         out = self.mapping((k, q, feature_pyramid))
 
         return out
+
+
+class RoutingA(layers.Layer):
+    def __init__(self, **kwargs):
+        super(RoutingA, self).__init__(**kwargs)
+        self.fpn = CapsFPN(out_length=8)
+        self.norm1 = layers.LayerNormalization()
+        self.caps_similarity = CapsSimilarity()
+        self.norm2 = layers.LayerNormalization()
+        # final mapping
+
+    def call(self, inputs, **kwargs):
+        feature_pyramid = self.fpn(inputs)
+        feature_pyramid = self.norm1(feature_pyramid)
+        caps_similarity = self.caps_similarity(feature_pyramid)
+        feature_pyramid = feature_pyramid * caps_similarity
+        feature_pyramid = self.norm1(feature_pyramid)
+        return feature_pyramid
