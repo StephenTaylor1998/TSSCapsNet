@@ -52,7 +52,7 @@ def lr_schedule(epoch):
     # for Adam Optimizer
     lr = 1e-3
 
-    if epoch > 180:
+    if epoch > 240:
         lr = 1e-6
     elif epoch > 120:
         lr = 1e-5

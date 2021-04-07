@@ -13,16 +13,9 @@
 # limitations under the License.
 # ==============================================================================
 
-import math
-import numpy as np
 import tensorflow as tf
-from tensorflow import keras, Variable, float32
-
-# from ..layers.transform.dwt import DWT
-
-from models.layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask
-from models.layers.operators import RoutingA, RoutingTiny, Heterogeneous
-from tensorflow.keras import regularizers
+from models.layers.layers_efficient import PrimaryCaps, Length
+from models.layers.operators import RoutingA, Heterogeneous
 from tensorflow.keras.regularizers import L2
 from tensorflow.keras import layers, Sequential
 
@@ -37,12 +30,12 @@ class BasicBlock(layers.Layer):
         self.stride = stride
         self.conv1 = layers.Conv2D(self.planes, kernel_size=3, strides=self.stride, padding='same', use_bias=False,
                                    kernel_initializer='he_normal',
-                                   kernel_regularizer=L2(1e-4)
+                                   kernel_regularizer=L2(1e-5)
                                    )
         self.bn1 = layers.BatchNormalization()
         self.conv2 = layers.Conv2D(self.planes, kernel_size=3, strides=1, padding='same', use_bias=False,
                                    kernel_initializer='he_normal',
-                                   kernel_regularizer=L2(1e-4)
+                                   kernel_regularizer=L2(1e-5)
                                    )
         self.bn2 = layers.BatchNormalization()
         self.relu = layers.ReLU()
@@ -50,7 +43,7 @@ class BasicBlock(layers.Layer):
             self.shortcut = Sequential([
                 layers.Conv2D(self.expansion * self.planes, kernel_size=1, strides=self.stride, use_bias=False,
                               kernel_initializer='he_normal',
-                              kernel_regularizer=L2(1e-4)
+                              kernel_regularizer=L2(1e-5)
                               ),
                 layers.BatchNormalization()
             ])
@@ -61,13 +54,7 @@ class BasicBlock(layers.Layer):
         self.built = True
 
     def get_config(self):
-        config = {
-            'in_planes': self.in_planes,
-            'planes': self.planes,
-            'stride': self.stride,
-        }
-        base_config = super(BasicBlock, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return super(BasicBlock, self).get_config()
 
     def call(self, inputs, **kwargs):
         out = self.relu(self.bn1(self.conv1(inputs)))
@@ -155,7 +142,7 @@ class ResNetBackbone(layers.Layer):
         self.layer1 = self._make_layer(self.block, 32, self.num_blocks[0], stride=1)
         self.layer2 = self._make_layer(self.block, 64, self.num_blocks[1], stride=2)
         self.layer3 = self._make_layer(self.block, 128, self.num_blocks[2], stride=2)
-        self.layer4 = self._make_layer(self.block, 256, self.num_blocks[3], stride=1)
+        self.layer4 = self._make_layer(self.block, 256, self.num_blocks[3], stride=2)
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1] * (num_blocks - 1)
@@ -169,13 +156,7 @@ class ResNetBackbone(layers.Layer):
         self.built = True
 
     def get_config(self):
-        config = {
-            'in_planes': self.in_planes,
-            'block': self.block,
-            'num_blocks': self.num_blocks,
-        }
-        base_config = super(ResNetBackbone, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return super(ResNetBackbone, self).get_config()
 
     def call(self, inputs, training=None, mask=None):
         out = self.relu(self.bn1(self.conv1(inputs)))
@@ -187,52 +168,23 @@ class ResNetBackbone(layers.Layer):
 
 
 def efficient_capsnet_graph(input_shape):
-    """
-    reimplement for cifar dataset
-    """
     inputs = tf.keras.Input(input_shape)
     # (32, 32, 3) ==>> (8, 8, 128)
     x = ResNetBackbone(BasicBlock, [2, 2, 2, 2])(inputs)
-    x = tf.keras.layers.BatchNormalization()(x)
-    # # (4, 4, 128) ==>> (1, 1, 128) ==>> (16, 8)
-    # x = PrimaryCaps(128, x.shape[1], 16, 8)(x)
-    # (4, 4, 512) ==>> (1, 1, 128) ==>> (16, 8)
+    # x = layers.Conv2D(256, 1)(inputs)
+    x = layers.BatchNormalization()(x)
+    # # (4, 4, 256) ==>> (1, 1, 256) ==>> (32, 8)
     x = PrimaryCaps(256, x.shape[1], 32, 8)(x)
-
     digit_caps = RoutingA()(x)
-
     # x = layers.LayerNormalization()(x)
     # digit_caps = FCCaps(10, 16)(x)
-
-    digit_caps_len = Length(name='length_capsnet_output')(digit_caps)
-
+    digit_caps_len = Length()(digit_caps)
     digit_caps_len = Heterogeneous(num_class=10)((x, digit_caps_len))
 
-    # digit_caps_len = tf.keras.layers.Softmax()(digit_caps_len)
-
-    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name='DWT_Multi_Attention_CapsNet')
+    return tf.keras.Model(inputs=[inputs], outputs=[digit_caps_len])
 
 
-def generator_graph(input_shape):
-    """
-    Generator graph architecture.
-
-    Parameters
-    ----------
-    input_shape: list
-        network input shape
-    """
-    inputs = tf.keras.Input(16 * 10)
-
-    x = tf.keras.layers.Dense(512, activation='relu', kernel_initializer='he_normal')(inputs)
-    x = tf.keras.layers.Dense(1024, activation='relu', kernel_initializer='he_normal')(x)
-    x = tf.keras.layers.Dense(np.prod(input_shape), activation='sigmoid', kernel_initializer='glorot_normal')(x)
-    x = tf.keras.layers.Reshape(target_shape=input_shape, name='out_generator')(x)
-
-    return tf.keras.Model(inputs=inputs, outputs=x, name='Generator')
-
-
-def build_graph(input_shape, mode, verbose):
+def build_graph(input_shape):
     """
     Efficient-CapsNet graph architecture with reconstruction regularizer.
     The network can be initialize with different modalities.
@@ -241,44 +193,8 @@ def build_graph(input_shape, mode, verbose):
     ----------
     input_shape: list
         network input shape
-    mode: str
-        working mode ('train', 'test' & 'play')
-    verbose: bool
     """
-    inputs = tf.keras.Input(input_shape)
-    y_true = tf.keras.layers.Input(shape=(10,))
-    noise = tf.keras.layers.Input(shape=(10, 16))
-
     efficient_capsnet = efficient_capsnet_graph(input_shape)
+    efficient_capsnet.summary()
 
-    if verbose:
-        efficient_capsnet.summary()
-        print("\n\n")
-
-    digit_caps, digit_caps_len = efficient_capsnet(inputs)
-    noised_digitcaps = tf.keras.layers.Add()([digit_caps, noise])  # only if mode is play
-
-    masked_by_y = Mask()([digit_caps, y_true])
-    masked = Mask()(digit_caps)
-    masked_noised_y = Mask()([noised_digitcaps, y_true])
-
-    generator = generator_graph(input_shape)
-
-    if verbose:
-        generator.summary()
-        print("\n\n")
-
-    x_gen_train = generator(masked_by_y)
-    x_gen_eval = generator(masked)
-    x_gen_play = generator(masked_noised_y)
-
-    if mode == 'train':
-        return tf.keras.models.Model([inputs, y_true], [digit_caps_len, x_gen_train],
-                                     name='DWT_Efficinet_CapsNet_Generator')
-    elif mode == 'test':
-        return tf.keras.models.Model(inputs, [digit_caps_len, x_gen_eval], name='DWT_Efficinet_CapsNet_Generator')
-    elif mode == 'play':
-        return tf.keras.models.Model([inputs, y_true, noise], [digit_caps_len, x_gen_play],
-                                     name='DWT_Efficinet_CapsNet_Generator')
-    else:
-        raise RuntimeError('mode not recognized')
+    return efficient_capsnet

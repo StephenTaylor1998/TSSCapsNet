@@ -122,6 +122,17 @@ class PrimaryCaps(tf.keras.layers.Layer):
 
         self.built = True
 
+    def get_config(self):
+        config = {
+            'F': self.F,
+            'K': self.K,
+            'N': self.N,
+            'D': self.D,
+            's': self.s
+        }
+        base_config = super(PrimaryCaps, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
     def call(self, inputs, **kwargs):
         x = self.DW_Conv2D(inputs)
         x = tf.keras.layers.Reshape((self.N, self.D))(x)

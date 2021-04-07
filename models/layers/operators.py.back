@@ -3,8 +3,6 @@ import tensorflow as tf
 from tensorflow import Variable, sqrt, float32
 from tensorflow.keras import layers, regularizers, activations
 
-from models.layers.attention import BaselineAttention
-
 
 class FFC(layers.Layer):
     """
@@ -157,15 +155,19 @@ class CondenseTiny(layers.Layer):
 
     def __init__(self, out_length, rate=2, strides=2, **kwargs):
         super(CondenseTiny, self).__init__(**kwargs)
+        self.out_length = out_length
+        self.rate = rate
         self.sparse_extraction = layers.Conv1D(out_length, rate, strides=strides, use_bias=False,
                                                kernel_regularizer=regularizers.L2(5e-5))
-        self.normal = layers.LayerNormalization()
+        # self.params = Variable(self.out_length * self.rate, dtype=float32, trainable=False, name='params')
+
         self.activation = layers.ELU()
 
     def call(self, inputs, **kwargs):
         out = self.sparse_extraction(inputs)
-        out = self.normal(out)
+        # out = out / sqrt(self.params)
         out = self.activation(out)
+
         return out
 
 
@@ -190,43 +192,35 @@ class Condense(layers.Layer):
         return out
 
 
-class CapsFPNTiny(layers.Layer):
-    def __init__(self, out_length, rate=None, strides=None, **kwargs):
-        super(CapsFPNTiny, self).__init__(**kwargs)
-        strides = [2, 2, 2, 1] if strides is None else strides
-        rate = [2, 2, 2, 1] if rate is None else rate
-        self.out_length = out_length
-        self.condense1 = CondenseTiny(self.out_length, rate[0], strides[0])
-        self.condense2 = CondenseTiny(self.out_length, rate[1], strides[1])
-        self.condense3 = CondenseTiny(self.out_length, rate[2], strides[2])
-        self.condense4 = CondenseTiny(self.out_length, rate[3], strides[3])
-        self.feature_pyramid = layers.Concatenate(axis=-2)
-
-    def call(self, inputs, **kwargs):
-        l1 = self.condense1(inputs)
-        l2 = self.condense2(l1)
-        l3 = self.condense3(l2)
-        l4 = self.condense4(l3)
-        pyramid = self.feature_pyramid([l1, l2, l3, l4])
-        return pyramid
-
-
 class CapsFPN(layers.Layer):
     def __init__(self, num_caps, length, **kwargs):
         super(CapsFPN, self).__init__(**kwargs)
         num_caps = [16, 8, 4, 4] if num_caps is None else num_caps
         self.condense1 = Condense(num_caps[0], length)
+        # self.layer_normal1 = layers.LayerNormalization()
         self.condense2 = Condense(num_caps[1], length)
+        # self.layer_normal2 = layers.LayerNormalization()
         self.condense3 = Condense(num_caps[2], length)
+        # self.layer_normal3 = layers.LayerNormalization()
         self.condense4 = Condense(num_caps[3], length)
+        # self.layer_normal4 = layers.LayerNormalization()
         self.feature_pyramid = layers.Concatenate(axis=-2)
+        # self.layer_normal5 = layers.LayerNormalization()
+
+    def get_config(self):
+        super(CapsFPN, self).get_config()
 
     def call(self, inputs, **kwargs):
         l1 = self.condense1(inputs)
+        # l1 = self.layer_normal1(l1)
         l2 = self.condense2(l1)
+        # l2 = self.layer_normal2(l2)
         l3 = self.condense3(l2)
+        # l3 = self.layer_normal3(l3)
         l4 = self.condense4(l3)
+        # l4 = self.layer_normal4(l4)
         pyramid = self.feature_pyramid([l1, l2, l3, l4])
+        # pyramid = self.layer_normal5(pyramid)
         return pyramid
 
 
@@ -341,8 +335,6 @@ class RoutingTiny(layers.Layer):
 class RoutingA(layers.Layer):
     def __init__(self, **kwargs):
         super(RoutingA, self).__init__(**kwargs)
-        # self.fpn = BaselineAttention(h=1, d=8)
-        # self.fpn = CapsFPNTiny(out_length=8)
         self.fpn = CapsFPN(num_caps=[16, 8, 4, 4], length=8)
         self.norm1 = layers.LayerNormalization()
         self.caps_similarity = CapsSimilarity()

@@ -1,5 +1,6 @@
 from tensorflow.keras.regularizers import L2
 from tensorflow.keras import Input, Model, layers, Sequential
+from models.layers.transform.dwt import DWT
 
 
 class BasicBlock(layers.Layer):
@@ -10,14 +11,17 @@ class BasicBlock(layers.Layer):
         self.in_planes = in_planes
         self.planes = planes
         self.stride = stride
-        self.conv1 = layers.Conv2D(self.planes, kernel_size=3, strides=self.stride, padding='same', use_bias=False,
+        if self.stride != 1:
+            self.dwt = DWT()
+        self.conv1 = layers.Conv2D(self.planes, kernel_size=3, strides=1, padding='same', use_bias=False,
                                    kernel_initializer='he_normal',
-                                   kernel_regularizer=L2(1e-4)
+                                   kernel_regularizer=L2(1e-5)
                                    )
+
         self.bn1 = layers.BatchNormalization()
         self.conv2 = layers.Conv2D(self.planes, kernel_size=3, strides=1, padding='same', use_bias=False,
                                    kernel_initializer='he_normal',
-                                   kernel_regularizer=L2(1e-4)
+                                   kernel_regularizer=L2(1e-5)
                                    )
         self.bn2 = layers.BatchNormalization()
         self.relu = layers.ReLU()
@@ -26,7 +30,7 @@ class BasicBlock(layers.Layer):
             self.shortcut = Sequential([
                 layers.Conv2D(self.expansion * self.planes, kernel_size=1, strides=self.stride, use_bias=False,
                               kernel_initializer='he_normal',
-                              kernel_regularizer=L2(1e-4)
+                              kernel_regularizer=L2(1e-5)
                               ),
                 layers.BatchNormalization()
             ])
@@ -35,10 +39,20 @@ class BasicBlock(layers.Layer):
         self.built = True
 
     def get_config(self):
-        return super(BasicBlock, self).get_config()
+        config = {
+            'in_planes': self.in_planes,
+            'planes': self.planes,
+            'stride': self.stride,
+        }
+        base_config = super(BasicBlock, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
 
     def call(self, inputs, **kwargs):
-        out = self.relu(self.bn1(self.conv1(inputs)))
+        if self.stride != 1:
+            out = self.dwt(inputs)
+            out = self.relu(self.bn1(self.conv1(out)))
+        else:
+            out = self.relu(self.bn1(self.conv1(inputs)))
         out = self.bn2(self.conv2(out))
         out += self.shortcut(inputs)
         out = self.relu(out)
@@ -103,7 +117,7 @@ class Bottleneck(layers.Layer):
 
 class ResNet(Model):
     def __init__(self, block, num_blocks, num_classes=10):
-        super(ResNet, self).__init__(name="RESNET")
+        super(ResNet, self).__init__(name="RESNET_DWT")
         self.in_planes = 64
         self.block = block
         self.num_blocks = num_blocks
@@ -137,7 +151,14 @@ class ResNet(Model):
         self.built = True
 
     def get_config(self):
-        return super(ResNet, self).get_config()
+        config = {
+            'in_planes': self.in_planes,
+            'block': self.block,
+            'num_blocks': self.num_blocks,
+            'num_classes': self.num_classes,
+        }
+        base_config = super(ResNet, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
 
     def call(self, inputs, training=None, mask=None):
         out = self.relu(self.bn1(self.conv1(inputs)))
@@ -202,8 +223,9 @@ def build_graph(input_shape, depth=18, num_classes=10):
     print(model.name)
     input_layer = Input(input_shape)
     out = model(input_layer)
-    build_model = Model(inputs=[input_layer], outputs=[out])
+    # build_model = Model(inputs=[input_layer], outputs=[out])
     # return build_model
+    model.summary()
     return model
 
 

@@ -8,3 +8,5 @@ from .transform import Block2Channel2d, Block2Channel3d, DCTLayer2d, DCTLayer3d,
 from .gumbel import GumbelSoftmax
 # models/layers/gate.py
 from .gate import GateModule
+# models/layers/operators.py
+from .operators import RoutingA, RoutingTiny

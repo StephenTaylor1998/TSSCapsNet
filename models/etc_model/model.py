@@ -5,6 +5,8 @@ from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 from . import resnet_cifar
 from . import mobilenet_v2_cifar
 from . import ghostnet_cifar
+from . import capsnet_attention_without_decoder
+from . import resnet_cifar_dwt
 from .call_backs import get_callbacks
 
 from ..layers.model_base import Model
@@ -88,6 +90,10 @@ class ETCModel(Model):
             self.model = ghostnet_cifar.build_graph(input_shape)
         elif self.model_name == "MOBILENETv2":
             self.model = mobilenet_v2_cifar.build_graph(input_shape)
+        elif self.model_name == "CapsNet_Without_Decoder":
+            self.model = capsnet_attention_without_decoder.build_graph(input_shape)
+        elif self.model_name == "RESNET_DWT":
+            self.model = resnet_cifar_dwt.build_graph(input_shape)
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_path_new_train)

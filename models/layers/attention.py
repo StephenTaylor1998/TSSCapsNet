@@ -75,7 +75,7 @@ class MultiAttention(tf.keras.layers.Layer):
 
     def call(self, inputs, mask=None, weight_out=False, **kwargs):
         """
-        :param inputs: a list of tensors. i.e) [Q, K, V]
+        :param inputs: a list of tensors. i.e) [Q, CapsSimilarity, V]
         :param mask: mask tensor
         :param weight_out: decide to get weather weight or not
         :param kwargs:
@@ -100,7 +100,7 @@ class MultiAttention(tf.keras.layers.Layer):
         v = tf.transpose(v, (0, 2, 1, 3))
 
         Kt = tf.transpose(k, [0, 1, 3, 2])
-        # print('Q', q.shape, 'K', Kt.shape)
+        # print('Q', q.shape, 'CapsSimilarity', Kt.shape)
         QKt = tf.matmul(q, Kt)
         # print("QKT", QKt.shape)
         logits = QKt
@@ -142,7 +142,7 @@ class BaselineAttention(layers.Layer):
 
     def call(self, inputs, mask=None, weight_out=False, **kwargs):
         """
-        :param inputs: a list of tensors. i.e) [Q, K, V]
+        :param inputs: a list of tensors. i.e) [Q, CapsSimilarity, V]
         :param mask: mask tensor
         :param weight_out: decide to get weather weight or not
         :param kwargs:
