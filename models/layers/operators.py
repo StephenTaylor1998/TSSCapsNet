@@ -84,6 +84,9 @@ class FFC(layers.Layer):
         # self.reverse_folding = layers.Reshape((-1, num_vector, self.groups*self.out_length))
         self.folding = layers.Reshape((*n_shape, self.groups, group_length))
         self.reverse_folding = layers.Reshape((*n_shape, self.groups * self.out_length))
+        
+    def get_config(self):
+        return super(FFC, self).get_config()
 
     def call(self, inputs, **kwargs):
         x = self.folding(inputs)
@@ -101,6 +104,9 @@ class CapsuleMappingTiny(layers.Layer):
         self.norm1 = layers.LayerNormalization()
         self.attention = layers.Dot((2, 1), normalize=False)
         self.norm2 = layers.LayerNormalization()
+        
+    def get_config(self):
+        return super(CapsuleMappingTiny, self).get_config()
 
     def call(self, inputs, **kwargs):
         k, q, v = inputs
@@ -158,9 +164,12 @@ class CondenseTiny(layers.Layer):
     def __init__(self, out_length, rate=2, strides=2, **kwargs):
         super(CondenseTiny, self).__init__(**kwargs)
         self.sparse_extraction = layers.Conv1D(out_length, rate, strides=strides, use_bias=False,
-                                               kernel_regularizer=regularizers.L2(5e-5))
+                                               kernel_regularizer=regularizers.L2(1e-5))
         self.normal = layers.LayerNormalization()
         self.activation = layers.ELU()
+    
+    def get_config(self):
+        return super(CondenseTiny, self).get_config()
 
     def call(self, inputs, **kwargs):
         out = self.sparse_extraction(inputs)
@@ -201,6 +210,9 @@ class CapsFPNTiny(layers.Layer):
         self.condense3 = CondenseTiny(self.out_length, rate[2], strides[2])
         self.condense4 = CondenseTiny(self.out_length, rate[3], strides[3])
         self.feature_pyramid = layers.Concatenate(axis=-2)
+
+    def get_config(self):
+        return super(CapsFPNTiny, self).get_config()
 
     def call(self, inputs, **kwargs):
         l1 = self.condense1(inputs)
@@ -341,25 +353,52 @@ class RoutingTiny(layers.Layer):
 class RoutingA(layers.Layer):
     def __init__(self, **kwargs):
         super(RoutingA, self).__init__(**kwargs)
-        # self.fpn = BaselineAttention(h=1, d=8)
-        # self.fpn = CapsFPNTiny(out_length=8)
-        self.fpn = CapsFPN(num_caps=[16, 8, 4, 4], length=8)
+        # self.fpn1 = BaselineAttention(h=1, d=8)
+        # self.fpn1 = CapsFPNTiny(out_length=8)
+        self.fpn1 = CapsFPN(num_caps=[16, 8, 4, 4], length=8)
         self.norm1 = layers.LayerNormalization()
-        self.caps_similarity = CapsSimilarity()
+        self.caps_similarity1 = CapsSimilarity()
+        self.norm_caps_similarity1 = layers.LayerNormalization()
+
+        # self.fpn2 = BaselineAttention(h=1, d=8)
+        # self.fpn2 = CapsFPNTiny(out_length=8)
+        self.fpn2 = CapsFPN(num_caps=[16, 8, 4, 4], length=8)
         self.norm2 = layers.LayerNormalization()
+        self.caps_similarity2 = CapsSimilarity()
+        self.norm_caps_similarity2 = layers.LayerNormalization()
+
+        # self.fpn3 = BaselineAttention(h=1, d=8)
+        # self.fpn3 = CapsFPNTiny(out_length=8)
+        self.fpn3 = CapsFPN(num_caps=[16, 8, 4, 4], length=8)
+        self.norm3 = layers.LayerNormalization()
+        self.caps_similarity3 = CapsSimilarity()
+        self.norm_caps_similarity3 = layers.LayerNormalization()
         # final mapping
         self.final_mapping = CapsuleMapping(num_caps=10, caps_length=16)
-        self.norm3 = layers.LayerNormalization()
+        self.norm_final_mapping = layers.LayerNormalization()
 
     def get_config(self):
         return super(RoutingA, self).get_config()
 
     def call(self, inputs, **kwargs):
-        feature_pyramid = self.fpn(inputs)
+        feature_pyramid = self.fpn1(inputs)
         feature_pyramid = self.norm1(feature_pyramid)
-        caps_similarity = self.caps_similarity(feature_pyramid)
+        caps_similarity = self.caps_similarity1(feature_pyramid)
         feature_pyramid = feature_pyramid * caps_similarity
-        feature_pyramid = self.norm1(feature_pyramid)
+        feature_pyramid = self.norm_caps_similarity1(feature_pyramid)
+
+        feature_pyramid = self.fpn2(feature_pyramid)
+        feature_pyramid = self.norm2(feature_pyramid)
+        caps_similarity = self.caps_similarity2(feature_pyramid)
+        feature_pyramid = feature_pyramid * caps_similarity
+        feature_pyramid = self.norm_caps_similarity2(feature_pyramid)
+
+        feature_pyramid = self.fpn3(feature_pyramid)
+        feature_pyramid = self.norm3(feature_pyramid)
+        caps_similarity = self.caps_similarity3(feature_pyramid)
+        feature_pyramid = feature_pyramid * caps_similarity
+        feature_pyramid = self.norm_caps_similarity3(feature_pyramid)
+
         out = self.final_mapping(feature_pyramid)
-        out = self.norm3(out)
+        out = self.norm_final_mapping(out)
         return out

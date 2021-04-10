@@ -6,7 +6,8 @@ from ..layers.model_base import Model
 from . import original_capsnet_graph_mnist
 
 from utils.dataset import Dataset
-from utils.tools import get_callbacks, marginLoss
+from utils.tools import marginLoss
+from .call_backs import get_callbacks
 
 
 class CapsNet(Model):

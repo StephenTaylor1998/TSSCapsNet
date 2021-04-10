@@ -32,18 +32,22 @@ class DWT(tf.keras.layers.Layer):
         filters = np.concatenate((f1, f2, f3, f4), axis=-1)[::-1, ::-1]
         # shape 4*(2, 2, 4) ==>> (1, 2, 2, 1, 4)
         filters = np.expand_dims(filters, axis=(0, -2))
-        filters = tf.convert_to_tensor(filters, dtype=tf.float32)
-        self.filter = tf.Variable(filters, trainable=False, dtype=tf.float32)
-        # self.add_weight(name='filter', initializer = tf.convert_to_tensor(filters), trainable=False, dtype=tf.float32)
+        # filters = tf.convert_to_tensor(filters, dtype=tf.float32)
+        # filters_init = tf.constant_initializer(filters)
+        # self.filter = tf.Variable(filters, trainable=False, dtype=tf.float32, name='filter')
+        self.filter = tf.constant(filters, dtype=tf.float32, name='filter')
+        # self.filter = tf.Variable(name='filter', initial_value=filters_init, dtype=tf.float32,)
+        # self.add_weight(name='filter', initializer=filters_init, trainable=False, dtype=tf.float32)
         size = 2 * (len(wavelet.dec_lo) // 2 - 1)
         self.padding = tf.constant([[0, 0], [size, size], [size, size], [0, 0]])
         self.reshape = None
 
     def build(self, input_shape):
-
         self.reshape = tf.keras.layers.Reshape((input_shape[1] // 2, input_shape[2] // 2, input_shape[3] * 4))
-
         self.built = True
+
+    def get_config(self):
+        return super(DWT, self).get_config()
 
     def call(self, inputs, **kwargs):
         inputs = tf.pad(inputs, self.padding, mode='reflect')
@@ -53,7 +57,6 @@ class DWT(tf.keras.layers.Layer):
         t = tf.transpose(x, (0, 2, 3, 1, 4))
         x = self.reshape(t)
         return x
-
 
 # class DWT(tf.keras.layers.Layer):
 #

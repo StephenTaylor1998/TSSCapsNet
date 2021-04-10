@@ -3,11 +3,11 @@ from tensorflow.keras import Input, Model, layers, Sequential
 from models.layers.transform.dwt import DWT
 
 
-class BasicBlock(layers.Layer):
+class BasicBlockDWT(layers.Layer):
     expansion = 1
 
     def __init__(self, in_planes, planes, stride=1):
-        super(BasicBlock, self).__init__()
+        super(BasicBlockDWT, self).__init__()
         self.in_planes = in_planes
         self.planes = planes
         self.stride = stride
@@ -35,17 +35,17 @@ class BasicBlock(layers.Layer):
                 layers.BatchNormalization()
             ])
 
-    def build(self, input_shape):
-        self.built = True
+    # def get_config(self):
+    #     config = {
+    #         'in_planes': self.in_planes,
+    #         'planes': self.planes,
+    #         'stride': self.stride,
+    #     }
+    #     base_config = super(BasicBlockDWT, self).get_config()
+    #     return dict(list(base_config.items()) + list(config.items()))
 
     def get_config(self):
-        config = {
-            'in_planes': self.in_planes,
-            'planes': self.planes,
-            'stride': self.stride,
-        }
-        base_config = super(BasicBlock, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return super(BasicBlockDWT, self).get_config()
 
     def call(self, inputs, **kwargs):
         if self.stride != 1:
@@ -171,13 +171,13 @@ class ResNet(Model):
         return out
 
 
-def resnet18_cifar(block=BasicBlock, num_blocks=None, num_classes=10):
+def resnet18_cifar(block=BasicBlockDWT, num_blocks=None, num_classes=10):
     if num_blocks is None:
         num_blocks = [2, 2, 2, 2]
     return ResNet(block, num_blocks, num_classes=num_classes)
 
 
-def resnet34_cifar(block=BasicBlock, num_blocks=None, num_classes=10):
+def resnet34_cifar(block=BasicBlockDWT, num_blocks=None, num_classes=10):
     if num_blocks is None:
         num_blocks = [3, 4, 6, 3]
     return ResNet(block, num_blocks, num_classes=num_classes)

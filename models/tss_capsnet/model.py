@@ -10,10 +10,11 @@ from . import dwt_capsnet_e1_graph_mnist
 from . import dwt_resnet_capsnet_e1_multi_attention
 from . import rfft_capsnet_e1_graph_mnist
 from . import wst_capsnet_e1_graph_mnist
+from .call_backs import get_callbacks
 from ..layers.model_base import Model
 
 from utils.dataset import Dataset
-from utils.tools import get_callbacks, marginLoss
+from utils.tools import  marginLoss
 
 
 class TSSCapsNet(Model):

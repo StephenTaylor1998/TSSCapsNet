@@ -113,32 +113,28 @@ class MultiAttention(tf.keras.layers.Layer):
         attention_weights = tf.nn.softmax(logits, -1)
         # print('attention weights', attention_weights.shape)
         attention = tf.matmul(attention_weights, v)
-
         out = tf.transpose(attention, (0, 2, 1, 3))
         out = tf.reshape(out, (out.shape[0], -1, self.d))
         out = self.fc(out)
-
         return out
 
 
 class BaselineAttention(layers.Layer):
     def __init__(self, h, d, max_seq=2048, **kwargs):
         super().__init__(**kwargs)
-        self.len_k = None
-        self.max_seq = None
-        self.E = None
         self.h = h
         self.d = d
         self.dh = d // h
-        self.Wq = layers.Dense(int(self.d//2))
-        self.Wk = layers.Dense(int(self.d//2))
+        self.Wq = layers.Dense(int(self.d // 2))
+        self.Wk = layers.Dense(int(self.d // 2))
         self.Wv = layers.Dense(int(self.d))
+        self.normal1 = layers.LayerNormalization()
         self.fc = layers.Dense(d)
+        self.normal2 = layers.LayerNormalization()
         self.max_seq = max_seq
-
-    def build(self, input_shape):
-        self.len_k = input_shape[1]
-        # self.max_seq = max(input_shape[0][1], input_shape[1][1], input_shape[2][1])
+    
+    def get_config(self):
+        return super(BaselineAttention, self).get_config()
 
     def call(self, inputs, mask=None, weight_out=False, **kwargs):
         """
@@ -152,19 +148,16 @@ class BaselineAttention(layers.Layer):
         q = self.Wq(q)
         q = tf.cast(q, tf.float32)
         q = tf.keras.layers.Reshape((q.shape[1], self.h, -1))(q)
-        # q = tf.reshape(q, (q.shape[0], q.shape[1], self.h, -1))
         q = tf.transpose(q, (0, 2, 1, 3))  # batch, h, seq, dh
 
         k = inputs
         k = self.Wk(k)
         k = tf.keras.layers.Reshape((k.shape[1], self.h, -1))(k)
-        # k = tf.reshape(k, (k.shape[0], k.shape[1], self.h, -1))
         k = tf.transpose(k, (0, 2, 1, 3))
 
         v = inputs
         v = self.Wv(v)
         v = tf.keras.layers.Reshape((v.shape[1], self.h, -1))(v)
-        # v = tf.reshape(v, (v.shape[0], v.shape[1], self.h, -1))
         v = tf.transpose(v, (0, 2, 1, 3))
 
         Kt = tf.transpose(k, [0, 1, 3, 2])
@@ -180,8 +173,8 @@ class BaselineAttention(layers.Layer):
 
         out = tf.transpose(attention, (0, 2, 1, 3))
         out = tf.keras.layers.Reshape((-1, self.d))(out)
-        # out = tf.reshape(out, (out.shape[0], -1, self.d))
-
+        out = self.normal1(out)
         out = self.fc(out)
+        out = self.normal2(out)
 
         return out
