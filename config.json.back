@@ -22,9 +22,9 @@
     3
   ],
   "lr": 1e-3,
-  "lmd_gen": 0.00,
+  "lmd_gen": 0.392,
   "lr_dec": 0.97,
-  "batch_size": 64,
+  "batch_size": 16,
   "epochs": 300,
   "saved_model_dir": "weights",
   "tb_log_save_dir": "logs",
