@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import os
 from utils import pre_process_mnist, pre_process_multimnist, \
     pre_process_smallnorb, pre_process_mnist_shift, \
-    pre_process_cifar10, pre_process_cifar100
+    pre_process_cifar10, pre_process_cifar100, pre_process_cifar10_shift
 import json
 
 
@@ -83,7 +83,7 @@ class Dataset(object):
             self.X_test, self.y_test = pre_process_mnist.pre_process(self.X_test, self.y_test)
             self.class_names = list(range(10))
             print("[INFO] Dataset loaded!")
-        elif self.data_name == 'CIFAR10':
+        elif self.data_name.startswith('CIFAR10'):
             (self.X_train, self.y_train), (self.X_test, self.y_test) = tf.keras.datasets.cifar10.load_data()
             # prepare the data
             self.X_train, self.y_train = pre_process_cifar10.pre_process(self.X_train, self.y_train)
@@ -177,6 +177,10 @@ class Dataset(object):
                 for_capsule)
         elif self.data_name == 'CIFAR10':
             dataset_train, dataset_test = pre_process_cifar10.generate_tf_data(
+                self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'],
+                for_capsule)
+        elif self.data_name == 'CIFAR10_SHIFT':
+            dataset_train, dataset_test = pre_process_cifar10_shift.generate_tf_data(
                 self.X_train, self.y_train, self.X_test, self.y_test, self.config['batch_size'],
                 for_capsule)
         elif self.data_name == 'CIFAR100':

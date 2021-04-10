@@ -44,4 +44,11 @@ model_test = TSSEfficientCapsNet(data_name, model_name=model_name, mode='test', 
 model_test.load_graph_weights()  # load graph weights (bin folder)
 
 # 4.0 Test the Model
+
+# 4.1 Origin test set
 model_test.evaluate(dataset.X_test, dataset.y_test)  # if "smallnorb" use X_test_patch
+
+# 4.2 Shift test set(if using pre-process file end with 'shift.py')
+train_dataset, test_dataset = dataset.get_tf_data()
+model_test.model.compile(metrics=['accuracy'])
+result = model_test.model.evaluate(test_dataset)

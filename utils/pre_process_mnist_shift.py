@@ -128,7 +128,7 @@ def generate_tf_data(X_train, y_train, X_test, y_test, batch_size, for_capsule=T
     dataset_train = dataset_train.prefetch(-1)
 
     dataset_test = tf.data.Dataset.from_tensor_slices((X_test, y_test))
-    dataset_test = dataset_test.cache()
+    # dataset_test = dataset_test.cache()
     dataset_test = dataset_test.map(image_rotate_random)
     dataset_test = dataset_test.map(image_shift_rand,
                                     num_parallel_calls=PARALLEL_INPUT_CALLS)
