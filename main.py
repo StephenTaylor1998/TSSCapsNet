@@ -9,43 +9,46 @@ from models import EfficientCapsNet
 from models import CapsNet
 from utils.argparse import get_terminal_args
 
-args = get_terminal_args()
 
-if args.select_gpu:
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    tf.config.experimental.set_visible_devices(gpus[args.select_gpu], 'GPU')
-    tf.config.experimental.set_memory_growth(gpus[args.select_gpu], True)
-gpu_number = None
+if __name__ == '__main__':
 
-# 1.0 Import the Dataset
-dataset = Dataset(args.data_name, config_path='config.json')
+    args = get_terminal_args()
 
-# 2.0 Load the Model
-if args.arch == "CapsNet":
-    model = CapsNet(args.data_name, model_name=args.model_name,
-                    mode='test', verbose=True, gpu_number=gpu_number)
-elif args.arch == "EfficientCapsNet":
-    model = EfficientCapsNet(args.data_name, model_name=args.model_name,
-                             mode='test', verbose=True, gpu_number=gpu_number)
-elif args.arch == "TSSCapsNet":
-    model = TSSCapsNet(args.data_name, model_name=args.model_name,
-                       mode='test', verbose=True, gpu_number=gpu_number)
-elif args.arch == "TSSEfficientCapsNet":
-    model = TSSEfficientCapsNet(args.data_name, model_name=args.model_name,
-                                mode='test', verbose=True, gpu_number=gpu_number)
-else:
-    raise NotImplementedError
+    if args.select_gpu:
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        tf.config.experimental.set_visible_devices(gpus[args.select_gpu], 'GPU')
+        tf.config.experimental.set_memory_growth(gpus[args.select_gpu], True)
+    gpu_number = None
 
-# 3.0 Train the Model
-dataset_train, dataset_val = dataset.get_tf_data()
-history = model.train(dataset, args.initial_epoch)
+    # 1.0 Import the Dataset
+    dataset = Dataset(args.data_name, config_path='config.json')
 
-# 4.0 Plot history
-plotHistory(history)
+    # 2.0 Load the Model
+    if args.arch == "CapsNet":
+        model = CapsNet(args.data_name, model_name=args.model_name,
+                        mode='test', verbose=True, gpu_number=gpu_number)
+    elif args.arch == "EfficientCapsNet":
+        model = EfficientCapsNet(args.data_name, model_name=args.model_name,
+                                 mode='test', verbose=True, gpu_number=gpu_number)
+    elif args.arch == "TSSCapsNet":
+        model = TSSCapsNet(args.data_name, model_name=args.model_name,
+                           mode='test', verbose=True, gpu_number=gpu_number)
+    elif args.arch == "TSSEfficientCapsNet":
+        model = TSSEfficientCapsNet(args.data_name, model_name=args.model_name,
+                                    mode='test', verbose=True, gpu_number=gpu_number)
+    else:
+        raise NotImplementedError
 
-# 5.0 Load weights
+    # 3.0 Train the Model
+    dataset_train, dataset_val = dataset.get_tf_data()
+    history = model.train(dataset, args.initial_epoch)
 
-model.load_graph_weights()  # load graph weights (bin folder)
+    # 4.0 Plot history
+    plotHistory(history)
 
-# 6.0 Test the Model
-model.evaluate(dataset.X_test, dataset.y_test)  # if "smallnorb" use X_test_patch
+    # 5.0 Load weights
+
+    model.load_graph_weights()  # load graph weights (bin folder)
+
+    # 6.0 Test the Model
+    model.evaluate(dataset.X_test, dataset.y_test)  # if "smallnorb" use X_test_patch
