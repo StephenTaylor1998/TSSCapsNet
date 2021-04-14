@@ -8,6 +8,7 @@ from . import ghostnet_cifar
 from . import capsnet_attention_without_decoder
 from . import resnet_cifar_dwt
 from .call_backs import get_callbacks
+from ..efficient_capsnet import efficient_capsnet_graph_smallnorb
 
 from ..layers.model_base import Model
 
@@ -18,9 +19,7 @@ class ETCModel(Model):
     """
     A class used to manage an DCT-Efficiet-CapsNet model. 'data_name' and 'mode' define the particular architecure and modality of the
     generated network.
-
     ...
-
     Attributes
     ----------
     data_name: str
@@ -32,14 +31,12 @@ class ETCModel(Model):
     custom_path: str
         custom weights path
     verbose: bool
-
     Methods
     -------
     load_graph():
         load the network graph given the data_name
     train(dataset, initial_epoch)
         train the constructed network with a given dataset. All train hyperparameters are defined in the configuration file
-
     """
 
     def __init__(self, data_name, model_name='DCT_Efficient_CapsNet', mode='test', config_path='config.json',
@@ -66,13 +63,13 @@ class ETCModel(Model):
     def load_graph(self):
         if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
             input_shape = self.config['MNIST_INPUT_SHAPE']
+            num_classes = 10
         elif self.data_name in ['CIFAR10', 'CIFAR10_SHIFT']:
             input_shape = self.config['CIFAR10_INPUT_SHAPE']
+            num_classes = 10
         elif self.data_name == 'SMALLNORB':
-            raise NotImplemented
-            # self.model = efficient_capsnet_graph_smallnorb.build_graph(self.config['SMALLNORB_INPUT_SHAPE'],
-            #                                                            self.mode,
-            #                                                            self.verbose)
+            input_shape = self.config['SMALLNORB_INPUT_SHAPE']
+            num_classes = 5
         elif self.data_name == 'MULTIMNIST':
             raise NotImplemented
             # self.model = efficient_capsnet_graph_multimnist.build_graph(self.config['MULTIMNIST_INPUT_SHAPE'],
@@ -81,19 +78,19 @@ class ETCModel(Model):
             raise NotImplementedError
 
         if self.model_name == "RESNET20":
-            self.model = resnet_cifar.build_graph(input_shape, depth=18)
-        # if self.model_name == "RESNET32":
-        #     self.model = resnet_cifar.build_graph(input_shape, depth=32)
-        # if self.model_name == "RESNET56":
-        #     self.model = resnet_cifar.build_graph(input_shape, depth=56)
+            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=18)
+        if self.model_name == "RESNET32":
+            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=32)
+        if self.model_name == "RESNET56":
+            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=56)
         elif self.model_name == "GHOSTNET":
-            self.model = ghostnet_cifar.build_graph(input_shape)
+            self.model = ghostnet_cifar.build_graph(input_shape, num_classes)
         elif self.model_name == "MOBILENETv2":
-            self.model = mobilenet_v2_cifar.build_graph(input_shape)
+            self.model = mobilenet_v2_cifar.build_graph(input_shape, num_classes)
         elif self.model_name == "CapsNet_Without_Decoder":
-            self.model = capsnet_attention_without_decoder.build_graph(input_shape)
+            self.model = capsnet_attention_without_decoder.build_graph(input_shape, num_classes)
         elif self.model_name == "RESNET_DWT":
-            self.model = resnet_cifar_dwt.build_graph(input_shape)
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes)
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_path_new_train)

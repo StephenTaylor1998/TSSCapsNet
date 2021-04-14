@@ -14,7 +14,7 @@ from .call_backs import get_callbacks
 from ..layers.model_base import Model
 
 from utils.dataset import Dataset
-from utils.tools import  marginLoss
+from utils.tools import marginLoss
 
 
 class TSSCapsNet(Model):
@@ -207,7 +207,7 @@ class TSSEfficientCapsNet(Model):
                                   self.config['lr_dec'],
                                   self.config['lr'])
 
-        if dataset == None:
+        if dataset is None:
             dataset = Dataset(self.data_name, self.config_path)
         dataset_train, dataset_val = dataset.get_tf_data()
 
@@ -229,7 +229,7 @@ class TSSEfficientCapsNet(Model):
 
         history = self.model.fit(dataset_train,
                                  epochs=self.config[f'epochs'], steps_per_epoch=steps,
-                                 validation_data=(dataset_val), batch_size=self.config['batch_size'],
+                                 validation_data=dataset_val, batch_size=self.config['batch_size'],
                                  initial_epoch=initial_epoch,
                                  callbacks=callbacks,
                                  workers=self.config['num_workers'])

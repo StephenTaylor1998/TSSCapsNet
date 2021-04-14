@@ -31,8 +31,8 @@ def squeeze_excitation_block(x, outchannels, ratio):
     return scale
 
 
-def MobileNetBottleneck(x, dwkernel, strides, exp, out, ratio, use_se):
-    x1 = DepthwiseConv2D(dwkernel, strides, padding='same', depth_multiplier=ratio - 1, data_format='channels_last',
+def MobileNetBottleneck(x, depthwise_kernel, strides, exp, out, ratio, use_se):
+    x1 = DepthwiseConv2D(depthwise_kernel, strides, padding='same', depth_multiplier=ratio - 1, data_format='channels_last',
                          activation=None, use_bias=False)(x)
     x1 = BatchNormalization(axis=-1)(x1)
     x1 = Conv2D(out, (1, 1), strides=(1, 1), padding='same', data_format='channels_last',
@@ -42,7 +42,7 @@ def MobileNetBottleneck(x, dwkernel, strides, exp, out, ratio, use_se):
     y = BatchNormalization(axis=-1)(y)
     y = Activation('relu')(y)
     if strides > 1:
-        y = DepthwiseConv2D(dwkernel, strides, padding='same', depth_multiplier=ratio - 1, data_format='channels_last',
+        y = DepthwiseConv2D(depthwise_kernel, strides, padding='same', depth_multiplier=ratio - 1, data_format='channels_last',
                             activation=None, use_bias=False)(y)
         y = BatchNormalization(axis=-1)(y)
         y = Activation('relu')(y)

@@ -7,6 +7,6 @@ from .transform import Block2Channel2d, Block2Channel3d, DCTLayer2d, DCTLayer3d,
 # models/layers/gumbel.py
 from .gumbel import GumbelSoftmax
 # models/layers/gate.py
-from .gate import GateModule
+from .gate import GumbelGate
 # models/layers/operators.py
 from .operators import RoutingA, RoutingTiny

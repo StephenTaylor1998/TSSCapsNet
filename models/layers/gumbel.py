@@ -84,7 +84,10 @@ class GumbelSoftmax(tf.keras.layers.Layer):
     def build(self, input_shape):
         self.built = True
 
-    def call(self, logits, temp=1, force_hard=False, training=None, **kwargs):
+    def get_config(self):
+        return super(GumbelSoftmax, self).get_config()
+
+    def call(self, logits, temp=1, force_hard=True, training=None, **kwargs):
         # samplesize = logits.size()
         if training and not force_hard:
             return self.gumbel_softmax(logits, temperature=temp, hard=False)

@@ -2,12 +2,13 @@ import os
 import tensorflow as tf
 from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 
+from .call_backs import get_callbacks
 from ..layers.model_base import Model
 from . import efficient_capsnet_graph_multimnist
 from . import efficient_capsnet_graph_mnist
 from . import efficient_capsnet_graph_smallnorb
 from utils.dataset import Dataset
-from utils.tools import get_callbacks, marginLoss
+from utils.tools import marginLoss
 
 
 class EfficientCapsNet(Model):

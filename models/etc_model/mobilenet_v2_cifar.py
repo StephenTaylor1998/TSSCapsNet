@@ -26,9 +26,10 @@ class Block(layers.Layer):
 
         if stride == 1 and in_planes != out_planes:
             self.shortcut = keras.Sequential()
-            self.shortcut.add(layers.Conv2D(filters=out_planes, kernel_size=1, strides=1, padding='valid', use_bias=False,
-                                            kernel_initializer='he_normal',
-                                            kernel_regularizer=keras.regularizers.l2(weight_decay)))
+            self.shortcut.add(
+                layers.Conv2D(filters=out_planes, kernel_size=1, strides=1, padding='valid', use_bias=False,
+                              kernel_initializer='he_normal',
+                              kernel_regularizer=keras.regularizers.l2(weight_decay)))
             self.shortcut.add(layers.BatchNormalization())
 
     def call(self, inputs, **kwargs):
@@ -48,10 +49,10 @@ class Block(layers.Layer):
         return outputs
 
 
-class MobileNet(keras.Model):
+class MobileNetCifar(keras.Model):
     # (expansion, out_planes, num_blocks, stride)
     cfg = [(1, 16, 1, 1),
-           (6, 24, 2, 1),  # NOTE: change stride 2 -> 1 for CIFAR10
+           (6, 24, 2, 1),
            (6, 32, 3, 2),
            (6, 64, 4, 2),
            (6, 96, 3, 1),
@@ -59,7 +60,7 @@ class MobileNet(keras.Model):
            (6, 320, 1, 1)]
 
     def __init__(self, num_classes=10, weight_decay=1e-4):
-        super(MobileNet, self).__init__()
+        super(MobileNetCifar, self).__init__()
         # NOTE: change conv1 stride 2 -> 1 for CIFAR10
         self.conv1 = layers.Conv2D(filters=32,
                                    kernel_size=3,
@@ -84,8 +85,9 @@ class MobileNet(keras.Model):
                                   activation='softmax',
                                   kernel_initializer='he_normal',
                                   kernel_regularizer=keras.regularizers.l2(weight_decay))
-    def build(self, input_shape):
-        self.built = True
+
+    def get_config(self):
+        return super(MobileNetCifar, self).get_config()
 
     def _make_layers(self, in_planes):
         sequential = keras.Sequential()
@@ -112,5 +114,5 @@ class MobileNet(keras.Model):
 
 def build_graph(input_shape, num_classes=10, weight_decay=1e-4):
     inputs = keras.Input(shape=input_shape)
-    outputs = MobileNet(num_classes=num_classes, weight_decay=weight_decay)(inputs)
+    outputs = MobileNetCifar(num_classes=num_classes, weight_decay=weight_decay)(inputs)
     return keras.Model(inputs=inputs, outputs=outputs)

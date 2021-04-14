@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
-from ..layers import DCTLayer3d, GateModule
+from ..layers import DCTLayer3d, GumbelGate
+from ..layers.gate import DynamicGate
 from ..layers.layers_hinton import PrimaryCaps, DigitCaps, Length, Mask
 
 
@@ -22,7 +23,8 @@ def dct_capsnet_graph(input_shape, routing):
     # (20, 20, 16) ==>> (10, 10, 64)
     x = DCTLayer3d(block_shape=(2, 2))(x)
     x = tf.keras.layers.BatchNormalization()(x)
-    x, key = GateModule(act='relu')(x, temperature=1e-3)
+    # x, key = GumbelGate(act='relu')(x, temperature=1e-3)
+    x, key = DynamicGate(act='relu')(x, temperature=1e-3)
     # (10, 10, 64) == >> (10, 10, 256) ==>> (6, 6, 32, 8)
     primary = PrimaryCaps(C=32, L=8, k=5, s=1)(x)
     digit_caps = DigitCaps(10, 16, routing=routing)(primary)

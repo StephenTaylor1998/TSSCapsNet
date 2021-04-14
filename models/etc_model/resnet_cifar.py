@@ -180,7 +180,7 @@ def resnet152_cifar(block=Bottleneck, num_blocks=None, num_classes=10):
     return ResNet(block, num_blocks, num_classes=num_classes)
 
 
-def build_graph(input_shape, depth=18, num_classes=10):
+def build_graph(input_shape, num_classes=10, depth=18):
     if depth == 18:
         model = resnet18_cifar(num_classes=num_classes)
 

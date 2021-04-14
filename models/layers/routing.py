@@ -1,42 +1,12 @@
 import tensorflow as tf
+from .layers_hinton import squash
 from .attention import CapsuleAttentionBlock
+from tensorflow.keras import layers
 
-def squash(s):
-    """
-    Squash activation function presented in 'Dynamic routinig between capsules'.
-    ...
-
-    Parameters
-    ----------
-    s: tensor
-        input tensor
-    """
-    n = tf.norm(s, axis=-1, keepdims=True)
-    return tf.multiply(n ** 2 / (1 + n ** 2) / (n + tf.keras.backend.epsilon()), s)
+from .operators import CapsFPN, Q, CapsSimilarity, CapsuleMappingTiny, CapsuleMapping, CapsFPNTiny
 
 
 class AttentionDigitCaps(tf.keras.layers.Layer):
-    """
-    Create a light attention digit caps layer.
-
-    ...
-
-    Attributes
-    ----------
-    C: int
-        number of Digit capsules
-    L: int
-        Digit capsules dimension (number of properties)
-    routing: int
-        number of routing iterations
-    kernel_initializer:
-        matrix W kernel initializer
-
-    Methods
-    -------
-    call(inputs)
-        compute the primary capsule layer
-    """
 
     def __init__(self, C, L, routing=None, kernel_initializer='glorot_uniform', **kwargs):
         super(AttentionDigitCaps, self).__init__(**kwargs)
@@ -104,3 +74,74 @@ class AttentionDigitCaps(tf.keras.layers.Layer):
         }
         base_config = super(AttentionDigitCaps, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
+
+
+class RoutingTiny(layers.Layer):
+    def __init__(self, **kwargs):
+        super(RoutingTiny, self).__init__(**kwargs)
+        self.fpn = CapsFPNTiny(out_length=8)
+        self.q = Q()
+        self.k = CapsSimilarity()
+        self.mapping = CapsuleMappingTiny()
+
+    def call(self, inputs, **kwargs):
+        feature_pyramid = self.fpn(inputs)
+        q = self.q(feature_pyramid)
+        k = self.k((feature_pyramid))
+        out = self.mapping((k, q, feature_pyramid))
+
+        return out
+
+
+class RoutingA(layers.Layer):
+    def __init__(self, num_classes=10, **kwargs):
+        super(RoutingA, self).__init__(**kwargs)
+        # self.fpn1 = BaselineAttention(h=1, d=8)
+        # self.fpn1 = CapsFPNTiny(out_length=8)
+        self.fpn1 = CapsFPN(num_caps=[16, 8, 4, 4], length=8)
+        self.norm1 = layers.LayerNormalization()
+        self.caps_similarity1 = CapsSimilarity()
+        self.norm_caps_similarity1 = layers.LayerNormalization()
+
+        # self.fpn2 = BaselineAttention(h=1, d=8)
+        # self.fpn2 = CapsFPNTiny(out_length=8)
+        self.fpn2 = CapsFPN(num_caps=[16, 8, 4, 4], length=8)
+        self.norm2 = layers.LayerNormalization()
+        self.caps_similarity2 = CapsSimilarity()
+        self.norm_caps_similarity2 = layers.LayerNormalization()
+
+        # self.fpn3 = BaselineAttention(h=1, d=8)
+        # self.fpn3 = CapsFPNTiny(out_length=8)
+        self.fpn3 = CapsFPN(num_caps=[16, 8, 4, 4], length=8)
+        self.norm3 = layers.LayerNormalization()
+        self.caps_similarity3 = CapsSimilarity()
+        self.norm_caps_similarity3 = layers.LayerNormalization()
+        # final mapping
+        self.final_mapping = CapsuleMapping(num_caps=num_classes, caps_length=16)
+        self.norm_final_mapping = layers.LayerNormalization()
+
+    def get_config(self):
+        return super(RoutingA, self).get_config()
+
+    def call(self, inputs, **kwargs):
+        feature_pyramid = self.fpn1(inputs)
+        feature_pyramid = self.norm1(feature_pyramid)
+        caps_similarity = self.caps_similarity1(feature_pyramid)
+        feature_pyramid = feature_pyramid * caps_similarity
+        feature_pyramid = self.norm_caps_similarity1(feature_pyramid)
+
+        feature_pyramid = self.fpn2(feature_pyramid)
+        feature_pyramid = self.norm2(feature_pyramid)
+        caps_similarity = self.caps_similarity2(feature_pyramid)
+        feature_pyramid = feature_pyramid * caps_similarity
+        feature_pyramid = self.norm_caps_similarity2(feature_pyramid)
+
+        feature_pyramid = self.fpn3(feature_pyramid)
+        feature_pyramid = self.norm3(feature_pyramid)
+        caps_similarity = self.caps_similarity3(feature_pyramid)
+        feature_pyramid = feature_pyramid * caps_similarity
+        feature_pyramid = self.norm_caps_similarity3(feature_pyramid)
+
+        out = self.final_mapping(feature_pyramid)
+        out = self.norm_final_mapping(out)
+        return out
