@@ -82,12 +82,9 @@ class MultiAttention(tf.keras.layers.Layer):
         :return: final tensor ( output of attention )
         """
         q = inputs
-        print('input', q.shape)
         q = self.Wq(q)
-        print('output', q.shape)
         q = tf.reshape(q, (q.shape[0], q.shape[1], self.h, -1))
         q = tf.transpose(q, (0, 2, 1, 3))  # batch, h, seq, dh
-        print('transpose', q.shape)
 
         k = inputs
         k = self.Wk(k)
@@ -100,18 +97,14 @@ class MultiAttention(tf.keras.layers.Layer):
         v = tf.transpose(v, (0, 2, 1, 3))
 
         Kt = tf.transpose(k, [0, 1, 3, 2])
-        # print('Q', q.shape, 'CapsSimilarity', Kt.shape)
         QKt = tf.matmul(q, Kt)
-        # print("QKT", QKt.shape)
         logits = QKt
         logits = logits / math.sqrt(self.dh)
 
         if mask is not None:
             logits += (tf.cast(mask, tf.float32) * -1e9)
 
-        # print('logits', logits.shape)
         attention_weights = tf.nn.softmax(logits, -1)
-        # print('attention weights', attention_weights.shape)
         attention = tf.matmul(attention_weights, v)
         out = tf.transpose(attention, (0, 2, 1, 3))
         out = tf.reshape(out, (out.shape[0], -1, self.d))

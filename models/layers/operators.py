@@ -1,9 +1,6 @@
 import math
 import tensorflow as tf
-from tensorflow import Variable, sqrt, float32
-from tensorflow.keras import layers, regularizers, activations
-
-from models.layers.attention import BaselineAttention
+from tensorflow.keras import layers, regularizers
 
 
 class FFC(layers.Layer):
@@ -161,10 +158,10 @@ class CondenseTiny(layers.Layer):
         [batch, N/rate, out_length]
     """
 
-    def __init__(self, out_length, rate=2, strides=2, **kwargs):
+    def __init__(self, out_length, rate=2, strides=2, regularize=1e-5, **kwargs):
         super(CondenseTiny, self).__init__(**kwargs)
         self.sparse_extraction = layers.Conv1D(out_length, rate, strides=strides, use_bias=False,
-                                               kernel_regularizer=regularizers.L2(1e-5))
+                                               kernel_regularizer=regularizers.L2(regularize))
         self.normal = layers.LayerNormalization()
         self.activation = layers.ELU()
     
@@ -200,15 +197,15 @@ class Condense(layers.Layer):
 
 
 class CapsFPNTiny(layers.Layer):
-    def __init__(self, out_length, rate=None, strides=None, **kwargs):
+    def __init__(self, out_length, rate=None, strides=None, regularize=1e-5, **kwargs):
         super(CapsFPNTiny, self).__init__(**kwargs)
         strides = [2, 2, 2, 1] if strides is None else strides
         rate = [2, 2, 2, 1] if rate is None else rate
         self.out_length = out_length
-        self.condense1 = CondenseTiny(self.out_length, rate[0], strides[0])
-        self.condense2 = CondenseTiny(self.out_length, rate[1], strides[1])
-        self.condense3 = CondenseTiny(self.out_length, rate[2], strides[2])
-        self.condense4 = CondenseTiny(self.out_length, rate[3], strides[3])
+        self.condense1 = CondenseTiny(self.out_length, rate[0], strides[0], regularize)
+        self.condense2 = CondenseTiny(self.out_length, rate[1], strides[1], regularize)
+        self.condense3 = CondenseTiny(self.out_length, rate[2], strides[2], regularize)
+        self.condense4 = CondenseTiny(self.out_length, rate[3], strides[3], regularize)
         self.feature_pyramid = layers.Concatenate(axis=-2)
 
     def get_config(self):
