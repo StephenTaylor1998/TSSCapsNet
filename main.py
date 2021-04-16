@@ -2,13 +2,12 @@ import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
-from utils import Dataset, plotHistory
-from models import TSSCapsNet
-from models import TSSEfficientCapsNet
-from models import EfficientCapsNet
 from models import CapsNet
+from models import TSSCapsNet
+from models import EfficientCapsNet
+from models import TSSEfficientCapsNet
+from utils import Dataset, plotHistory
 from utils.argparse import get_terminal_args
-
 
 if __name__ == '__main__':
 
@@ -47,7 +46,6 @@ if __name__ == '__main__':
     plotHistory(history)
 
     # 5.0 Load weights
-
     model.load_graph_weights()  # load graph weights (bin folder)
 
     # 6.0 Test the Model

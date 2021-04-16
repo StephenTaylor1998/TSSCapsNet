@@ -73,7 +73,7 @@ def random_contrast(x, y):
     return tf.image.random_contrast(x, lower=LOWER_CONTRAST, upper=UPPER_CONTRAST), y
 
 
-def generate_tf_data(X_train, y_train, X_test_patch, y_test, batch_size):
+def generate_tf_data(X_train, y_train, X_test_patch, y_test, batch_size, for_capsule=True):
     dataset_train = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     # dataset_train = dataset_train.shuffle(buffer_size=SAMPLES) not needed if imported with tfds
     dataset_train = dataset_train.map(random_patches,
@@ -82,15 +82,17 @@ def generate_tf_data(X_train, y_train, X_test_patch, y_test, batch_size):
                                       num_parallel_calls=PARALLEL_INPUT_CALLS)
     dataset_train = dataset_train.map(random_contrast,
                                       num_parallel_calls=PARALLEL_INPUT_CALLS)
-    dataset_train = dataset_train.map(generator,
-                                      num_parallel_calls=PARALLEL_INPUT_CALLS)
+    if for_capsule:
+        dataset_train = dataset_train.map(generator,
+                                          num_parallel_calls=PARALLEL_INPUT_CALLS)
     dataset_train = dataset_train.batch(batch_size)
     dataset_train = dataset_train.prefetch(-1)
 
     dataset_test = tf.data.Dataset.from_tensor_slices((X_test_patch, y_test))
     dataset_test = dataset_test.cache()
-    dataset_test = dataset_test.map(generator,
-                                    num_parallel_calls=PARALLEL_INPUT_CALLS)
+    if for_capsule:
+        dataset_test = dataset_test.map(generator,
+                                        num_parallel_calls=PARALLEL_INPUT_CALLS)
     dataset_test = dataset_test.batch(1)
     dataset_test = dataset_test.prefetch(-1)
 

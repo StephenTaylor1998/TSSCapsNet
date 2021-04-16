@@ -120,17 +120,19 @@ class Dataset(object):
             # import the datatset
             (ds_train, ds_test), ds_info = tfds.load(
                 'smallnorb',
+                data_dir='./data/small_norb',
                 split=['train', 'test'],
                 shuffle_files=True,
                 as_supervised=False,
                 with_info=True)
             self.X_train, self.y_train = pre_process_smallnorb.pre_process(ds_train)
-            self.X_test, self.y_test = pre_process_smallnorb.pre_process(ds_test)
-
             self.X_train, self.y_train = pre_process_smallnorb.standardize(self.X_train, self.y_train)
             self.X_train, self.y_train = pre_process_smallnorb.rescale(self.X_train, self.y_train, self.config)
+
+            self.X_test, self.y_test = pre_process_smallnorb.pre_process(ds_test)
             self.X_test, self.y_test = pre_process_smallnorb.standardize(self.X_test, self.y_test)
             self.X_test, self.y_test = pre_process_smallnorb.rescale(self.X_test, self.y_test, self.config)
+
             self.X_test_patch, self.y_test = pre_process_smallnorb.test_patches(self.X_test, self.y_test, self.config)
             self.class_names = ds_info.features['label_category'].names
             print("[INFO] Dataset loaded!")
@@ -189,7 +191,8 @@ class Dataset(object):
                 for_capsule)
         elif self.data_name == 'SMALLNORB':
             dataset_train, dataset_test = pre_process_smallnorb.generate_tf_data(
-                self.X_train, self.y_train, self.X_test_patch, self.y_test, self.config['batch_size'])
+                self.X_train, self.y_train, self.X_test_patch, self.y_test, self.config['batch_size'],
+                for_capsule)
         elif self.data_name == 'MULTIMNIST':
             dataset_train, dataset_test = pre_process_multimnist.generate_tf_data(
                 self.X_train, self.y_train, self.X_test, self.y_test,
