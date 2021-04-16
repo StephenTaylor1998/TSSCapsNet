@@ -11,7 +11,7 @@ class BasicBlockDWT(layers.Layer):
         self.in_planes = in_planes
         self.planes = planes
         self.stride = stride
-        if self.stride != 1:
+        if self.stride == 2:
             self.dwt = DWT()
         self.conv1 = layers.Conv2D(self.planes, kernel_size=3, strides=1, padding='same', use_bias=False,
                                    kernel_initializer='he_normal',
@@ -50,11 +50,11 @@ class BasicBlockDWT(layers.Layer):
         return out
 
 
-class Bottleneck(layers.Layer):
+class BottleneckDWT(layers.Layer):
     expansion = 4
 
     def __init__(self, in_planes, planes, stride=1, regularize=1e-4):
-        super(Bottleneck, self).__init__()
+        super(BottleneckDWT, self).__init__()
         self.in_planes = in_planes
         self.planes = planes
         self.stride = stride
@@ -64,10 +64,13 @@ class Bottleneck(layers.Layer):
                                    kernel_regularizer=L2(regularize)
                                    )
         self.bn1 = layers.BatchNormalization()
-        self.conv2 = layers.Conv2D(self.planes, kernel_size=3, strides=self.stride, padding='same', use_bias=False,
-                                   kernel_initializer='he_normal',
-                                   kernel_regularizer=L2(regularize)
-                                   )
+        if stride == 2:
+            self.conv2 = DWT()
+        else:
+            self.conv2 = layers.Conv2D(self.planes, kernel_size=3, strides=self.stride, padding='same', use_bias=False,
+                                       kernel_initializer='he_normal',
+                                       kernel_regularizer=L2(regularize)
+                                       )
         self.bn2 = layers.BatchNormalization()
         self.conv3 = layers.Conv2D(self.expansion * self.planes, kernel_size=1, use_bias=False,
                                    kernel_initializer='he_normal',
@@ -94,7 +97,7 @@ class Bottleneck(layers.Layer):
             'planes': self.planes,
             'stride': self.stride,
         }
-        base_config = super(Bottleneck, self).get_config()
+        base_config = super(BottleneckDWT, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
 
     def call(self, inputs, **kwargs):
@@ -216,19 +219,19 @@ def resnet34_cifar(block=BasicBlockDWT, num_blocks=None, num_classes=10):
     return ResNet(block, num_blocks, num_classes=num_classes)
 
 
-def resnet50_cifar(block=Bottleneck, num_blocks=None, num_classes=10):
+def resnet50_cifar(block=BottleneckDWT, num_blocks=None, num_classes=10):
     if num_blocks is None:
         num_blocks = [3, 4, 6, 3]
     return ResNet(block, num_blocks, num_classes=num_classes)
 
 
-def resnet101_cifar(block=Bottleneck, num_blocks=None, num_classes=10):
+def resnet101_cifar(block=BottleneckDWT, num_blocks=None, num_classes=10):
     if num_blocks is None:
         num_blocks = [3, 4, 23, 3]
     return ResNet(block, num_blocks, num_classes=num_classes)
 
 
-def resnet152_cifar(block=Bottleneck, num_blocks=None, num_classes=10):
+def resnet152_cifar(block=BottleneckDWT, num_blocks=None, num_classes=10):
     if num_blocks is None:
         num_blocks = [3, 8, 36, 3]
     return ResNet(block, num_blocks, num_classes=num_classes)

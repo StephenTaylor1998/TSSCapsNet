@@ -40,7 +40,7 @@ class EfficientCapsNet(Model):
     """
 
     def __init__(self, data_name, mode='test', model_name='Efficient_CapsNet', config_path='config.json',
-                 custom_path=None, verbose=True, gpu_number=None):
+                 custom_path=None, verbose=True, gpu_number=None, **kwargs):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         if custom_path != None:

@@ -169,7 +169,8 @@ from models.etc_model.resnet_cifar_dwt import BasicBlockDWT, ResNetBackbone
 #         return out
 
 
-def efficient_capsnet_graph(input_shape, num_classes):
+def efficient_capsnet_graph(input_shape, num_classes, routing_name_list=None):
+    routing_name_list = ['FPN', 'FPN', 'FPN'] if routing_name_list is None else routing_name_list
     inputs = tf.keras.Input(input_shape)
     # (32, 32, 3) ==>> (8, 8, 128)
     x = ResNetBackbone(BasicBlockDWT, [2, 2, 2, 2])(inputs)
@@ -181,17 +182,14 @@ def efficient_capsnet_graph(input_shape, num_classes):
     # # (4, 4, 512) ==>> (1, 1, 512) ==>> (64, 8)
     # x = PrimaryCaps(512, x.shape[1], 64, 8)(x)
     # digit_caps = RoutingA(num_classes)(x)
-    digit_caps = Routing(num_classes, routing_name_list=['FPN', 'FPN', 'FPN'], regularize=1e-4)(x)
-    # digit_caps = Routing(num_classes, routing_name_list=['FPNTiny', 'FPNTiny', 'FPNTiny'], regularize=1e-5)(x)
-    # digit_caps = Routing(num_classes, routing_name_list=['Attention', 'Attention', 'Attention'], regularize=1e-5)(x)
+    digit_caps = Routing(num_classes, routing_name_list, regularize=1e-5)(x)
     # x = layers.LayerNormalization()(x)
-    # digit_caps = FCCaps(10, 16)(x)
     digit_caps_len = Length()(digit_caps)
     # digit_caps_len = Heterogeneous(num_class=10)((x, digit_caps_len))
     return tf.keras.Model(inputs=[inputs], outputs=[digit_caps_len])
 
 
-def build_graph(input_shape, num_classes):
+def build_graph(input_shape, num_classes, routing_name_list):
     """
     Efficient-CapsNet graph architecture with reconstruction regularizer.
     The network can be initialize with different modalities.
@@ -199,8 +197,11 @@ def build_graph(input_shape, num_classes):
     ----------
     input_shape: list
         network input shape
+        :param input_shape: model input shape
         :param num_classes: number of classes
+        :param routing_name_list: name list for routing name
+            for example routing_name_list = ['FPN', 'FPN', 'FPN']
     """
-    efficient_capsnet = efficient_capsnet_graph(input_shape, num_classes)
+    efficient_capsnet = efficient_capsnet_graph(input_shape, num_classes, routing_name_list)
     efficient_capsnet.summary()
     return efficient_capsnet

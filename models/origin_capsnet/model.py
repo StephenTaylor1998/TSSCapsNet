@@ -37,7 +37,7 @@ class CapsNet(Model):
     """
 
     def __init__(self, data_name, model_name='CapsNet', mode='test', config_path='config.json', custom_path=None,
-                 verbose=True, n_routing=3, gpu_number=None):
+                 verbose=True, n_routing=3, gpu_number=None, **kwargs):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         self.n_routing = n_routing

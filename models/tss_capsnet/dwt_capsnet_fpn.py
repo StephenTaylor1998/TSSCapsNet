@@ -1,18 +1,15 @@
 import numpy as np
 import tensorflow as tf
+from models.layers import RoutingA
+from models.layers.layers_efficient import PrimaryCaps, Length, Mask
+from models.layers.operators import Heterogeneous
+from models.layers.routing import Routing
+from models.layers.transform import DWT
 
-from ..layers import RFFTLayer3d
-from ..layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask
 
-
-def efficient_capsnet_graph(input_shape):
+def efficient_capsnet_graph(input_shape, num_classes, routing_name_list, regularize=1e-4):
     """
-    Efficient-CapsNet graph architecture.
-
-    Parameters
-    ----------
-    input_shape: list
-        network input shape
+    reimplement for cifar dataset
     """
     inputs = tf.keras.Input(input_shape)
     # (28, 28, 1) ==>> (24, 24, 32)
@@ -27,19 +24,22 @@ def efficient_capsnet_graph(input_shape):
     # (20, 20, 64) ==>> (18, 18, 32)
     x = tf.keras.layers.Conv2D(32, 3, activation='relu', padding='valid', kernel_initializer='he_normal')(x)
     x = tf.keras.layers.BatchNormalization()(x)
-    # (18, 18, 32) ==>> (9, 9, 65)
-    x = RFFTLayer3d(block_shape=(2, 2))(x)
-    x = x[:, :, :, :-1]
-    x = tf.keras.layers.BatchNormalization()(x)
-    # x = PrimaryCaps(65, 9, 13, 5)(x)
-    x = PrimaryCaps(64, x.shape[1], 16, 4)(x)
+    # (18, 18, 32) ==>> (9, 9, 128)
+    x = DWT()(x)
+    x = PrimaryCaps(128, x.shape[1], 16, 8)(x)
 
-    digit_caps = FCCaps(10, 16)(x)
-    # digit_caps = FCCaps(10, 13)(x)
+    digit_caps = Routing(num_classes, routing_name_list, regularize)(x)
+
+    # x = layers.LayerNormalization()(x)
+    # digit_caps = FCCaps(10, 16)(x)
 
     digit_caps_len = Length(name='length_capsnet_output')(digit_caps)
 
-    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name='RFFT_Efficient_CapsNet')
+    digit_caps_len = Heterogeneous(num_class=10)((x, digit_caps_len))
+
+    # digit_caps_len = tf.keras.layers.Softmax()(digit_caps_len)
+
+    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name='DWT_Multi_Attention_CapsNet')
 
 
 def generator_graph(input_shape):
@@ -61,28 +61,26 @@ def generator_graph(input_shape):
     return tf.keras.Model(inputs=inputs, outputs=x, name='Generator')
 
 
-def build_graph(input_shape, mode, verbose):
+def build_graph(input_shape, mode, num_classes, routing_name_list, regularize=1e-4):
     """
     Efficient-CapsNet graph architecture with reconstruction regularizer.
     The network can be initialize with different modalities.
 
     Parameters
     ----------
-    input_shape: list
-        network input shape
-    mode: str
-        working mode ('train', 'test' & 'play')
-    verbose: bool
+    :param input_shape: network input shape
+    :param mode: working mode ('train', 'test' & 'play')
+    :param input_shape:
+    :param num_classes:
+    :param routing_name_list:
+    :param regularize:
     """
     inputs = tf.keras.Input(input_shape)
     y_true = tf.keras.layers.Input(shape=(10,))
     noise = tf.keras.layers.Input(shape=(10, 16))
 
-    efficient_capsnet = efficient_capsnet_graph(input_shape)
-
-    if verbose:
-        efficient_capsnet.summary()
-        print("\n\n")
+    efficient_capsnet = efficient_capsnet_graph(input_shape, num_classes, routing_name_list, regularize)
+    efficient_capsnet.summary()
 
     digit_caps, digit_caps_len = efficient_capsnet(inputs)
     noised_digitcaps = tf.keras.layers.Add()([digit_caps, noise])  # only if mode is play
@@ -93,9 +91,9 @@ def build_graph(input_shape, mode, verbose):
 
     generator = generator_graph(input_shape)
 
-    if verbose:
-        generator.summary()
-        print("\n\n")
+
+    generator.summary()
+
 
     x_gen_train = generator(masked_by_y)
     x_gen_eval = generator(masked)
@@ -103,11 +101,11 @@ def build_graph(input_shape, mode, verbose):
 
     if mode == 'train':
         return tf.keras.models.Model([inputs, y_true], [digit_caps_len, x_gen_train],
-                                     name='RFFT_Efficient_CapsNet_Generator')
+                                     name='DWT_Efficinet_CapsNet_Generator')
     elif mode == 'test':
-        return tf.keras.models.Model(inputs, [digit_caps_len, x_gen_eval], name='RFFT_Efficient_CapsNet_Generator')
+        return tf.keras.models.Model(inputs, [digit_caps_len, x_gen_eval], name='DWT_Efficinet_CapsNet_Generator')
     elif mode == 'play':
         return tf.keras.models.Model([inputs, y_true, noise], [digit_caps_len, x_gen_play],
-                                     name='RFFT_Efficient_CapsNet_Generator')
+                                     name='DWT_Efficinet_CapsNet_Generator')
     else:
         raise RuntimeError('mode not recognized')

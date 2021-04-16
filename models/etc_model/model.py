@@ -5,7 +5,7 @@ from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 from . import resnet_cifar
 from . import mobilenet_v2_cifar
 from . import ghostnet_cifar
-from . import capsnet_attention_without_decoder
+from . import capsule_with_fpn_routing
 from . import resnet_cifar_dwt
 from .call_backs import get_callbacks
 from ..efficient_capsnet import efficient_capsnet_graph_smallnorb
@@ -72,25 +72,39 @@ class ETCModel(Model):
             num_classes = 5
         elif self.data_name == 'MULTIMNIST':
             raise NotImplemented
-            # self.model = efficient_capsnet_graph_multimnist.build_graph(self.config['MULTIMNIST_INPUT_SHAPE'],
-            #                                                             self.mode, self.verbose)
         else:
-            raise NotImplementedError
+            raise NotImplemented
 
-        if self.model_name == "RESNET20":
+        if self.model_name == "RESNET18":
             self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=18)
-        if self.model_name == "RESNET32":
-            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=32)
-        if self.model_name == "RESNET56":
-            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=56)
+        elif self.model_name == "RESNET34":
+            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=34)
+        elif self.model_name == "RESNET50":
+            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=50)
+        elif self.model_name == "RESNET_DWT18":
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=18)
+        elif self.model_name == "RESNET_DWT34":
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=34)
+        elif self.model_name == "RESNET_DWT50":
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=50)
         elif self.model_name == "GHOSTNET":
             self.model = ghostnet_cifar.build_graph(input_shape, num_classes)
         elif self.model_name == "MOBILENETv2":
             self.model = mobilenet_v2_cifar.build_graph(input_shape, num_classes)
+        elif self.model_name == "DWT_Caps_FPN":
+            self.model = capsule_with_fpn_routing.build_graph(
+                input_shape, num_classes, ['FPN', 'FPN', 'FPN'])
+        elif self.model_name == "DWT_Caps_FPNTiny":
+            self.model = capsule_with_fpn_routing.build_graph(
+                input_shape, num_classes, ['FPNTiny', 'FPNTiny', 'FPNTiny'])
+        elif self.model_name == "DWT_Caps_Attention":
+            self.model = capsule_with_fpn_routing.build_graph(
+                input_shape, num_classes, ['Attention', 'Attention', 'Attention'])
         elif self.model_name == "CapsNet_Without_Decoder":
-            self.model = capsnet_attention_without_decoder.build_graph(input_shape, num_classes)
-        elif self.model_name == "RESNET_DWT":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes)
+            self.model = capsule_with_fpn_routing.build_graph(
+                input_shape, num_classes, ['FPN', 'FPN', 'FPN'])
+        else:
+            raise NotImplemented
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_path_new_train)
@@ -99,9 +113,9 @@ class ETCModel(Model):
             dataset = Dataset(self.data_name, self.config_path)
         dataset_train, dataset_val = dataset.get_tf_data(for_capsule=False)
 
-        self.model.compile(optimizer=tf.keras.optimizers.SGD(lr=self.config['ETC_MODEL_LR'], momentum=0.9),
-                           loss='categorical_crossentropy',
-                           metrics='accuracy')
+        # self.model.compile(optimizer=tf.keras.optimizers.SGD(lr=self.config['ETC_MODEL_LR'], momentum=0.9),
+        #                    loss='categorical_crossentropy',
+        #                    metrics='accuracy')
         self.model.compile(optimizer=tf.keras.optimizers.Adam(lr=self.config['ETC_MODEL_LR']),
                            loss='categorical_crossentropy',
                            metrics='accuracy')

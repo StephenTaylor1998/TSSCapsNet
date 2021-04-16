@@ -1,7 +1,6 @@
 import os
 import tensorflow as tf
 from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
-
 from . import dct_capsnet_h1_graph_mnist
 from . import dct_capsnet_e1_graph_mnist
 from . import dct_capsnet_h1_attention_mnist
@@ -10,9 +9,9 @@ from . import dwt_capsnet_e1_graph_mnist
 from . import dwt_resnet_capsnet_e1_multi_attention
 from . import rfft_capsnet_e1_graph_mnist
 from . import wst_capsnet_e1_graph_mnist
+from . import dwt_capsnet_fpn
 from .call_backs import get_callbacks
 from ..layers.model_base import Model
-
 from utils.dataset import Dataset
 from utils.tools import marginLoss
 
@@ -170,35 +169,37 @@ class TSSEfficientCapsNet(Model):
     def load_graph(self):
         if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
             input_shape = self.config['MNIST_INPUT_SHAPE']
+            num_classes = 10
         elif self.data_name in ['CIFAR10', 'CIFAR10_SHIFT']:
             input_shape = self.config['CIFAR10_INPUT_SHAPE']
-        elif self.data_name == 'SMALLNORB':
-            raise NotImplemented
-            # self.model = efficient_capsnet_graph_smallnorb.build_graph(self.config['SMALLNORB_INPUT_SHAPE'],
-            #                                                            self.mode,
-            #                                                            self.verbose)
+            num_classes = 10
+        elif self.data_name == 'SMALLNORB_INPUT_SHAPE':
+            num_classes = 5
+            input_shape = self.config['CIFAR10_INPUT_SHAPE']
         elif self.data_name == 'MULTIMNIST':
             raise NotImplemented
-            # self.model = efficient_capsnet_graph_multimnist.build_graph(self.config['MULTIMNIST_INPUT_SHAPE'],
-            #                                                             self.mode, self.verbose)
         else:
             raise NotImplementedError
 
         if self.model_name == "DCT_Efficient_CapsNet":
-            self.model = dct_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
-                                                                self.verbose)
+            self.model = dct_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode, self.verbose)
         elif self.model_name == "RFFT_Efficient_CapsNet":
-            self.model = rfft_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
-                                                                 self.verbose)
+            self.model = rfft_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode, self.verbose)
         elif self.model_name == "DWT_Efficient_CapsNet":
-            self.model = dwt_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
-                                                                self.verbose)
+            self.model = dwt_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode, self.verbose)
         elif self.model_name == "WST_Efficient_CapsNet":
-            self.model = wst_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode,
-                                                                self.verbose)
+            self.model = wst_capsnet_e1_graph_mnist.build_graph(input_shape, self.mode, self.verbose)
         elif self.model_name == 'DWT_Multi_Attention_CapsNet':
-            self.model = dwt_resnet_capsnet_e1_multi_attention.build_graph(input_shape, self.mode,
-                                                                           self.verbose)
+            self.model = dwt_resnet_capsnet_e1_multi_attention.build_graph(input_shape, self.mode, self.verbose)
+        elif self.model_name == 'DWT_Caps_FPN':
+            self.model = dwt_capsnet_fpn.build_graph(
+                input_shape, self.mode, num_classes, ['FPN', 'FPN', 'FPN'])
+        elif self.model_name == 'DWT_Caps_FPNTiny':
+            self.model = dwt_capsnet_fpn.build_graph(
+                input_shape, self.mode, num_classes, ['FPNTiny', 'FPNTiny', 'FPNTiny'])
+        elif self.model_name == 'DWT_Caps_Attention':
+            self.model = dwt_capsnet_fpn.build_graph(
+                input_shape, self.mode, num_classes, ['Attention', 'Attention', 'Attention'])
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_name,
@@ -211,19 +212,11 @@ class TSSEfficientCapsNet(Model):
             dataset = Dataset(self.data_name, self.config_path)
         dataset_train, dataset_val = dataset.get_tf_data()
 
-        if self.data_name == 'MULTIMNIST':
-            self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
-                               loss=[marginLoss, 'mse', 'mse'],
-                               loss_weights=[1., self.config['lmd_gen'] / 2, self.config['lmd_gen'] / 2],
-                               metrics={'DCT_Efficient_CapsNet': 'accuracy'})
-            steps = 10 * int(dataset.y_train.shape[0] / self.config['batch_size'])
-
-        else:
-            self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
-                               loss=[marginLoss, 'mse'],
-                               loss_weights=[1., self.config['lmd_gen']],
-                               metrics={self.model_name: 'accuracy'})
-            steps = None
+        self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.config['lr']),
+                           loss=[marginLoss, 'mse'],
+                           loss_weights=[1., self.config['lmd_gen']],
+                           metrics={self.model_name: 'accuracy'})
+        steps = None
 
         print('-' * 30 + f'{self.data_name} train' + '-' * 30)
 
