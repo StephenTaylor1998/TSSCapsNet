@@ -167,11 +167,11 @@ class RoutingBlock(layers.Layer):
         return super(RoutingBlock, self).get_config()
 
     def call(self, inputs, **kwargs):
-        feature_pyramid = self.fpn1(inputs)
+        feature_pyramid = self.fpn(inputs)
         feature_pyramid = self.norm1(feature_pyramid)
-        caps_similarity = self.caps_similarity1(feature_pyramid)
+        caps_similarity = self.caps_similarity(feature_pyramid)
         feature_pyramid = feature_pyramid * caps_similarity
-        feature_pyramid = self.norm_caps_similarity1(feature_pyramid)
+        feature_pyramid = self.norm2(feature_pyramid)
         return feature_pyramid
 
 
@@ -195,7 +195,7 @@ class Routing(layers.Layer):
     """
     def __init__(self, num_classes=10, routing_name_list=None, regularize=1e-5, **kwargs):
         super(Routing, self).__init__(**kwargs)
-        self.routing = self._make_routing(RoutingBlock, routing_name_list, regularize)
+        self.routings = self._make_routing(RoutingBlock, routing_name_list, regularize)
 
         # final mapping
         self.final_mapping = CapsuleMapping(num_caps=num_classes, caps_length=16)
@@ -212,7 +212,7 @@ class Routing(layers.Layer):
         return super(Routing, self).get_config()
 
     def call(self, inputs, **kwargs):
-        feature_pyramid = self.routing(inputs)
+        feature_pyramid = self.routings(inputs)
         out = self.final_mapping(feature_pyramid)
         out = self.norm_final_mapping(out)
-        return out, feature_pyramid
+        return out

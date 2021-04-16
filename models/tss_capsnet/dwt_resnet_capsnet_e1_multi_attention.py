@@ -19,9 +19,9 @@ import tensorflow as tf
 from tensorflow import keras, Variable, float32
 
 # from ..layers.transform.dwt import DWT
-
+from models.layers import RoutingA
 from models.layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask
-from models.layers.operators import RoutingA, RoutingTiny, Heterogeneous
+from models.layers.operators import Heterogeneous
 from tensorflow.keras import regularizers
 from tensorflow.keras.regularizers import L2
 from tensorflow.keras import layers, Sequential

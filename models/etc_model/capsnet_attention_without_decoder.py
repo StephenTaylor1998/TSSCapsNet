@@ -16,7 +16,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers
 from models.layers.layers_efficient import PrimaryCaps, Length
-from models.layers.routing import RoutingA
+from models.layers.routing import RoutingA, Routing
 from models.etc_model.resnet_cifar_dwt import BasicBlockDWT, ResNetBackbone
 
 
@@ -180,7 +180,10 @@ def efficient_capsnet_graph(input_shape, num_classes):
     x = PrimaryCaps(256, x.shape[1], 32, 8)(x)
     # # (4, 4, 512) ==>> (1, 1, 512) ==>> (64, 8)
     # x = PrimaryCaps(512, x.shape[1], 64, 8)(x)
-    digit_caps = RoutingA(num_classes)(x)
+    # digit_caps = RoutingA(num_classes)(x)
+    digit_caps = Routing(num_classes, routing_name_list=['FPN', 'FPN', 'FPN'], regularize=1e-4)(x)
+    # digit_caps = Routing(num_classes, routing_name_list=['FPNTiny', 'FPNTiny', 'FPNTiny'], regularize=1e-5)(x)
+    # digit_caps = Routing(num_classes, routing_name_list=['Attention', 'Attention', 'Attention'], regularize=1e-5)(x)
     # x = layers.LayerNormalization()(x)
     # digit_caps = FCCaps(10, 16)(x)
     digit_caps_len = Length()(digit_caps)

@@ -211,7 +211,7 @@ def build_graph(input_shape, num_classes=10, depth=18):
 #     import tensorflow as tf
 #     import numpy as np
 #
-#     mnist_model = build_graph(input_shape=(28, 28, 1))
+#     mnist_model = build_graph(input_shape=(28, 28, 1), depth=152)
 #     mnist_model.compile(
 #         optimizer="adam",
 #         loss=tf.keras.losses.SparseCategoricalCrossentropy(),

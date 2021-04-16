@@ -223,7 +223,9 @@ class Length(tf.keras.layers.Layer):
         inputs: tensor
            tensor with shape [None, num_capsules (N), dim_capsules (D)]
         """
-        return tf.sqrt(tf.reduce_sum(tf.square(inputs), - 1) + tf.keras.backend.epsilon())
+        square = tf.square(inputs)
+        input_sum = tf.reduce_sum(square, - 1)
+        return tf.sqrt(input_sum + tf.keras.backend.epsilon())
 
     def compute_output_shape(self, input_shape):
         return input_shape[:-1]

@@ -107,7 +107,7 @@ class Bottleneck(layers.Layer):
 
 
 class ResNet(Model):
-    def __init__(self, block, num_blocks, num_classes=10, regularize=1e-4):
+    def __init__(self, block, num_blocks, num_classes=10, half=True, regularize=1e-4):
         super(ResNet, self).__init__(name="RESNET_DWT")
         self.in_planes = 64
         self.block = block
@@ -119,14 +119,17 @@ class ResNet(Model):
                                    )
         self.bn1 = layers.BatchNormalization()
         self.relu = layers.ReLU()
-        # self.layer1 = self._make_layer(self.block, 64, self.num_blocks[0], stride=1, regularize=regularize)
-        # self.layer2 = self._make_layer(self.block, 128, self.num_blocks[1], stride=2, regularize=regularize)
-        # self.layer3 = self._make_layer(self.block, 256, self.num_blocks[2], stride=2, regularize=regularize)
-        # self.layer4 = self._make_layer(self.block, 512, self.num_blocks[3], stride=2, regularize=regularize)
-        self.layer1 = self._make_layer(self.block, 32, self.num_blocks[0], stride=1, regularize=regularize)
-        self.layer2 = self._make_layer(self.block, 64, self.num_blocks[1], stride=2, regularize=regularize)
-        self.layer3 = self._make_layer(self.block, 128, self.num_blocks[2], stride=2, regularize=regularize)
-        self.layer4 = self._make_layer(self.block, 256, self.num_blocks[3], stride=2, regularize=regularize)
+        if half:
+            self.layer1 = self._make_layer(self.block, 32, self.num_blocks[0], stride=1, regularize=regularize)
+            self.layer2 = self._make_layer(self.block, 64, self.num_blocks[1], stride=2, regularize=regularize)
+            self.layer3 = self._make_layer(self.block, 128, self.num_blocks[2], stride=2, regularize=regularize)
+            self.layer4 = self._make_layer(self.block, 256, self.num_blocks[3], stride=2, regularize=regularize)
+        else:
+            self.layer1 = self._make_layer(self.block, 64, self.num_blocks[0], stride=1, regularize=regularize)
+            self.layer2 = self._make_layer(self.block, 128, self.num_blocks[1], stride=2, regularize=regularize)
+            self.layer3 = self._make_layer(self.block, 256, self.num_blocks[2], stride=2, regularize=regularize)
+            self.layer4 = self._make_layer(self.block, 512, self.num_blocks[3], stride=2, regularize=regularize)
+
         self.pool = layers.GlobalAveragePooling2D()
         self.linear = layers.Dense(self.num_classes, activation='softmax')
 
