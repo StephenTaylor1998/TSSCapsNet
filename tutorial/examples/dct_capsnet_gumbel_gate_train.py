@@ -11,12 +11,12 @@ tf.config.experimental.set_memory_growth(gpus[0], True)
 
 # some parameters
 # data_name = 'MNIST'
-# data_name = 'MNIST_SHIFT'
-data_name = 'FASHION_MNIST_SHIFT'
+data_name = 'MNIST_SHIFT'
+# data_name = 'FASHION_MNIST_SHIFT'
 
 n_routing = 3
 
-dataset = Dataset(data_name, config_path='../../config.json')  # only MNIST
+dataset = Dataset(data_name, config_path='./config.json')  # only MNIST
 
 # 1.1 Visualize imported dataset
 

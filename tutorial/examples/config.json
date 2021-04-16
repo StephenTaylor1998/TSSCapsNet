@@ -1,0 +1,42 @@
+{
+
+  "eps": 10e-21,
+  "MNIST_INPUT_SHAPE": [
+    28,
+    28,
+    1
+  ],
+  "SMALLNORB_INPUT_SHAPE": [
+    48,
+    48,
+    2
+  ],
+  "MULTIMNIST_INPUT_SHAPE": [
+    36,
+    36,
+    1
+  ],
+  "CIFAR10_INPUT_SHAPE": [
+    32,
+    32,
+    3
+  ],
+  "lr": 1e-3,
+  "lmd_gen": 0.00,
+  "lr_dec": 0.97,
+  "batch_size": 16,
+  "epochs": 300,
+  "saved_model_dir": "weights",
+  "tb_log_save_dir": "logs",
+  "mnist_path": "mnist.npz",
+  "scale_smallnorb": 64,
+  "patch_smallnorb": 48,
+  "n_overlay_multimnist": 1000,
+  "shift_multimnist": 6,
+  "pad_multimnist": 4,
+  "num_workers": 4,
+  "<<<ETC_MODEL_PARAMETERS": "^^^^^^^^^^^^^^^^^^^ETC_MODEL_PARAMETERS^^^^^^^^^^^^^^^^^^^^^^^",
+  "ETC_MODEL_LR": 1e-1,
+  "ETC_MODEL_EPOCHS": 400,
+  "ETC_MODEL_PARAMETERS>>>": "^^^^^^^^^^^^^^^^^^^ETC_MODEL_PARAMETERS^^^^^^^^^^^^^^^^^^^^^^^"
+}
