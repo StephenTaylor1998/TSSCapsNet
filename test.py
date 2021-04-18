@@ -4,7 +4,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from utils import Dataset, plotHistory
 from models import TSSCapsNet
-from models import TSSEfficientCapsNet
 from models import EfficientCapsNet
 from models import CapsNet
 

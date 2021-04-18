@@ -5,7 +5,6 @@ import tensorflow as tf
 from models import CapsNet
 from models import TSSCapsNet
 from models import EfficientCapsNet
-from models import TSSEfficientCapsNet
 from utils import Dataset, plotHistory
 from utils.argparse import get_terminal_args
 
@@ -32,9 +31,6 @@ if __name__ == '__main__':
     elif args.arch == "TSSCapsNet":
         model = TSSCapsNet(args.data_name, model_name=args.model_name,
                            mode='test', verbose=True, gpu_number=gpu_number)
-    elif args.arch == "TSSEfficientCapsNet":
-        model = TSSEfficientCapsNet(args.data_name, model_name=args.model_name,
-                                    mode='test', verbose=True, gpu_number=gpu_number)
     else:
         raise NotImplementedError
 

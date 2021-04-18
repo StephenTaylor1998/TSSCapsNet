@@ -3,7 +3,6 @@ from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 
 from utils import Dataset, plotHistory
 from models import TSSCapsNet
-from models import TSSEfficientCapsNet
 from models import EfficientCapsNet
 from models import CapsNet
 

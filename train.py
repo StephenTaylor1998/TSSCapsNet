@@ -4,7 +4,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from utils import Dataset, plotHistory
 from models import TSSCapsNet
-from models import TSSEfficientCapsNet
 from models import EfficientCapsNet
 from models import CapsNet
 from models import ETCModel
@@ -18,7 +17,8 @@ from models import ETCModel
 # model_name = 'DWT_Efficient_CapsNet'
 # model_name = "DWT_Multi_Attention_CapsNet"
 # model_name = 'Efficient_CapsNet'           # EfficientCapsNet
-model_name = 'CapsNet'                     # CapsNet
+# model_name = 'CapsNet'                     # CapsNet
+model_name = 'DWT_Caps_FPN'
 
 
 # data_name = 'MNIST'
@@ -30,8 +30,8 @@ data_name = 'CIFAR10'
 # data_name = 'SMALLNORB'
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[0], True)
+tf.config.experimental.set_visible_devices(gpus[5], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[5], True)
 gpu_number = None
 
 # 1.0 Import the Dataset
@@ -39,9 +39,9 @@ dataset = Dataset(data_name, config_path='config.json')
 
 # 2.0 Load the Model
 # model = TSSCapsNet(data_name, model_name=model_name, mode='train', verbose=True, gpu_number=gpu_number)
-# model = TSSEfficientCapsNet(data_name, model_name=model_name, mode='train', verbose=True, gpu_number=gpu_number)
+model = TSSEfficientCapsNet(data_name, model_name=model_name, mode='train', verbose=True, gpu_number=gpu_number)
 # model = EfficientCapsNet(data_name, model_name=model_name, mode='train', verbose=True, gpu_number=gpu_number)
-model = CapsNet(data_name, model_name=model_name, mode='train', verbose=True, gpu_number=gpu_number)
+# model = CapsNet(data_name, model_name=model_name, mode='train', verbose=True, gpu_number=gpu_number)
 # model = ETCModel(data_name=data_name, model_name='CapsNet_Without_Decoder')
 
 # 3.0 Train the Model
