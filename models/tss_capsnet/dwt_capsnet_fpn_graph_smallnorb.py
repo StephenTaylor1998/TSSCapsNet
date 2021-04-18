@@ -1,25 +1,11 @@
-# Copyright 2021 Vittorio Mazzia & Francesco Salvetti. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-
-import numpy as np
 import tensorflow as tf
-from ..layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask, generator_graph_smallnorb
 import tensorflow_addons as tfa
+from ..layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask, generator_graph_smallnorb
+from ..layers.routing import Routing
+from ..layers.transform import DWT
 
 
-def efficient_capsnet_graph(input_shape):
+def dwt_capsnet_graph(input_shape, num_classes=10, routing_name_list=None, regularize=1e-4, name=None):
     """
     Efficient-CapsNet graph architecture.
     
@@ -27,6 +13,10 @@ def efficient_capsnet_graph(input_shape):
     ----------   
     input_shape: list
         network input shape
+        :param name:
+        :param regularize:
+        :param routing_name_list:
+        :param num_classes:
     """
     inputs = tf.keras.Input(input_shape)
 
@@ -51,43 +41,30 @@ def efficient_capsnet_graph(input_shape):
                                          scale=True,
                                          beta_initializer="random_uniform",
                                          gamma_initializer="random_uniform")(x)
-    x = tf.keras.layers.Conv2D(128, 3, 2, activation=None, padding='valid', kernel_initializer='he_normal')(x)
+    x = tf.keras.layers.Conv2D(32, 3, 2, activation=None, padding='valid', kernel_initializer='he_normal')(x)
     x = tf.keras.layers.LeakyReLU()(x)
     x = tfa.layers.InstanceNormalization(axis=3,
                                          center=True,
                                          scale=True,
                                          beta_initializer="random_uniform",
                                          gamma_initializer="random_uniform")(x)
+    x = DWT()(x)
 
     x = PrimaryCaps(128, 8, 16, 8)(x)  # there could be an error
 
-    digit_caps = FCCaps(5, 16)(x)
-
+    digit_caps = Routing(num_classes, routing_name_list, regularize)(x)
     digit_caps_len = Length(name='length_capsnet_output')(digit_caps)
+    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name=name)
 
-    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name='Efficient_CapsNet')
 
-
-def build_graph(input_shape, mode, verbose):
-    """
-    Efficient-CapsNet graph architecture with reconstruction regularizer. The network can be initialize with different modalities.
-    
-    Parameters
-    ----------   
-    input_shape: list
-        network input shape
-    mode: str
-        working mode ('train' & 'test')
-    verbose: bool
-    """
+def build_graph(input_shape, mode, num_classes, routing_name_list, regularize=1e-4, name=''):
     inputs = tf.keras.Input(input_shape)
     y_true = tf.keras.layers.Input(shape=(5,))
 
-    efficient_capsnet = efficient_capsnet_graph(input_shape)
+    efficient_capsnet = dwt_capsnet_graph(input_shape, num_classes, routing_name_list, regularize, name)
 
-    if verbose:
-        efficient_capsnet.summary()
-        print("\n\n")
+    efficient_capsnet.summary()
+    print("\n\n")
 
     digit_caps, digit_caps_len = efficient_capsnet(inputs)
 
@@ -96,9 +73,8 @@ def build_graph(input_shape, mode, verbose):
 
     generator = generator_graph_smallnorb(input_shape)
 
-    if verbose:
-        generator.summary()
-        print("\n\n")
+    generator.summary()
+    print("\n\n")
 
     x_gen_train = generator(masked_by_y)
     x_gen_eval = generator(masked)

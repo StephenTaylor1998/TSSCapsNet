@@ -16,7 +16,7 @@
 import numpy as np
 import tensorflow as tf
 
-from ..layers.layers_hinton import PrimaryCaps, DigitCaps, Length, Mask
+from ..layers.layers_hinton import PrimaryCaps, DigitCaps, Length, Mask, generator_graph_hinton_mnist
 
 
 def capsnet_graph(input_shape, routing):
@@ -41,25 +41,6 @@ def capsnet_graph(input_shape, routing):
     primary = tf.reshape(primary, (-1, pr_shape[1] * pr_shape[2] * pr_shape[3], pr_shape[-1]))
 
     return tf.keras.Model(inputs=inputs, outputs=[primary, digit_caps, digit_caps_len], name='Original_CapsNet')
-
-
-def generator_graph(input_shape):
-    """
-    Generator graph architecture.
-    
-    Parameters
-    ----------   
-    input_shape: list
-        network input shape
-    """
-    inputs = tf.keras.Input(16 * 10)
-
-    x = tf.keras.layers.Dense(512, activation='relu')(inputs)
-    x = tf.keras.layers.Dense(1024, activation='relu')(x)
-    x = tf.keras.layers.Dense(np.prod(input_shape), activation='sigmoid')(x)
-    x = tf.keras.layers.Reshape(target_shape=input_shape, name='out_generator')(x)
-
-    return tf.keras.Model(inputs=inputs, outputs=x, name='Generator')
 
 
 def build_graph(input_shape, mode, n_routing, verbose):
@@ -93,7 +74,7 @@ def build_graph(input_shape, mode, n_routing, verbose):
     masked = Mask()(digit_caps)  # Mask using the capsule with maximal length. For prediction
     masked_noised_y = Mask()([noised_digitcaps, y_true])
 
-    generator = generator_graph(input_shape)
+    generator = generator_graph_hinton_mnist(input_shape)
 
     if verbose:
         generator.summary()

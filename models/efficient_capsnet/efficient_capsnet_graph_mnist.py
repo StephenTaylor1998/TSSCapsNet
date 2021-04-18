@@ -15,7 +15,7 @@
 
 import numpy as np
 import tensorflow as tf
-from ..layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask
+from ..layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask, generator_graph_mnist
 
 
 def efficient_capsnet_graph(input_shape):
@@ -46,23 +46,23 @@ def efficient_capsnet_graph(input_shape):
     return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name='Efficient_CapsNet')
 
 
-def generator_graph(input_shape):
-    """
-    Generator graph architecture.
-
-    Parameters
-    ----------   
-    input_shape: list
-        network input shape
-    """
-    inputs = tf.keras.Input(16 * 10)
-
-    x = tf.keras.layers.Dense(512, activation='relu', kernel_initializer='he_normal')(inputs)
-    x = tf.keras.layers.Dense(1024, activation='relu', kernel_initializer='he_normal')(x)
-    x = tf.keras.layers.Dense(np.prod(input_shape), activation='sigmoid', kernel_initializer='glorot_normal')(x)
-    x = tf.keras.layers.Reshape(target_shape=input_shape, name='out_generator')(x)
-
-    return tf.keras.Model(inputs=inputs, outputs=x, name='Generator')
+# def generator_graph(input_shape):
+#     """
+#     Generator graph architecture.
+#
+#     Parameters
+#     ----------
+#     input_shape: list
+#         network input shape
+#     """
+#     inputs = tf.keras.Input(16 * 10)
+#
+#     x = tf.keras.layers.Dense(512, activation='relu', kernel_initializer='he_normal')(inputs)
+#     x = tf.keras.layers.Dense(1024, activation='relu', kernel_initializer='he_normal')(x)
+#     x = tf.keras.layers.Dense(np.prod(input_shape), activation='sigmoid', kernel_initializer='glorot_normal')(x)
+#     x = tf.keras.layers.Reshape(target_shape=input_shape, name='out_generator')(x)
+#
+#     return tf.keras.Model(inputs=inputs, outputs=x, name='Generator')
 
 
 def build_graph(input_shape, mode, verbose):
@@ -95,7 +95,7 @@ def build_graph(input_shape, mode, verbose):
     masked = Mask()(digit_caps)
     masked_noised_y = Mask()([noised_digitcaps, y_true])
 
-    generator = generator_graph(input_shape)
+    generator = generator_graph_mnist(input_shape)
 
     if verbose:
         generator.summary()

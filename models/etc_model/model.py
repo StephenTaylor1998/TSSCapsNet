@@ -14,31 +14,10 @@ from ..layers.model_base import Model
 
 
 class ETCModel(Model):
-    """
-    A class used to manage an DCT-Efficiet-CapsNet model. 'data_name' and 'mode' define the particular architecure and modality of the
-    generated network.
-    ...
-    Attributes
-    ----------
-    data_name: str
-        name of the model (Ex. 'MNIST')
-    mode: str
-        model modality (Ex. 'test')
-    config_path: str
-        path configuration file
-    custom_path: str
-        custom weights path
-    verbose: bool
-    Methods
-    -------
-    load_graph():
-        load the network graph given the data_name
-    train(dataset, initial_epoch)
-        train the constructed network with a given dataset. All train hyperparameters are defined in the configuration file
-    """
 
     def __init__(self, data_name, model_name='DCT_Efficient_CapsNet', mode='test', config_path='config.json',
-                 custom_path=None, verbose=True, gpu_number=None, optimizer='Adam', half_filter_in_resnet=True):
+                 custom_path=None, verbose=True, gpu_number=None, optimizer='Adam', half_filter_in_resnet=True,
+                 use_tiny_block=True, **kwargs):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         if custom_path is not None:
@@ -55,6 +34,7 @@ class ETCModel(Model):
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:03d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
         self.half = half_filter_in_resnet
+        self.tiny = use_tiny_block
         self.load_graph()
         if gpu_number:
             self.model = multi_gpu_model(self.model, gpu_number)
@@ -88,7 +68,7 @@ class ETCModel(Model):
         elif self.model_name == "RESNET_DWT50":
             self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=50, half=self.half)
         elif self.model_name == "RESNET_DWT18_Tiny":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=18, half=self.half)
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=18, half=self.half, tiny=self.tiny)
         elif self.model_name == "RESNET_DWT34_Tiny":
             self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=34, half=self.half)
         elif self.model_name == "RESNET_DWT50_Tiny":

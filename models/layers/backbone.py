@@ -314,7 +314,7 @@ class ResNet(Model):
     def __init__(self, block, num_blocks, num_classes=10, half=True, regularize=1e-4):
         super(ResNet, self).__init__()
         self.in_planes = 64
-        self.block = block
+
         self.num_blocks = num_blocks
         self.num_classes = num_classes
         self.conv1 = layers.Conv2D(64, kernel_size=3, strides=1, padding='same', use_bias=False,
@@ -324,15 +324,15 @@ class ResNet(Model):
         self.bn1 = layers.BatchNormalization()
         self.relu = layers.ReLU()
         if half:
-            self.layer1 = self._make_layer(self.block, 32, self.num_blocks[0], stride=1, regularize=regularize)
-            self.layer2 = self._make_layer(self.block, 64, self.num_blocks[1], stride=2, regularize=regularize)
-            self.layer3 = self._make_layer(self.block, 128, self.num_blocks[2], stride=2, regularize=regularize)
-            self.layer4 = self._make_layer(self.block, 256, self.num_blocks[3], stride=2, regularize=regularize)
+            self.layer1 = self._make_layer(block, 32, self.num_blocks[0], stride=1, regularize=regularize)
+            self.layer2 = self._make_layer(block, 64, self.num_blocks[1], stride=2, regularize=regularize)
+            self.layer3 = self._make_layer(block, 128, self.num_blocks[2], stride=2, regularize=regularize)
+            self.layer4 = self._make_layer(block, 256, self.num_blocks[3], stride=2, regularize=regularize)
         else:
-            self.layer1 = self._make_layer(self.block, 64, self.num_blocks[0], stride=1, regularize=regularize)
-            self.layer2 = self._make_layer(self.block, 128, self.num_blocks[1], stride=2, regularize=regularize)
-            self.layer3 = self._make_layer(self.block, 256, self.num_blocks[2], stride=2, regularize=regularize)
-            self.layer4 = self._make_layer(self.block, 512, self.num_blocks[3], stride=2, regularize=regularize)
+            self.layer1 = self._make_layer(block, 64, self.num_blocks[0], stride=1, regularize=regularize)
+            self.layer2 = self._make_layer(block, 128, self.num_blocks[1], stride=2, regularize=regularize)
+            self.layer3 = self._make_layer(block, 256, self.num_blocks[2], stride=2, regularize=regularize)
+            self.layer4 = self._make_layer(block, 512, self.num_blocks[3], stride=2, regularize=regularize)
 
         self.pool = layers.GlobalAveragePooling2D()
         self.linear = layers.Dense(self.num_classes, activation='softmax')
@@ -370,7 +370,7 @@ class ResNet(Model):
 
 
 class ResNetBackbone(layers.Layer):
-    def __init__(self, block, num_blocks, regularize=1e-4):
+    def __init__(self, block, num_blocks, half=True, regularize=1e-4):
         super(ResNetBackbone, self).__init__()
         self.in_planes = 64
         self.num_blocks = num_blocks
@@ -380,16 +380,22 @@ class ResNetBackbone(layers.Layer):
                                    )
         self.bn1 = layers.BatchNormalization()
         self.relu = layers.ReLU()
-        self.layer1 = self._make_layer(block, 32, self.num_blocks[0], stride=1)
-        self.layer2 = self._make_layer(block, 64, self.num_blocks[1], stride=2)
-        self.layer3 = self._make_layer(block, 128, self.num_blocks[2], stride=2)
-        self.layer4 = self._make_layer(block, 256, self.num_blocks[3], stride=2)
+        if half:
+            self.layer1 = self._make_layer(block, 32, self.num_blocks[0], stride=1, regularize=regularize)
+            self.layer2 = self._make_layer(block, 64, self.num_blocks[1], stride=2, regularize=regularize)
+            self.layer3 = self._make_layer(block, 128, self.num_blocks[2], stride=2, regularize=regularize)
+            self.layer4 = self._make_layer(block, 256, self.num_blocks[3], stride=2, regularize=regularize)
+        else:
+            self.layer1 = self._make_layer(block, 64, self.num_blocks[0], stride=1, regularize=regularize)
+            self.layer2 = self._make_layer(block, 128, self.num_blocks[1], stride=2, regularize=regularize)
+            self.layer3 = self._make_layer(block, 256, self.num_blocks[2], stride=2, regularize=regularize)
+            self.layer4 = self._make_layer(block, 512, self.num_blocks[3], stride=2, regularize=regularize)
 
-    def _make_layer(self, block, planes, num_blocks, stride):
+    def _make_layer(self, block, planes, num_blocks, stride, regularize):
         strides = [stride] + [1] * (num_blocks - 1)
         layer_list = []
         for stride in strides:
-            layer_list.append(block(self.in_planes, planes, stride))
+            layer_list.append(block(self.in_planes, planes, stride, regularize))
             self.in_planes = planes * block.expansion
         return Sequential([*layer_list])
 
@@ -408,31 +414,35 @@ class ResNetBackbone(layers.Layer):
         return out
 
 
-def resnet18_cifar(block=BasicBlock, num_blocks=None, num_classes=10, half=True):
+def resnet18_cifar(block=BasicBlock, num_blocks=None, num_classes=10, half=True, backbone=False):
     if num_blocks is None:
         num_blocks = [2, 2, 2, 2]
-    return ResNet(block, num_blocks, num_classes=num_classes, half=half)
+
+    if backbone:
+        return ResNetBackbone(block, num_blocks, half=half)
+    else:
+        return ResNet(block, num_blocks, num_classes=num_classes, half=half)
 
 
-def resnet34_cifar(block=BasicBlock, num_blocks=None, num_classes=10, half=True):
+def resnet34_cifar(block=BasicBlock, num_blocks=None, num_classes=10, half=True, backbone=False):
     if num_blocks is None:
         num_blocks = [3, 4, 6, 3]
     return ResNet(block, num_blocks, num_classes=num_classes, half=half)
 
 
-def resnet50_cifar(block=Bottleneck, num_blocks=None, num_classes=10, half=True):
+def resnet50_cifar(block=Bottleneck, num_blocks=None, num_classes=10, half=True, backbone=False):
     if num_blocks is None:
         num_blocks = [3, 4, 6, 3]
     return ResNet(block, num_blocks, num_classes=num_classes, half=half)
 
 
-def resnet101_cifar(block=Bottleneck, num_blocks=None, num_classes=10, half=True):
+def resnet101_cifar(block=Bottleneck, num_blocks=None, num_classes=10, half=True, backbone=False):
     if num_blocks is None:
         num_blocks = [3, 4, 23, 3]
     return ResNet(block, num_blocks, num_classes=num_classes, half=half)
 
 
-def resnet152_cifar(block=Bottleneck, num_blocks=None, num_classes=10, half=True):
+def resnet152_cifar(block=Bottleneck, num_blocks=None, num_classes=10, half=True, backbone=False):
     if num_blocks is None:
         num_blocks = [3, 8, 36, 3]
     return ResNet(block, num_blocks, num_classes=num_classes, half=half)

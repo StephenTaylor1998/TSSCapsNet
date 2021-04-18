@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
+import numpy as np
 import tensorflow as tf
 
 
@@ -281,3 +281,46 @@ class Mask(tf.keras.layers.Layer):
     def get_config(self):
         config = super(Mask, self).get_config()
         return config
+
+
+def generator_graph_mnist(input_shape):
+    """
+    Generator graph architecture.
+
+    Parameters
+    ----------
+    input_shape: list
+        network input shape
+    """
+    inputs = tf.keras.Input(16 * 10)
+
+    x = tf.keras.layers.Dense(512, activation='relu', kernel_initializer='he_normal')(inputs)
+    x = tf.keras.layers.Dense(1024, activation='relu', kernel_initializer='he_normal')(x)
+    x = tf.keras.layers.Dense(np.prod(input_shape), activation='sigmoid', kernel_initializer='glorot_normal')(x)
+    x = tf.keras.layers.Reshape(target_shape=input_shape, name='out_generator')(x)
+
+    return tf.keras.Model(inputs=inputs, outputs=x, name='Generator')
+
+
+def generator_graph_smallnorb(input_shape):
+    """
+    Generator graph architecture.
+
+    Parameters
+    ----------
+    input_shape: list
+        network input shape
+    """
+    inputs = tf.keras.Input(16 * 5)
+
+    x = tf.keras.layers.Dense(64)(inputs)
+    x = tf.keras.layers.Reshape(target_shape=(8, 8, 1))(x)
+    x = tf.keras.layers.UpSampling2D(size=(2, 2), interpolation='bilinear')(x)
+    x = tf.keras.layers.Conv2D(filters=64, kernel_size=(3, 3), padding="valid", activation=tf.nn.leaky_relu)(x)
+    x = tf.keras.layers.UpSampling2D(size=(2, 2), interpolation='bilinear')(x)
+    x = tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3), padding="valid", activation=tf.nn.leaky_relu)(x)
+    x = tf.keras.layers.UpSampling2D(size=(2, 2), interpolation='bilinear')(x)
+    x = tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3), padding="valid", activation=tf.nn.leaky_relu)(x)
+    x = tf.keras.layers.Conv2D(filters=2, kernel_size=(3, 3), padding="valid", activation=tf.nn.sigmoid)(x)
+
+    return tf.keras.Model(inputs=inputs, outputs=x, name='Generator')

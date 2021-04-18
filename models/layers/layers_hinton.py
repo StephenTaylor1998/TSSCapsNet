@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
+import numpy as np
 import tensorflow as tf
 
 
@@ -231,3 +231,23 @@ class Mask(tf.keras.layers.Layer):
     def get_config(self):
         config = super(Mask, self).get_config()
         return config
+
+
+def generator_graph_hinton_mnist(input_shape):
+    """
+    Generator graph architecture.
+
+    Parameters
+    ----------
+    input_shape: list
+        network input shape
+    """
+    inputs = tf.keras.Input(16 * 10)
+
+    x = tf.keras.layers.Dense(512, activation='relu')(inputs)
+    x = tf.keras.layers.Dense(1024, activation='relu')(x)
+    x = tf.keras.layers.Dense(np.prod(input_shape), activation='sigmoid')(x)
+    x = tf.keras.layers.Reshape(target_shape=input_shape, name='out_generator')(x)
+
+    return tf.keras.Model(inputs=inputs, outputs=x, name='Generator')
+

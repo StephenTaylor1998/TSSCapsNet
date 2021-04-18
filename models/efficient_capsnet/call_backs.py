@@ -26,10 +26,8 @@ def learn_scheduler(lr_dec, lr, warm_up=False):
 def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
     tb = tf.keras.callbacks.TensorBoard(log_dir=tb_log_save_path, histogram_freq=0)
     lr_decay = tf.keras.callbacks.LearningRateScheduler(learn_scheduler(lr_dec, lr))
-
     if model_name == 'Efficient_CapsNet':
         model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            # saved_model_path, monitor='val_Efficient_CapsNet_accuracy',
             saved_model_path, monitor='val_Efficient_CapsNet_loss',
             save_best_only=True, save_weights_only=True, verbose=1)
         return [tb, model_checkpoint, lr_decay]

@@ -2,18 +2,10 @@ import numpy as np
 import tensorflow as tf
 
 from kymatio.keras import Scattering2D
-from ..layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask
+from ..layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask, generator_graph_mnist
 
 
-def efficient_capsnet_graph(input_shape):
-    """
-    Efficient-CapsNet graph architecture.
-
-    Parameters
-    ----------
-    input_shape: list
-        network input shape
-    """
+def wst_capsnet_graph(input_shape, name):
     inputs = tf.keras.Input(input_shape)
     # (28, 28, 1) ==>> (24, 24, 32)
     x = tf.keras.layers.Conv2D(32, 5, activation="relu", padding='valid', kernel_initializer='he_normal')(inputs)
@@ -42,50 +34,18 @@ def efficient_capsnet_graph(input_shape):
 
     digit_caps_len = Length(name='length_capsnet_output')(digit_caps)
 
-    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name='WST_Efficient_CapsNet')
+    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name=name)
 
 
-def generator_graph(input_shape):
-    """
-    Generator graph architecture.
-
-    Parameters
-    ----------
-    input_shape: list
-        network input shape
-    """
-    inputs = tf.keras.Input(16 * 10)
-
-    x = tf.keras.layers.Dense(512, activation='relu', kernel_initializer='he_normal')(inputs)
-    x = tf.keras.layers.Dense(1024, activation='relu', kernel_initializer='he_normal')(x)
-    x = tf.keras.layers.Dense(np.prod(input_shape), activation='sigmoid', kernel_initializer='glorot_normal')(x)
-    x = tf.keras.layers.Reshape(target_shape=input_shape, name='out_generator')(x)
-
-    return tf.keras.Model(inputs=inputs, outputs=x, name='Generator')
-
-
-def build_graph(input_shape, mode, verbose):
-    """
-    Efficient-CapsNet graph architecture with reconstruction regularizer.
-    The network can be initialize with different modalities.
-
-    Parameters
-    ----------
-    input_shape: list
-        network input shape
-    mode: str
-        working mode ('train', 'test' & 'play')
-    verbose: bool
-    """
+def build_graph(input_shape, mode, name):
     inputs = tf.keras.Input(input_shape)
     y_true = tf.keras.layers.Input(shape=(10,))
     noise = tf.keras.layers.Input(shape=(10, 16))
 
-    efficient_capsnet = efficient_capsnet_graph(input_shape)
+    efficient_capsnet = wst_capsnet_graph(input_shape, name)
 
-    if verbose:
-        efficient_capsnet.summary()
-        print("\n\n")
+    efficient_capsnet.summary()
+    print("\n\n")
 
     digit_caps, digit_caps_len = efficient_capsnet(inputs)
     noised_digitcaps = tf.keras.layers.Add()([digit_caps, noise])  # only if mode is play
@@ -94,11 +54,10 @@ def build_graph(input_shape, mode, verbose):
     masked = Mask()(digit_caps)
     masked_noised_y = Mask()([noised_digitcaps, y_true])
 
-    generator = generator_graph(input_shape)
+    generator = generator_graph_mnist(input_shape)
 
-    if verbose:
-        generator.summary()
-        print("\n\n")
+    generator.summary()
+    print("\n\n")
 
     x_gen_train = generator(masked_by_y)
     x_gen_eval = generator(masked)
