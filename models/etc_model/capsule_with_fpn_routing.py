@@ -15,9 +15,11 @@
 
 import tensorflow as tf
 from tensorflow.keras import layers
-from models.layers.layers_efficient import PrimaryCaps, Length
 from models.layers.routing import RoutingA, Routing
-from models.etc_model.resnet_cifar_dwt import BasicBlockDWT, ResNetBackbone
+from models.layers.layers_efficient import PrimaryCaps, Length
+from models.layers.backbone import ResNetBackbone, BasicBlockDWT
+
+
 
 
 # class BasicBlockDWT(layers.Layer):

@@ -7,7 +7,7 @@ from models.layers.routing import Routing
 from models.layers.transform import DWT
 
 
-def efficient_capsnet_graph(input_shape, num_classes, routing_name_list, regularize=1e-4):
+def efficient_capsnet_graph(input_shape, num_classes, routing_name_list, regularize=1e-4, name=None):
     """
     reimplement for cifar dataset
     """
@@ -39,7 +39,7 @@ def efficient_capsnet_graph(input_shape, num_classes, routing_name_list, regular
 
     # digit_caps_len = tf.keras.layers.Softmax()(digit_caps_len)
 
-    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name='DWT_Multi_Attention_CapsNet')
+    return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name=name)
 
 
 def generator_graph(input_shape):
@@ -61,13 +61,14 @@ def generator_graph(input_shape):
     return tf.keras.Model(inputs=inputs, outputs=x, name='Generator')
 
 
-def build_graph(input_shape, mode, num_classes, routing_name_list, regularize=1e-4):
+def build_graph(input_shape, mode, num_classes, routing_name_list, regularize=1e-4, name=''):
     """
     Efficient-CapsNet graph architecture with reconstruction regularizer.
     The network can be initialize with different modalities.
 
     Parameters
     ----------
+    :param name:
     :param input_shape: network input shape
     :param mode: working mode ('train', 'test' & 'play')
     :param input_shape:
@@ -79,7 +80,7 @@ def build_graph(input_shape, mode, num_classes, routing_name_list, regularize=1e
     y_true = tf.keras.layers.Input(shape=(10,))
     noise = tf.keras.layers.Input(shape=(10, 16))
 
-    efficient_capsnet = efficient_capsnet_graph(input_shape, num_classes, routing_name_list, regularize)
+    efficient_capsnet = efficient_capsnet_graph(input_shape, num_classes, routing_name_list, regularize, name)
     efficient_capsnet.summary()
 
     digit_caps, digit_caps_len = efficient_capsnet(inputs)

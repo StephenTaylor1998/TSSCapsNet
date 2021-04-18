@@ -1,18 +1,16 @@
 import os
+
 import tensorflow as tf
 from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 
-from . import resnet_cifar
-from . import mobilenet_v2_cifar
-from . import ghostnet_cifar
+from utils.dataset import Dataset
 from . import capsule_with_fpn_routing
+from . import ghostnet_cifar
+from . import mobilenet_v2_cifar
+from . import resnet_cifar
 from . import resnet_cifar_dwt
 from .call_backs import get_callbacks
-from ..efficient_capsnet import efficient_capsnet_graph_smallnorb
-
 from ..layers.model_base import Model
-
-from utils.dataset import Dataset
 
 
 class ETCModel(Model):
@@ -40,10 +38,10 @@ class ETCModel(Model):
     """
 
     def __init__(self, data_name, model_name='DCT_Efficient_CapsNet', mode='test', config_path='config.json',
-                 custom_path=None, verbose=True, gpu_number=None):
+                 custom_path=None, verbose=True, gpu_number=None, optimizer='Adam', half_filter_in_resnet=True):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
-        if custom_path != None:
+        if custom_path is not None:
             self.model_path = custom_path
         else:
             self.model_path = os.path.join(self.config['saved_model_dir'],
@@ -56,9 +54,11 @@ class ETCModel(Model):
                                                  f"{self.model_name}",
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:03d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
+        self.half = half_filter_in_resnet
         self.load_graph()
         if gpu_number:
             self.model = multi_gpu_model(self.model, gpu_number)
+        self.optimizer = optimizer
 
     def load_graph(self):
         if self.data_name in ['MNIST', 'MNIST_SHIFT', 'FASHION_MNIST', 'FASHION_MNIST_SHIFT']:
@@ -76,17 +76,23 @@ class ETCModel(Model):
             raise NotImplemented
 
         if self.model_name == "RESNET18":
-            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=18)
+            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=18, half=self.half)
         elif self.model_name == "RESNET34":
-            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=34)
+            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=34, half=self.half)
         elif self.model_name == "RESNET50":
-            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=50)
+            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=50, half=self.half)
         elif self.model_name == "RESNET_DWT18":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=18)
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=18, half=self.half)
         elif self.model_name == "RESNET_DWT34":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=34)
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=34, half=self.half)
         elif self.model_name == "RESNET_DWT50":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=50)
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=50, half=self.half)
+        elif self.model_name == "RESNET_DWT18_Tiny":
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=18, half=self.half)
+        elif self.model_name == "RESNET_DWT34_Tiny":
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=34, half=self.half)
+        elif self.model_name == "RESNET_DWT50_Tiny":
+            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=50, half=self.half)
         elif self.model_name == "GHOSTNET":
             self.model = ghostnet_cifar.build_graph(input_shape, num_classes)
         elif self.model_name == "MOBILENETv2":
@@ -106,20 +112,28 @@ class ETCModel(Model):
         else:
             raise NotImplemented
 
-    def train(self, dataset=None, initial_epoch=0):
-        callbacks = get_callbacks(self.model_path_new_train)
+    def train(self, dataset=None, initial_epoch=0, resume=False):
+        callbacks = get_callbacks(self.model_path_new_train, optimizer=self.optimizer)
 
         if dataset is None:
             dataset = Dataset(self.data_name, self.config_path)
         dataset_train, dataset_val = dataset.get_tf_data(for_capsule=False)
 
-        # self.model.compile(optimizer=tf.keras.optimizers.SGD(lr=self.config['ETC_MODEL_LR'], momentum=0.9),
-        #                    loss='categorical_crossentropy',
-        #                    metrics='accuracy')
-        self.model.compile(optimizer=tf.keras.optimizers.Adam(lr=self.config['ETC_MODEL_LR']),
-                           loss='categorical_crossentropy',
-                           metrics='accuracy')
+        if self.optimizer == 'SGD':
+            self.model.compile(optimizer=tf.keras.optimizers.SGD(lr=self.config['ETC_MODEL_LR'], momentum=0.9),
+                               loss='categorical_crossentropy',
+                               metrics='accuracy')
+        elif self.optimizer == 'Adam':
+            self.model.compile(optimizer=tf.keras.optimizers.Adam(lr=self.config['ETC_MODEL_LR']),
+                               loss='categorical_crossentropy',
+                               metrics='accuracy')
+        else:
+            print("optimizer must be select in ['Adam', 'SGD']")
+            raise ValueError
+
         steps = None
+        if resume:
+            self.load_graph_weights()
 
         print('-' * 30 + f'{self.data_name} train' + '-' * 30)
 

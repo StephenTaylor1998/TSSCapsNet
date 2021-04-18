@@ -1,46 +1,13 @@
-# coding=utf-8
-import numpy as np
-from tensorflow import keras
-import tensorflow as tf
-from tensorflow.python.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, LearningRateScheduler
-
-# RANGE = 'range'
-# EXPONENT = 'exponent'
+from tensorflow.python.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
 
-def lr_schedule(epoch):
+def lr_schedule_adam(epoch):
     """Learning Rate Schedule
     # Arguments
         epoch (int): The number of epochs
     # Returns
         lr (float32): learning rate
-    >>>lr = 1e-3
-    >>>if epoch > 180:
-    >>>    lr *= 0.5e-3
-    >>>elif epoch > 160:
-    >>>    lr *= 1e-3
-    >>>elif epoch > 120:
-    >>>    lr *= 1e-2
-    >>>elif epoch > 80:
-    >>>    lr *= 1e-1
-    >>>print('Learning rate: ', lr)
-    >>>return lr
     """
-    # # for SGD Optimizer (about 10 hours on single GPU)
-    # lr = 1e-1
-    # if epoch > 350:
-    #     lr = 5e-4
-    # elif epoch > 300:
-    #     lr = 1e-3
-    # elif epoch > 250:
-    #     lr = 5e-3
-    # elif epoch > 200:
-    #     lr = 1e-2
-    # elif epoch > 100:
-    #     lr = 5e-2
-    # print('Learning rate: ', lr)
-    # return lr
-
     # for Adam Optimizer
     lr = 1e-3
 
@@ -52,6 +19,28 @@ def lr_schedule(epoch):
         lr = 2e-4
     elif epoch > 100:
         lr = 5e-4
+    print('Learning rate: ', lr)
+    return lr
+
+
+def lr_schedule_sgd(epoch):
+    """Learning Rate Schedule
+    # Arguments
+        epoch (int): The number of epochs
+    # Returns
+        lr (float32): learning rate
+    """
+    lr = 1e-1
+    if epoch > 350:
+        lr = 5e-4
+    elif epoch > 300:
+        lr = 1e-3
+    elif epoch > 250:
+        lr = 5e-3
+    elif epoch > 200:
+        lr = 1e-2
+    elif epoch > 100:
+        lr = 5e-2
     print('Learning rate: ', lr)
     return lr
 
@@ -71,17 +60,17 @@ def learning_scheduler_fn(epoch):
     return lr_new if lr_new >= 1e-6 else 1e-6
 
 
-def get_callbacks(weight_path):
+def get_callbacks(weight_path, optimizer='Adam'):
     checkpoint = ModelCheckpoint(filepath=weight_path,
                                  monitor='val_accuracy',
                                  verbose=1,
                                  save_best_only=True)
+    if optimizer == 'Adam':
+        lr_scheduler = LearningRateScheduler(lr_schedule_adam)
+    elif optimizer == 'SGD':
+        lr_scheduler = LearningRateScheduler(lr_schedule_sgd)
+    else:
+        raise NotImplemented
 
-    lr_scheduler = LearningRateScheduler(lr_schedule)
-
-    lr_reducer = ReduceLROnPlateau(factor=np.sqrt(0.1),
-                                   cooldown=0,
-                                   patience=5,
-                                   min_lr=0.5e-6)
-    callbacks = [checkpoint, lr_reducer, lr_scheduler]
+    callbacks = [checkpoint, lr_scheduler]
     return callbacks

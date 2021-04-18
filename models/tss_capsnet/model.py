@@ -193,13 +193,13 @@ class TSSEfficientCapsNet(Model):
             self.model = dwt_resnet_capsnet_e1_multi_attention.build_graph(input_shape, self.mode, self.verbose)
         elif self.model_name == 'DWT_Caps_FPN':
             self.model = dwt_capsnet_fpn.build_graph(
-                input_shape, self.mode, num_classes, ['FPN', 'FPN', 'FPN'])
+                input_shape, self.mode, num_classes, ['FPN', 'FPN', 'FPN'], name=self.model_name)
         elif self.model_name == 'DWT_Caps_FPNTiny':
             self.model = dwt_capsnet_fpn.build_graph(
-                input_shape, self.mode, num_classes, ['FPNTiny', 'FPNTiny', 'FPNTiny'])
+                input_shape, self.mode, num_classes, ['FPNTiny', 'FPNTiny', 'FPNTiny'], name=self.model_name)
         elif self.model_name == 'DWT_Caps_Attention':
             self.model = dwt_capsnet_fpn.build_graph(
-                input_shape, self.mode, num_classes, ['Attention', 'Attention', 'Attention'])
+                input_shape, self.mode, num_classes, ['Attention', 'Attention', 'Attention'], name=self.model_name)
 
     def train(self, dataset=None, initial_epoch=0):
         callbacks = get_callbacks(self.model_name,
