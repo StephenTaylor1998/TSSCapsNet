@@ -1,8 +1,23 @@
+# Copyright 2021 Hang-Chi Shen. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
-from utils import Dataset, plotHistory
+from utils import Dataset
 from models import TSSCapsNet
 from models import EfficientCapsNet
 from models import CapsNet
@@ -34,15 +49,12 @@ data_name = 'CIFAR10'
 dataset = Dataset(data_name, config_path='config.json')
 
 # 2.0 Load the Model
-# model_test = TSSCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
-model_test = TSSEfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
+model_test = TSSCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 # model_test = EfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 # model_test = CapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 
 # 3.0 Load weights
 model_test.load_graph_weights()  # load graph weights (bin folder)
-
-# 4.0 Test the Model
 
 # 4.1 Origin test set
 model_test.evaluate(dataset.X_test, dataset.y_test)  # if "smallnorb" use X_test_patch

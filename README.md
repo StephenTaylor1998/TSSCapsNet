@@ -1,6 +1,6 @@
 <h1 align="center"> Time Series Signal CapsNet </h1>
 
-# 1.0 Getting Started
+# 1.0 Getting Start
 
 ## 1.1 Installation
 
@@ -16,31 +16,33 @@ Python3 and Tensorflow 2.x are required and should be installed on the host mach
    ```
 Peek inside the requirements file if you have everything already installed. Most of the dependencies are common libraries.
 
-## 1.2 run model 
+## 1.2 Run Model 
 
-### with terminal args
-
+### With terminal args
+   GOTO "./utils/argparse.py" FOR DETAILS.
    ```bash
-  # CapsuleNet
-  python main.py --arch CapsNet --model-name CapsNet --data-name CIFAR10 --initial-epoch 0 --select-gpu 0 --test True
+   # CapsuleNet
+   python main.py --arch CapsNet --model-name CapsNet --data-name MNIST --initial-epoch 0 --select-gpu 0 --test True
+   # Efficient_CapsNet
+   python main.py --arch Efficient_CapsNet --model-name Efficient_CapsNet --data-name MNIST --initial-epoch 0 --select-gpu 0 --test True
+   # TSSCapsNet
+   python main.py --arch TSSCapsNet --model-name DWT_FPN_MNIST --data-name MNIST --initial-epoch 0 --select-gpu 0 --test True
+   # ETCModel
+   python main.py --arch ETCModel --model-name RESNET_DWT50_Tiny --data-name CIFAR10 --initial-epoch 0 --select-gpu 0 --test True
+  
    ```
-   ```bash
-  # ResNet 
-  # (will be implement soon)   :)
-  # now please use this
-  python train_resnet.py
-   ```
 
-### train without args
+
+### Without Args
 
    ```bash
+   # Tips: Choose Paramters You Want in Before Running!
+   # train model
    python train.py
-   ```
-
-### test without args
-
-   ```bash
+   # test model
    python test.py
+   # ResNet 
+   python train_caps_without_decoder.py
    ```
 
 # Citation

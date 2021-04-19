@@ -26,7 +26,7 @@ tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
 tf.config.experimental.set_memory_growth(gpus[0], True)
 
 # 1.0 Import the Dataset
-dataset = Dataset(data_name, config_path='config.json')
+dataset = Dataset(data_name, config_path='../../config.json')
 
 # 2.0 Load the Model
 model = TSSCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
