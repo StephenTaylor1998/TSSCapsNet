@@ -71,24 +71,17 @@ class ETCModel(Model):
         else:
             raise NotImplemented
 
-        if self.model_name == "RESNET18":
-            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=18, half=self.half)
-        elif self.model_name == "RESNET34":
-            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=34, half=self.half)
-        elif self.model_name == "RESNET50":
-            self.model = resnet_cifar.build_graph(input_shape, num_classes, depth=50, half=self.half)
-        elif self.model_name == "RESNET_DWT18":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=18, half=self.half)
-        elif self.model_name == "RESNET_DWT34":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=34, half=self.half)
-        elif self.model_name == "RESNET_DWT50":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=50, half=self.half)
-        elif self.model_name == "RESNET_DWT18_Tiny":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=18, half=self.half, tiny=self.tiny)
-        elif self.model_name == "RESNET_DWT34_Tiny":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=34, half=self.half)
-        elif self.model_name == "RESNET_DWT50_Tiny":
-            self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=50, half=self.half)
+        if self.model_name.startswith("RESNET"):
+            # example "RESNET18_DWT_Tiny_Half" "RESNET50_DWT_Tiny_Half"
+            half = True if "Half" in self.model_name else False
+            tiny = True if "Tiny" in self.model_name else False
+            if "DWT" in self.model_name:
+                self.model = resnet_cifar_dwt.build_graph(
+                    input_shape, num_classes, depth=get_resnet_depth_from_name(self.model_name), half=half, tiny=tiny)
+            else:
+                self.model = resnet_cifar.build_graph(
+                    input_shape, num_classes, depth=get_resnet_depth_from_name(self.model_name), half=half)
+
         elif self.model_name == "MOBILENETv2":
             self.model = mobilenet_v2_cifar.build_graph(input_shape, num_classes)
         elif self.model_name.startswith("DWT_") and self.model_name.endswith("_FPN_CIFAR"):

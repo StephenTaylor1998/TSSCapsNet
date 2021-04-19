@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+from tensorflow.python.keras.models import Model
 
 from models.layers.backbone import TinyBlockDWT, TinyBottleDWT, BasicBlockDWT, BottleneckDWT, resnet18_cifar, \
     resnet34_cifar, resnet50_cifar, resnet101_cifar, resnet152_cifar
@@ -45,31 +46,34 @@ def build_graph(input_shape, num_classes=10, depth=18, tiny=True, half=True, bac
         print(f"depth: {depth} is not support!")
         raise NotImplemented
     input_tensor = Input(input_shape)
-    model(input_tensor)
-    model.summary()
+    out = model(input_tensor)
+    build_model = Model(inputs=input_tensor, outputs=out)
+    build_model.summary()
+    print("\n")
+    del build_model
     return model
 
 
-if __name__ == '__main__':
-    import tensorflow as tf
-    import numpy as np
-
-    mnist_model = build_graph(input_shape=(28, 28, 1))
-    mnist_model.compile(
-        optimizer="adam",
-        loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-        metrics=['sparse_categorical_accuracy']
-    )
-    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-    x_train, x_test = np.expand_dims(x_train, -1) / 255.0, np.expand_dims(x_test, -1) / 255.0
-    print(x_train.shape)
-    mnist_model.summary()
-    mnist_model.fit(
-        x_test,
-        y_test,
-        batch_size=32,
-        epochs=1,
-        validation_data=(x_train, y_train),
-        validation_freq=1
-    )
-    mnist_model.save_weights('./resnet18_mnist.h5')
+# if __name__ == '__main__':
+#     import tensorflow as tf
+#     import numpy as np
+#
+#     mnist_model = build_graph(input_shape=(28, 28, 1))
+#     mnist_model.compile(
+#         optimizer="adam",
+#         loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+#         metrics=['sparse_categorical_accuracy']
+#     )
+#     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+#     x_train, x_test = np.expand_dims(x_train, -1) / 255.0, np.expand_dims(x_test, -1) / 255.0
+#     print(x_train.shape)
+#     mnist_model.summary()
+#     mnist_model.fit(
+#         x_test,
+#         y_test,
+#         batch_size=32,
+#         epochs=1,
+#         validation_data=(x_train, y_train),
+#         validation_freq=1
+#     )
+#     mnist_model.save_weights('./resnet18_mnist.h5')

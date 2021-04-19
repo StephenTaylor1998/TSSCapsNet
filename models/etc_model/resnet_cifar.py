@@ -41,7 +41,9 @@ def build_graph(input_shape, num_classes=10, depth=18, half=True):
     input_layer = Input(input_shape)
     out = model(input_layer)
     build_model = Model(inputs=[input_layer], outputs=[out])
-    # return build_model
+    build_model.summary()
+    print("\n")
+    del build_model
     return model
 
 

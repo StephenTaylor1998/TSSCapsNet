@@ -17,6 +17,10 @@ import re
 
 
 def get_resnet_depth_from_name(name: str) -> int:
-    return int(re.findall(r"\d+\.?\d*", name)[0])
-
-
+    # out = re.findall(r"\d+\.?\d*", name)
+    out = re.findall(r"\d+", name)
+    try:
+        return int(out[0])
+    except IndexError:
+        print("[ERROR]Resnet depth not found, using 18")
+        return 18

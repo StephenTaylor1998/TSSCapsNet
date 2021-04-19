@@ -22,19 +22,19 @@ from models.layers.transform.dwt import DWT
 class BasicBlock(layers.Layer):
     expansion = 1
 
-    def __init__(self, in_planes, planes, stride=1):
+    def __init__(self, in_planes, planes, stride=1, regularize=1e-4):
         super(BasicBlock, self).__init__()
         self.in_planes = in_planes
         self.planes = planes
         self.stride = stride
         self.conv1 = layers.Conv2D(self.planes, kernel_size=3, strides=self.stride, padding='same', use_bias=False,
                                    kernel_initializer='he_normal',
-                                   kernel_regularizer=L2(1e-4)
+                                   kernel_regularizer=L2(regularize)
                                    )
         self.bn1 = layers.BatchNormalization()
         self.conv2 = layers.Conv2D(self.planes, kernel_size=3, strides=1, padding='same', use_bias=False,
                                    kernel_initializer='he_normal',
-                                   kernel_regularizer=L2(1e-4)
+                                   kernel_regularizer=L2(regularize)
                                    )
         self.bn2 = layers.BatchNormalization()
         self.relu = layers.ReLU()
@@ -43,7 +43,7 @@ class BasicBlock(layers.Layer):
             self.shortcut = Sequential([
                 layers.Conv2D(self.expansion * self.planes, kernel_size=1, strides=self.stride, use_bias=False,
                               kernel_initializer='he_normal',
-                              kernel_regularizer=L2(1e-4)
+                              kernel_regularizer=L2(regularize)
                               ),
                 layers.BatchNormalization()
             ])
@@ -65,7 +65,7 @@ class BasicBlock(layers.Layer):
 class Bottleneck(layers.Layer):
     expansion = 4
 
-    def __init__(self, in_planes, planes, stride=1):
+    def __init__(self, in_planes, planes, stride=1, regularize=1e-4):
         super(Bottleneck, self).__init__()
         self.in_planes = in_planes
         self.planes = planes
@@ -73,17 +73,17 @@ class Bottleneck(layers.Layer):
 
         self.conv1 = layers.Conv2D(self.planes, kernel_size=1, use_bias=False,
                                    kernel_initializer='he_normal',
-                                   kernel_regularizer=L2(1e-4)
+                                   kernel_regularizer=L2(regularize)
                                    )
         self.bn1 = layers.BatchNormalization()
         self.conv2 = layers.Conv2D(self.planes, kernel_size=3, strides=self.stride, padding='same', use_bias=False,
                                    kernel_initializer='he_normal',
-                                   kernel_regularizer=L2(1e-4)
+                                   kernel_regularizer=L2(regularize)
                                    )
         self.bn2 = layers.BatchNormalization()
         self.conv3 = layers.Conv2D(self.expansion * self.planes, kernel_size=1, use_bias=False,
                                    kernel_initializer='he_normal',
-                                   kernel_regularizer=L2(1e-4)
+                                   kernel_regularizer=L2(regularize)
                                    )
         self.bn3 = layers.BatchNormalization()
         self.relu = layers.ReLU()
@@ -92,7 +92,7 @@ class Bottleneck(layers.Layer):
             self.shortcut = Sequential([
                 layers.Conv2D(self.expansion * self.planes, kernel_size=1, strides=self.stride, use_bias=False,
                               kernel_initializer='he_normal',
-                              kernel_regularizer=L2(1e-4)
+                              kernel_regularizer=L2(regularize)
                               ),
                 layers.BatchNormalization()
             ])
@@ -195,7 +195,7 @@ class TinyBottleDWT(layers.Layer):
         if self.stride != 1 or self.in_planes != self.expansion * self.planes:
             self.shortcut = Sequential([
                 layers.Conv2D(self.expansion * self.planes, kernel_size=1, strides=self.stride, use_bias=False,
-                              kernel_initializer='he_normal',
+                              kernel_initializer='he_normal',padding='same',
                               kernel_regularizer=L2(regularize)
                               ),
                 layers.BatchNormalization()
@@ -330,8 +330,6 @@ class ResNet(Model):
         super(ResNet, self).__init__()
         self.in_planes = 64
 
-        self.num_blocks = num_blocks
-        self.num_classes = num_classes
         self.conv1 = layers.Conv2D(64, kernel_size=3, strides=1, padding='same', use_bias=False,
                                    kernel_initializer='he_normal',
                                    kernel_regularizer=L2(regularize)
@@ -339,18 +337,18 @@ class ResNet(Model):
         self.bn1 = layers.BatchNormalization()
         self.relu = layers.ReLU()
         if half:
-            self.layer1 = self._make_layer(block, 32, self.num_blocks[0], stride=1, regularize=regularize)
-            self.layer2 = self._make_layer(block, 64, self.num_blocks[1], stride=2, regularize=regularize)
-            self.layer3 = self._make_layer(block, 128, self.num_blocks[2], stride=2, regularize=regularize)
-            self.layer4 = self._make_layer(block, 256, self.num_blocks[3], stride=2, regularize=regularize)
+            self.layer1 = self._make_layer(block, 32, num_blocks[0], stride=1, regularize=regularize)
+            self.layer2 = self._make_layer(block, 64, num_blocks[1], stride=2, regularize=regularize)
+            self.layer3 = self._make_layer(block, 128, num_blocks[2], stride=2, regularize=regularize)
+            self.layer4 = self._make_layer(block, 256, num_blocks[3], stride=2, regularize=regularize)
         else:
-            self.layer1 = self._make_layer(block, 64, self.num_blocks[0], stride=1, regularize=regularize)
-            self.layer2 = self._make_layer(block, 128, self.num_blocks[1], stride=2, regularize=regularize)
-            self.layer3 = self._make_layer(block, 256, self.num_blocks[2], stride=2, regularize=regularize)
-            self.layer4 = self._make_layer(block, 512, self.num_blocks[3], stride=2, regularize=regularize)
+            self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1, regularize=regularize)
+            self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2, regularize=regularize)
+            self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2, regularize=regularize)
+            self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2, regularize=regularize)
 
         self.pool = layers.GlobalAveragePooling2D()
-        self.linear = layers.Dense(self.num_classes, activation='softmax')
+        self.linear = layers.Dense(num_classes, activation='softmax')
 
     def _make_layer(self, block, planes, num_blocks, stride, regularize):
         strides = [stride] + [1] * (num_blocks - 1)
@@ -367,8 +365,6 @@ class ResNet(Model):
         config = {
             'in_planes': self.in_planes,
             'block': self.block,
-            'num_blocks': self.num_blocks,
-            'num_classes': self.num_classes,
         }
         base_config = super(ResNet, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
@@ -442,22 +438,34 @@ def resnet18_cifar(block=BasicBlock, num_blocks=None, num_classes=10, half=True,
 def resnet34_cifar(block=BasicBlock, num_blocks=None, num_classes=10, half=True, backbone=False):
     if num_blocks is None:
         num_blocks = [3, 4, 6, 3]
-    return ResNet(block, num_blocks, num_classes=num_classes, half=half)
+    if backbone:
+        return ResNetBackbone(block, num_blocks, half=half)
+    else:
+        return ResNet(block, num_blocks, num_classes=num_classes, half=half)
 
 
 def resnet50_cifar(block=Bottleneck, num_blocks=None, num_classes=10, half=True, backbone=False):
     if num_blocks is None:
         num_blocks = [3, 4, 6, 3]
-    return ResNet(block, num_blocks, num_classes=num_classes, half=half)
+    if backbone:
+        return ResNetBackbone(block, num_blocks, half=half)
+    else:
+        return ResNet(block, num_blocks, num_classes=num_classes, half=half)
 
 
 def resnet101_cifar(block=Bottleneck, num_blocks=None, num_classes=10, half=True, backbone=False):
     if num_blocks is None:
         num_blocks = [3, 4, 23, 3]
-    return ResNet(block, num_blocks, num_classes=num_classes, half=half)
+    if backbone:
+        return ResNetBackbone(block, num_blocks, half=half)
+    else:
+        return ResNet(block, num_blocks, num_classes=num_classes, half=half)
 
 
 def resnet152_cifar(block=Bottleneck, num_blocks=None, num_classes=10, half=True, backbone=False):
     if num_blocks is None:
         num_blocks = [3, 8, 36, 3]
-    return ResNet(block, num_blocks, num_classes=num_classes, half=half)
+    if backbone:
+        return ResNetBackbone(block, num_blocks, half=half)
+    else:
+        return ResNet(block, num_blocks, num_classes=num_classes, half=half)

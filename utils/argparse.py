@@ -46,18 +46,28 @@ def get_terminal_args():
                             "DWT_Attention_FPN_SMALLNORB",
 
                             "RFFT_E_MNIST",
-                            "WST_E_MNIST"
+                            "WST_E_MNIST",
 
                             # ETCModel
                             "RESNET18",
                             "RESNET34",
                             "RESNET50",
-                            "RESNET_DWT18",
-                            "RESNET_DWT34",
-                            "RESNET_DWT50",
-                            "RESNET_DWT18_Tiny",
-                            "RESNET_DWT34_Tiny",
-                            "RESNET_DWT50_Tiny",
+                            "RESNET18_Half",
+                            "RESNET34_Half",
+                            "RESNET50_Half",
+
+                            "RESNET18_DWT",
+                            "RESNET34_DWT",
+                            "RESNET50_DWT",
+                            "RESNET18_DWT_Tiny",
+                            "RESNET34_DWT_Tiny",
+                            "RESNET50_DWT_Tiny",
+                            "RESNET18_DWT_Half",
+                            "RESNET34_DWT_Half",
+                            "RESNET50_DWT_Half",
+                            "RESNET18_DWT_Tiny_Half",
+                            "RESNET34_DWT_Tiny_Half",
+                            "RESNET50_DWT_Tiny_Half",
                             "MOBILENETv2",
 
                             # ETCModel AND TSSCapsNet SUPPORT
