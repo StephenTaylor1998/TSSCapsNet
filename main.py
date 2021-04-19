@@ -17,7 +17,7 @@ import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
-from models import CapsNet, TSSCapsNet
+from models import CapsNet, TSSCapsNet, ETCModel
 # from models import TSSCapsNet
 from models import EfficientCapsNet
 from utils import Dataset, plotHistory
@@ -45,10 +45,10 @@ if __name__ == '__main__':
                                  mode='test', verbose=True, gpu_number=gpu_number)
     elif args.arch == "TSSCapsNet":
         model = TSSCapsNet(args.data_name, model_name=args.model_name,
-                           mode='test', verbose=True, gpu_number=gpu_number)
+                           mode='test', verbose=True, gpu_number=gpu_number, optimizer=args.optimizer)
     elif args.arch == "ETCModel":
-        model = TSSCapsNet(args.data_name, model_name=args.model_name,
-                           mode='test', verbose=True, gpu_number=gpu_number)
+        model = ETCModel(args.data_name, model_name=args.model_name,
+                           mode='test', verbose=True, gpu_number=gpu_number, optimizer=args.optimizer)
     else:
         raise NotImplementedError
 

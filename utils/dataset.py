@@ -122,7 +122,7 @@ class Dataset(object):
                 'smallnorb',
                 data_dir='./data/small_norb',
                 split=['train', 'test'],
-                shuffle_files=True,
+                shuffle_files=False,
                 as_supervised=False,
                 with_info=True)
             self.X_train, self.y_train = pre_process_smallnorb.pre_process(ds_train)

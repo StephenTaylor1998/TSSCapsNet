@@ -21,7 +21,7 @@ from models.layers.layers_efficient import PrimaryCaps, Length, Mask, generator_
 
 
 def dwt_capsnet_graph(input_shape, num_classes=10, routing_name_list=None,
-                      regularize=1e-4, depth=18, tiny=True, half=True, name=None):
+                      regularize=1e-4, depth=18, tiny=True, half=True, name=None, heterogeneous=False):
     """
     reimplement for cifar dataset
     """
@@ -36,19 +36,20 @@ def dwt_capsnet_graph(input_shape, num_classes=10, routing_name_list=None,
 
     digit_caps_len = Length(name='length_capsnet_output')(digit_caps)
 
-    digit_caps_len = Heterogeneous(num_class=num_classes)((x, digit_caps_len))
+    if heterogeneous:
+        digit_caps_len = Heterogeneous(num_class=num_classes)((x, digit_caps_len))
 
     return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name=name)
 
 
 def build_graph(input_shape, mode, num_classes, routing_name_list, regularize=1e-4,
-                depth=18, tiny=True, half=True, name=None):
+                depth=18, tiny=True, half=True, name=None, heterogeneous=False):
     inputs = tf.keras.Input(input_shape)
     y_true = tf.keras.layers.Input(shape=(10,))
     noise = tf.keras.layers.Input(shape=(10, 16))
 
     efficient_capsnet = dwt_capsnet_graph(input_shape, num_classes, routing_name_list,
-                                          regularize, depth, tiny, half, name)
+                                          regularize, depth, tiny, half, name, heterogeneous)
 
     efficient_capsnet.summary()
     print("\n\n")

@@ -22,13 +22,13 @@ Peek inside the requirements file if you have everything already installed. Most
    GOTO "./utils/argparse.py" FOR DETAILS.
    ```bash
    # CapsuleNet
-   python main.py --arch CapsNet --model-name CapsNet --data-name MNIST --initial-epoch 0 --select-gpu 0 --test True
+   python main.py --arch CapsNet --model-name CapsNet --data-name MNIST --initial-epoch 0 --select-gpu 0 --test True --heterogeneous False --optimizer Adam
    # Efficient_CapsNet
-   python main.py --arch Efficient_CapsNet --model-name Efficient_CapsNet --data-name MNIST --initial-epoch 0 --select-gpu 0 --test True
+   python main.py --arch Efficient_CapsNet --model-name Efficient_CapsNet --data-name MNIST --initial-epoch 0 --select-gpu 0 --test True --heterogeneous False --optimizer Adam
    # TSSCapsNet
-   python main.py --arch TSSCapsNet --model-name DWT_FPN_MNIST --data-name MNIST --initial-epoch 0 --select-gpu 0 --test True
+   python main.py --arch TSSCapsNet --model-name DWT_FPN_MNIST --data-name MNIST --initial-epoch 0 --select-gpu 0 --test True --heterogeneous False --optimizer Adam
    # ETCModel
-   python main.py --arch ETCModel --model-name RESNET_DWT50_Tiny --data-name CIFAR10 --initial-epoch 0 --select-gpu 0 --test True
+   python main.py --arch ETCModel --model-name RESNET_DWT50_Tiny --data-name CIFAR10 --initial-epoch 0 --select-gpu 0 --test True --heterogeneous False --optimizer Adam
   
    ```
 

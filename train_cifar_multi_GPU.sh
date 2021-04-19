@@ -37,3 +37,5 @@ python main.py --arch ETCModel --model-name DWT_Tiny_Half_R50_Attention_FPN_CIFA
 >>./log/DWT_Tiny_Half_R50_Attention_FPN_CIFAR.txt &
 
 echo "[INFO]Starting!"
+
+python main.py --arch ETCModel --model-name DWT_Tiny_Half_R18_Tiny_FPN_CIFAR --data-name CIFAR10 --initial-epoch 0 --select-gpu 1 --test True

@@ -95,7 +95,7 @@ def get_terminal_args():
                         help='model name (default: DCT_CapsNet_Attention)')
     parser.add_argument('--data-name', type=str, default="MNIST",
                         choices=["MNIST", "MNIST_SHIFT", "FASHION_MNIST", "FASHION_MNIST_SHIFT",
-                                 "CIFAR10", "CIFAR10_SHIFT"],
+                                 "CIFAR10", "CIFAR10_SHIFT", "SMALLNORB"],
                         help='dataset name (default: MNIST)')
     parser.add_argument('--initial-epoch', type=int, default=0,
                         help='initial epoch (default: "0")')
@@ -103,4 +103,9 @@ def get_terminal_args():
                         help='select gpu (default: "0")')
     parser.add_argument('--test', type=bool, default=True,
                         help='test model after training (default: "True")')
+    parser.add_argument('--heterogeneous', type=bool, default=False,
+                        help='Add heterogeneous component to model (default: "False")')
+    parser.add_argument('--optimizer', type=str, default="Adam",
+                        choices=["Adam", "SGD"],
+                        help='optimizer (default: Adam)')
     return parser.parse_args()

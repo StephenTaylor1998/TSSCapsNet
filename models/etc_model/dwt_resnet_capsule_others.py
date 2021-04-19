@@ -16,36 +16,36 @@
 import tensorflow as tf
 from tensorflow.keras import layers
 
-from models.layers.operators import Heterogeneous
+from models.layers.layers_hinton import DigitCaps
 from models.layers.routing import Routing
-from models.layers.layers_efficient import PrimaryCaps, Length
+from models.layers.layers_efficient import PrimaryCaps, Length, FCCaps
 from models.etc_model.resnet_cifar_dwt import build_graph as build_resnet_dwt_backbone
 
 
-def capsnet_graph(input_shape, num_classes, routing_name_list=None,
-                  regularize=1e-4, depth=18, tiny=True, half=True, heterogeneous=False):
-    routing_name_list = ['FPN', 'FPN', 'FPN'] if routing_name_list is None else routing_name_list
+def capsnet_graph(input_shape, num_classes, routing_name, depth=18):
+
     inputs = tf.keras.Input(input_shape)
     # (32, 32, 3) ==>> (8, 8, 128)
-    x = build_resnet_dwt_backbone(input_shape, num_classes, depth, tiny, half, backbone=True)(inputs)
+    x = build_resnet_dwt_backbone(input_shape, num_classes, depth, tiny=True, half=True, backbone=True)(inputs)
     # x = ResNetBackbone(BasicBlockDWT, [2, 2, 2, 2])(inputs)
 
     x = layers.BatchNormalization()(x)
     # (4, 4, 256) ==>> (1, 1, 256) ==>> (32, 8)
     x = PrimaryCaps(256, x.shape[1], 32, 8)(x)
     # # (4, 4, 512) ==>> (1, 1, 512) ==>> (64, 8)
-    digit_caps = Routing(num_classes, routing_name_list, regularize=regularize)(x)
-
+    if routing_name == "Hinton":
+        digit_caps = DigitCaps(10, 16, routing=3)(x)
+    elif routing_name == "Efficient":
+        digit_caps = FCCaps(10, 16)(x)
+    else:
+        raise NotImplementedError
+    # x = layers.LayerNormalization()(x)
     digit_caps_len = Length()(digit_caps)
-    if heterogeneous:
-        digit_caps_len = Heterogeneous(num_class=num_classes)((x, digit_caps_len))
-
+    # digit_caps_len = Heterogeneous(num_class=10)((x, digit_caps_len))
     return tf.keras.Model(inputs=[inputs], outputs=[digit_caps_len])
 
 
-def build_graph(input_shape, num_classes, routing_name_list, regularize=1e-4,
-                depth=18, tiny=True, half=True, heterogeneous=False):
-    efficient_capsnet = capsnet_graph(input_shape, num_classes, routing_name_list,
-                  regularize, depth, tiny, half, heterogeneous)
+def build_graph(input_shape, num_classes, routing_name, depth=18):
+    efficient_capsnet = capsnet_graph(input_shape, num_classes, routing_name, depth)
     efficient_capsnet.summary()
     return efficient_capsnet

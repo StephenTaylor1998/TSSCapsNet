@@ -15,6 +15,8 @@
 
 import tensorflow as tf
 
+from models.etc_model.call_backs import lr_schedule_adam, lr_schedule_sgd
+
 
 def learn_scheduler(lr_dec, lr, warm_up=False):
     if warm_up:
@@ -38,12 +40,15 @@ def learn_scheduler(lr_dec, lr, warm_up=False):
     return learning_scheduler_fn
 
 
-def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr):
+def get_callbacks(model_name, tb_log_save_path, saved_model_path, lr_dec, lr, optimizer='Adam'):
+    if optimizer == 'SGD':
+        lr_decay = tf.keras.callbacks.LearningRateScheduler(lr_schedule_sgd)
+    else:
+        lr_decay = tf.keras.callbacks.LearningRateScheduler(learn_scheduler(lr_dec, lr))
+
     tb = tf.keras.callbacks.TensorBoard(log_dir=tb_log_save_path, histogram_freq=0)
-    lr_decay = tf.keras.callbacks.LearningRateScheduler(learn_scheduler(lr_dec, lr))
+
     model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
         saved_model_path, monitor=f"val_{model_name}_accuracy",
         save_best_only=True, save_weights_only=True, verbose=1)
     return [tb, model_checkpoint, lr_decay]
-
-
