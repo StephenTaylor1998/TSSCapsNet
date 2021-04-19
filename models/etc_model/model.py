@@ -15,6 +15,7 @@
 
 import os
 
+import numpy as np
 import tensorflow as tf
 from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 
@@ -142,3 +143,18 @@ class ETCModel(Model):
                                              f"{self.model_name}_{self.data_name}.h5"))
 
         return history
+
+    def evaluate(self, X_test, y_test, dataset_name="Test"):
+        print('-' * 30 + f'{self.data_name} Evaluation' + '-' * 30)
+
+        y_pred = self.model.predict(X_test)
+        acc = np.sum(np.argmax(y_pred, 1) == np.argmax(y_test, 1)) / y_test.shape[0]
+        test_error = 1 - acc
+        print(f"{dataset_name} acc:", acc)
+        print(f"{dataset_name} error [%]: {test_error :.4%}")
+        if self.data_name == "MULTIMNIST":
+            print(
+                f"N° misclassified images: {int(test_error * len(y_test) * self.config['n_overlay_multimnist'])} "
+                f"out of {len(y_test) * self.config['n_overlay_multimnist']}")
+        else:
+            print(f"N° misclassified images: {int(test_error * len(y_test))} out of {len(y_test)}")
