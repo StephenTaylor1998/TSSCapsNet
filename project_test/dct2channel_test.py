@@ -1,9 +1,9 @@
 import numpy as np
 # block2channel_test
-from models.layers import block2channel_2d as block2channel_2d_np
-from models.layers import block2channel_3d as block2channel_3d_np
+from models.layers.transform.block2channel import block2channel_2d as block2channel_2d_np
+from models.layers.transform.block2channel import block2channel_3d as block2channel_3d_np
 # dct2channel_test
-from models.layers import channel2dct as dct2channel_np
+from models.layers.transform.channel2dct import channel2dct as dct2channel_np
 # test_in_model
 from models.layers import DCTLayer3d, DCTLayer2d
 from tensorflow.keras import Model
@@ -135,7 +135,7 @@ def test_in_model():
     pass
 
 
-if __name__ == '__main__':
-    block2channel_test()
-    dct2channel_test()
-    test_in_model()
+# if __name__ == '__main__':
+#     block2channel_test()
+#     dct2channel_test()
+#     test_in_model()

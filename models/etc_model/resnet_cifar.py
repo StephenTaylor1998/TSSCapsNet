@@ -47,26 +47,26 @@ def build_graph(input_shape, num_classes=10, depth=18, half=True):
     return model
 
 
-if __name__ == '__main__':
-    import tensorflow as tf
-    import numpy as np
-
-    mnist_model = build_graph(input_shape=(28, 28, 1), depth=152)
-    mnist_model.compile(
-        optimizer="adam",
-        loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-        metrics=['sparse_categorical_accuracy']
-    )
-    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-    x_train, x_test = np.expand_dims(x_train, -1) / 255.0, np.expand_dims(x_test, -1) / 255.0
-    print(x_train.shape)
-    mnist_model.summary()
-    mnist_model.fit(
-        x_test,
-        y_test,
-        batch_size=32,
-        epochs=1,
-        validation_data=(x_train, y_train),
-        validation_freq=1
-    )
-    mnist_model.save_weights('./resnet18_mnist.h5')
+# if __name__ == '__main__':
+#     import tensorflow as tf
+#     import numpy as np
+#
+#     mnist_model = build_graph(input_shape=(28, 28, 1), depth=152)
+#     mnist_model.compile(
+#         optimizer="adam",
+#         loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+#         metrics=['sparse_categorical_accuracy']
+#     )
+#     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+#     x_train, x_test = np.expand_dims(x_train, -1) / 255.0, np.expand_dims(x_test, -1) / 255.0
+#     print(x_train.shape)
+#     mnist_model.summary()
+#     mnist_model.fit(
+#         x_test,
+#         y_test,
+#         batch_size=32,
+#         epochs=1,
+#         validation_data=(x_train, y_train),
+#         validation_freq=1
+#     )
+#     mnist_model.save_weights('./resnet18_mnist.h5')
