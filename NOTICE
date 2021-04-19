@@ -1,0 +1,98 @@
+=======================================================================
+TSSCapsNet Subcomponents:
+
+The TSSCapsNet project contains subcomponents with separate copyright
+notices and license terms. Your use of the source code for the these
+subcomponents is subject to the terms and conditions of the following
+licenses.
+
+========================================================================
+Apache 2.0 licenses
+========================================================================
+
+The following components are provided under the Apache License.
+The text of each license is the standard Apache 2.0 license.
+
+   file models/efficient_capsnet/efficient_capsnet_graph_mnist.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/efficient_capsnet_graph_mnist.py
+
+   file models/efficient_capsnet/efficient_capsnet_graph_multimnist.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/efficient_capsnet_graph_multimnist.py
+
+   file models/efficient_capsnet/efficient_capsnet_graph_smallnorb.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/efficient_capsnet_graph_smallnorb.py
+
+   file models/efficient_capsnet/model.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/model.py
+
+   file models/layers/layers_efficient.py
+       from https://github.com/EscVM/Efficient-CapsNet/utils/layers.py
+
+   file models/layers/layers_hinton.py
+       from https://github.com/EscVM/Efficient-CapsNet/utils/layers_hinton.py
+
+   file models/layers/model_base.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/model.py
+
+   file models/origin_capsnet/model.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/model.py
+
+   file models/origin_capsnet/original_capsnet_graph_mnist.py
+       https://github.com/EscVM/Efficient-CapsNet/blob/main/models/original_capsnet_graph_mnist.py
+
+   file models/tss_capsnet/dct_capsnet_e1_graph_mnist.py
+       from from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/efficient_capsnet_graph_mnist.py
+
+   file models/tss_capsnet/dct_capsnet_h1_attention_mnist.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/original_capsnet_graph_mnist.py
+
+   file models/tss_capsnet/dct_capsnet_h1_graph_mnist.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/original_capsnet_graph_mnist.py
+
+   file models/tss_capsnet/dct_capsnet_h1_gumbel_gate_mnist.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/original_capsnet_graph_mnist.py
+
+   file models/tss_capsnet/dwt_capsnet_e1_graph_mnist.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/efficient_capsnet_graph_mnist.py
+
+   file models/tss_capsnet/dwt_capsnet_e1_graph_smallnorb.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/efficient_capsnet_graph_smallnorb.py
+
+   file models/tss_capsnet/rfft_capsnet_e1_graph_mnist.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/efficient_capsnet_graph_mnist.py
+
+   file models/tss_capsnet/wst_capsnet_e1_graph_mnist.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/models/efficient_capsnet_graph_mnist.py
+
+   file utils/dataset.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/utils/dataset.py
+
+   file utils/pre_process_cifar10.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/utils/pre_process_mnist.py
+
+   file utils/pre_process_cifar10_shift.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/utils/pre_process_mnist.py
+
+   file utils/pre_process_cifar100.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/utils/pre_process_mnist.py
+
+   file utils/pre_process_mnist.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/utils/pre_process_mnist.py
+
+   file utils/pre_process_mnist_shift.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/utils/pre_process_mnist.py
+
+   file utils/pre_process_multimnist.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/utils/pre_process_multimnist.py
+
+   file utils/pre_process_smallnorb.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/utils/pre_process_smallnorb.py
+
+   file utils/tools.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/utils/tools.py
+
+   file utils/visualization.py
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/utils/visualization.py
+
+   file config.json
+       from https://github.com/EscVM/Efficient-CapsNet/blob/main/config.json
