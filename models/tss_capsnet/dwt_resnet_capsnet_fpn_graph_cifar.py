@@ -2,7 +2,7 @@ import tensorflow as tf
 from models.layers.routing import Routing
 from models.layers.operators import Heterogeneous
 from models.etc_model.resnet_cifar_dwt import build_graph as build_resnet_dwt_backbone
-from models.layers.layers_efficient import PrimaryCaps, Length, Mask, generator_graph_smallnorb
+from models.layers.layers_efficient import PrimaryCaps, Length, Mask, generator_graph_mnist
 
 
 def dwt_capsnet_graph(input_shape, num_classes=10, routing_name_list=None,
@@ -26,7 +26,7 @@ def dwt_capsnet_graph(input_shape, num_classes=10, routing_name_list=None,
     return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name=name)
 
 
-def build_graph(input_shape, mode, num_classes=10, routing_name_list=None, regularize=1e-4,
+def build_graph(input_shape, mode, num_classes, routing_name_list, regularize=1e-4,
                 depth=18, tiny=True, half=True, name=None):
     inputs = tf.keras.Input(input_shape)
     y_true = tf.keras.layers.Input(shape=(10,))
@@ -45,7 +45,8 @@ def build_graph(input_shape, mode, num_classes=10, routing_name_list=None, regul
     masked = Mask()(digit_caps)
     masked_noised_y = Mask()([noised_digitcaps, y_true])
 
-    generator = generator_graph_smallnorb(input_shape)
+    # generator = generator_graph_smallnorb(input_shape)
+    generator = generator_graph_mnist(input_shape)
 
     generator.summary()
     print("\n\n")

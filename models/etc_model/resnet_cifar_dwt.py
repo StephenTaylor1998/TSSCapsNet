@@ -1,4 +1,6 @@
 from tensorflow.python.keras import Input
+from tensorflow.python.keras.models import Model
+
 from models.layers.backbone import TinyBlockDWT, TinyBottleDWT, BasicBlockDWT, BottleneckDWT, resnet18_cifar, \
     resnet34_cifar, resnet50_cifar, resnet101_cifar, resnet152_cifar
 
@@ -30,11 +32,8 @@ def build_graph(input_shape, num_classes=10, depth=18, tiny=True, half=True, bac
         print(f"depth: {depth} is not support!")
         raise NotImplemented
 
-    input_layer = Input(input_shape)
-    out = model(input_layer)
-    # build_model = Model(inputs=[input_layer], outputs=[out])
-    # return build_model
-    model.summary()
+    # input_layer = Input(input_shape)
+    # out = model(input_layer)
     return model
 
 

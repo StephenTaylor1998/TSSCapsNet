@@ -10,7 +10,7 @@ from . import dwt_capsnet_e1_graph_mnist
 from . import dwt_capsnet_e1_graph_smallnorb
 from . import dwt_capsnet_fpn_graph_mnist
 from . import dwt_capsnet_fpn_graph_smallnorb
-from . import dwt_RESNET_capsnet_fpn_graph_cifar
+from . import dwt_resnet_capsnet_fpn_graph_cifar
 from . import rfft_capsnet_e1_graph_mnist
 from . import wst_capsnet_e1_graph_mnist
 
@@ -213,16 +213,14 @@ class TSSCapsNet(Model):
             elif "FPN_CIFAR" in self.model_name:
                 routing_name_list = ['FPN', 'FPN', 'FPN']
             else:
-                raise NotImplemented
+                print("FPN type is not support!")
+                raise NotImplementedError
 
-            if "Tiny_R" in self.model_name:
-                tiny = True
-            if "Tiny_R" in self.model_name:
-                tiny = True
-            self.model = dwt_RESNET_capsnet_fpn_graph_cifar.build_graph(
+            self.model = dwt_resnet_capsnet_fpn_graph_cifar.build_graph(
                 input_shape, self.mode, num_classes=10, routing_name_list=routing_name_list,
                 regularize=1e-4, depth=18, tiny=tiny, half=half, name=self.model_name)
         else:
+            print(f"model name {self.model_name} is NotImplemented")
             raise NotImplemented
 
     def train(self, dataset=None, initial_epoch=0):

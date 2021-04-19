@@ -153,12 +153,13 @@ class RoutingBlock(layers.Layer):
         super(RoutingBlock, self).__init__()
         if routing_name == "Attention":
             self.fpn = BaselineAttention(h=1, d=8)
-        elif routing_name == "FPNTiny":
+        elif routing_name == "Tiny_FPN":
             self.fpn = CapsFPNTiny(out_length=8, regularize=regularize)
         elif routing_name == "FPN":
             self.fpn = CapsFPN(num_caps=[16, 8, 4, 4], length=8)
         else:
-            raise NotImplemented
+            print(f"FPN name {routing_name} should in ['Attention', 'Tiny_FPN', 'FPN']")
+            raise NotImplementedError
         self.norm1 = layers.LayerNormalization()
         self.caps_similarity = CapsSimilarity()
         self.norm2 = layers.LayerNormalization()

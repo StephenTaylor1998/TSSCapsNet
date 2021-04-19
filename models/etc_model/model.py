@@ -4,8 +4,7 @@ import tensorflow as tf
 from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 
 from utils.dataset import Dataset
-from . import capsule_with_fpn_routing
-from . import ghostnet_cifar
+from . import dwt_resnet_capsule_with_fpn_routing
 from . import mobilenet_v2_cifar
 from . import resnet_cifar
 from . import resnet_cifar_dwt
@@ -73,22 +72,35 @@ class ETCModel(Model):
             self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=34, half=self.half)
         elif self.model_name == "RESNET_DWT50_Tiny":
             self.model = resnet_cifar_dwt.build_graph(input_shape, num_classes, depth=50, half=self.half)
-        elif self.model_name == "GHOSTNET":
-            self.model = ghostnet_cifar.build_graph(input_shape, num_classes)
         elif self.model_name == "MOBILENETv2":
             self.model = mobilenet_v2_cifar.build_graph(input_shape, num_classes)
-        elif self.model_name == "DWT_Caps_FPN":
-            self.model = capsule_with_fpn_routing.build_graph(
-                input_shape, num_classes, ['FPN', 'FPN', 'FPN'])
-        elif self.model_name == "DWT_Caps_FPNTiny":
-            self.model = capsule_with_fpn_routing.build_graph(
-                input_shape, num_classes, ['FPNTiny', 'FPNTiny', 'FPNTiny'])
-        elif self.model_name == "DWT_Caps_Attention":
-            self.model = capsule_with_fpn_routing.build_graph(
-                input_shape, num_classes, ['Attention', 'Attention', 'Attention'])
-        elif self.model_name == "CapsNet_Without_Decoder":
-            self.model = capsule_with_fpn_routing.build_graph(
-                input_shape, num_classes, ['FPN', 'FPN', 'FPN'])
+        # elif self.model_name == "DWT_Caps_FPN":
+        #     self.model = capsule_with_fpn_routing.build_graph(
+        #         input_shape, num_classes, ['FPN', 'FPN', 'FPN'])
+        # elif self.model_name == "DWT_Caps_FPNTiny":
+        #     self.model = capsule_with_fpn_routing.build_graph(
+        #         input_shape, num_classes, ['FPNTiny', 'FPNTiny', 'FPNTiny'])
+        # elif self.model_name == "DWT_Caps_Attention":
+        #     self.model = capsule_with_fpn_routing.build_graph(
+        #         input_shape, num_classes, ['Attention', 'Attention', 'Attention'])
+        elif self.model_name.startswith("DWT_") and self.model_name.endswith("_FPN_CIFAR"):
+            # example: "DWT_Tiny_Half_R18_Tiny_FPN_CIFAR"
+            half = True if "Half_R18" in self.model_name else False
+            tiny = True if "DWT_Tiny" in self.model_name else False
+            if "Tiny_FPN_CIFAR" in self.model_name:
+                routing_name_list = ["Tiny_FPN", "Tiny_FPN", "Tiny_FPN"]
+            elif "Attention_FPN_CIFAR" in self.model_name:
+                routing_name_list = ['Attention', 'Attention', 'Attention']
+            elif "FPN_CIFAR" in self.model_name:
+                routing_name_list = ['FPN', 'FPN', 'FPN']
+            else:
+                print("FPN type is not support!")
+                raise NotImplementedError
+
+            self.model = dwt_resnet_capsule_with_fpn_routing.build_graph(
+                input_shape, num_classes=10, routing_name_list=routing_name_list,
+                regularize=1e-4, depth=18, tiny=tiny, half=half, )
+
         else:
             raise NotImplemented
 
