@@ -31,6 +31,9 @@ if __name__ == '__main__':
     elif args.arch == "TSSCapsNet":
         model = TSSCapsNet(args.data_name, model_name=args.model_name,
                            mode='test', verbose=True, gpu_number=gpu_number)
+    elif args.arch == "ETCModel":
+        model = TSSCapsNet(args.data_name, model_name=args.model_name,
+                           mode='test', verbose=True, gpu_number=gpu_number)
     else:
         raise NotImplementedError
 
