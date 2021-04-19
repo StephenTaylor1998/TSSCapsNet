@@ -2,8 +2,8 @@ import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
-from models import CapsNet
-from models import TSSCapsNet
+from models import CapsNet, TSSCapsNet
+# from models import TSSCapsNet
 from models import EfficientCapsNet
 from utils import Dataset, plotHistory
 from utils.argparse import get_terminal_args
