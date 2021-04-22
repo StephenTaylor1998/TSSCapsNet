@@ -16,7 +16,7 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
 from ..layers.layers_efficient import PrimaryCaps, FCCaps, Length, Mask, generator_graph_smallnorb
-from ..layers.routing import Routing
+from ..layers.routing_vector import RoutingVector
 from ..layers.transform import DWT
 
 
@@ -67,7 +67,7 @@ def dwt_capsnet_graph(input_shape, num_classes=10, routing_name_list=None, regul
 
     x = PrimaryCaps(128, 8, 16, 8)(x)  # there could be an error
 
-    digit_caps = Routing(num_classes, routing_name_list, regularize)(x)
+    digit_caps = RoutingVector(num_classes, routing_name_list, regularize)(x)
     digit_caps_len = Length(name='length_capsnet_output')(digit_caps)
     return tf.keras.Model(inputs=inputs, outputs=[digit_caps, digit_caps_len], name=name)
 

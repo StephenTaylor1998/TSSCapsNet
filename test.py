@@ -20,8 +20,7 @@ import tensorflow as tf
 from utils import Dataset
 from models import TSSCapsNet
 from models import EfficientCapsNet
-from models import CapsNet
-
+from models import CapsNet, ETCModel
 
 # model_name = 'DCT_CapsNet_Attention'      # TSSCapsNet
 # model_name = 'DCT_CapsNet_GumbelGate'     # TSSCapsNet
@@ -29,9 +28,10 @@ from models import CapsNet
 # model_name = 'DCT_Efficient_CapsNet'      # TSSEfficientCapsNet
 # model_name = 'RFFT_Efficient_CapsNet'     # TSSEfficientCapsNet
 # model_name = 'DWT_Efficient_CapsNet'
-model_name = "DWT_Multi_Attention_CapsNet"
+# model_name = "DWT_Multi_Attention_CapsNet"
 # model_name = 'Efficient_CapsNet'          # EfficientCapsNet
 # model_name = 'CapsNet'                    # CapsNet
+model_name = 'RESNET50_DWT_Tiny'
 
 
 # data_name = 'MNIST'
@@ -49,9 +49,11 @@ data_name = 'CIFAR10'
 dataset = Dataset(data_name, config_path='config.json')
 
 # 2.0 Load the Model
-model_test = TSSCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
+# model_test = TSSCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 # model_test = EfficientCapsNet(data_name, model_name=model_name, mode='test', verbose=True)
 # model_test = CapsNet(data_name, model_name=model_name, mode='test', verbose=True)
+model_test = ETCModel(data_name, model_name=model_name, mode='test', verbose=True,
+                      custom_path="./Zdemo/weight/RESNET50_DWT_Tiny/RESNET50_DWT_Tiny_CIFAR10_398.h5")
 
 # 3.0 Load weights
 model_test.load_graph_weights()  # load graph weights (bin folder)
@@ -59,7 +61,7 @@ model_test.load_graph_weights()  # load graph weights (bin folder)
 # 4.1 Origin test set
 model_test.evaluate(dataset.X_test, dataset.y_test)  # if "smallnorb" use X_test_patch
 
-# 4.2 Shift test set(if using pre-process file end with 'shift.py')
-train_dataset, test_dataset = dataset.get_tf_data()
-model_test.model.compile(metrics=['accuracy'])
-result = model_test.model.evaluate(test_dataset)
+# 4.2 Shift test set(if using pre-process file end with 'xxx_shift.py')
+train_dataset, test_dataset = dataset.get_tf_data(for_capsule=True)
+# model_test.model.compile(metrics=['accuracy'])
+# result = model_test.model.evaluate(test_dataset)

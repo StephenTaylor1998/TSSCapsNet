@@ -16,8 +16,8 @@
 import tensorflow as tf
 from tensorflow.keras import layers
 
-from models.layers.operators import Heterogeneous
-from models.layers.routing import Routing
+from models.layers.operators_vector import Heterogeneous
+from models.layers.routing_vector import RoutingVector
 from models.layers.layers_efficient import PrimaryCaps, Length
 from models.etc_model.resnet_cifar_dwt import build_graph as build_resnet_dwt_backbone
 
@@ -34,7 +34,7 @@ def capsnet_graph(input_shape, num_classes, routing_name_list=None,
     # (4, 4, 256) ==>> (1, 1, 256) ==>> (32, 8)
     x = PrimaryCaps(256, x.shape[1], 32, 8)(x)
     # # (4, 4, 512) ==>> (1, 1, 512) ==>> (64, 8)
-    digit_caps = Routing(num_classes, routing_name_list, regularize=regularize)(x)
+    digit_caps = RoutingVector(num_classes, routing_name_list, regularize=regularize)(x)
 
     digit_caps_len = Length()(digit_caps)
     if heterogeneous:

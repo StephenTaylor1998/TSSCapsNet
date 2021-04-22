@@ -162,7 +162,7 @@ class CondenseTiny(layers.Layer):
     """
       A conv1d operator, support tensor shape [batch, N, D],
     the operator will traverse dimension N, and perform a calculation on [batch, n:n+rate, :].
-    It is recommended to use rate == strings to avoid redundant computation.
+    It is recommended to use rate == strides to avoid redundant computation.
     Example:
         parameter(input_shape=[1, 4, 4], out_length=2, rate=2, strides=2)
         X:  1  1  1  1      W:                              Y:

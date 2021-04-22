@@ -14,8 +14,8 @@
 # ==============================================================================
 
 import tensorflow as tf
-from models.layers.routing import Routing
-from models.layers.operators import Heterogeneous
+from models.layers.routing_vector import RoutingVector
+from models.layers.operators_vector import Heterogeneous
 from models.etc_model.resnet_cifar_dwt import build_graph as build_resnet_dwt_backbone
 from models.layers.layers_efficient import PrimaryCaps, Length, Mask, generator_graph_mnist
 
@@ -32,7 +32,7 @@ def dwt_capsnet_graph(input_shape, num_classes=10, routing_name_list=None,
     # (4, 4, 256) ==>> (1, 1, 256) ==>> (32, 8)
     x = PrimaryCaps(256, x.shape[1], 32, 8)(x)
 
-    digit_caps = Routing(num_classes, routing_name_list, regularize)(x)
+    digit_caps = RoutingVector(num_classes, routing_name_list, regularize)(x)
 
     digit_caps_len = Length(name='length_capsnet_output')(digit_caps)
 

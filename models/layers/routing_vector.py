@@ -17,7 +17,7 @@ import tensorflow as tf
 from .layers_hinton import squash
 from .attention import CapsuleAttentionBlock, BaselineAttention
 from tensorflow.keras import layers, models
-from .operators import CapsFPN, Q, CapsSimilarity, CapsuleMappingTiny, CapsuleMapping, CapsFPNTiny
+from .operators_vector import CapsFPN, Q, CapsSimilarity, CapsuleMappingTiny, CapsuleMapping, CapsFPNTiny
 
 
 class AttentionDigitCaps(tf.keras.layers.Layer):
@@ -161,9 +161,9 @@ class RoutingA(layers.Layer):
         return out
 
 
-class RoutingBlock(layers.Layer):
+class RoutingBlockVector(layers.Layer):
     def __init__(self, routing_name, regularize):
-        super(RoutingBlock, self).__init__()
+        super(RoutingBlockVector, self).__init__()
         if routing_name == "Attention":
             self.fpn = BaselineAttention(h=1, d=8)
         elif routing_name == "Tiny_FPN":
@@ -178,7 +178,7 @@ class RoutingBlock(layers.Layer):
         self.norm2 = layers.LayerNormalization()
 
     def get_config(self):
-        return super(RoutingBlock, self).get_config()
+        return super(RoutingBlockVector, self).get_config()
 
     def call(self, inputs, **kwargs):
         feature_pyramid = self.fpn(inputs)
@@ -189,27 +189,27 @@ class RoutingBlock(layers.Layer):
         return feature_pyramid
 
 
-class Routing(layers.Layer):
+class RoutingVector(layers.Layer):
     """
         Routing for capsule.
     example:
     >>># routing for FPN
-    >>>fpn_routing = Routing(num_classes=10, routing_name_list=['FPN', 'FPN', 'FPN'], regularize=1e-5)
+    >>>fpn_routing = RoutingVector(num_classes=10, routing_name_list=['FPN', 'FPN', 'FPN'], regularize=1e-5)
     >>># routing for FPNTiny
-    >>>fpn_tiny_routing = Routing(num_classes=10, routing_name_list=['FPNTiny', 'FPNTiny', 'FPNTiny'], regularize=1e-5)
+    >>>fpn_tiny_routing = RoutingVector(num_classes=10, routing_name_list=['FPNTiny', 'FPNTiny', 'FPNTiny'], regularize=1e-5)
     >>># routing for Attention
-    >>>attention_routing = Routing(num_classes=10, routing_name_list=['Attention', 'Attention', 'Attention'], regularize=1e-5)
+    >>>attention_routing = RoutingVector(num_classes=10, routing_name_list=['Attention', 'Attention', 'Attention'], regularize=1e-5)
     >>># routing for custom
     >>># custom type
-    >>>custom_type = Routing(num_classes=10, routing_name_list=['FPN', 'FPNTiny', 'Attention'], regularize=1e-5)
+    >>>custom_type = RoutingVector(num_classes=10, routing_name_list=['FPN', 'FPNTiny', 'Attention'], regularize=1e-5)
     >>># custom length
-    >>>custom_length = Routing(num_classes=10,
+    >>>custom_length = RoutingVector(num_classes=10,
     >>>                        routing_name_list=['FPN', 'FPN', 'FPN', 'FPN', 'FPN', 'FPN', 'FPN', 'FPN'],
     >>>                        regularize=1e-5)
     """
     def __init__(self, num_classes=10, routing_name_list=None, regularize=1e-5, **kwargs):
-        super(Routing, self).__init__(**kwargs)
-        self.routings = self._make_routing(RoutingBlock, routing_name_list, regularize)
+        super(RoutingVector, self).__init__(**kwargs)
+        self.routings = self._make_routing(RoutingBlockVector, routing_name_list, regularize)
 
         # final mapping
         self.final_mapping = CapsuleMapping(num_caps=num_classes, caps_length=16)
@@ -223,7 +223,7 @@ class Routing(layers.Layer):
         return models.Sequential([*layer_list])
 
     def get_config(self):
-        return super(Routing, self).get_config()
+        return super(RoutingVector, self).get_config()
 
     def call(self, inputs, **kwargs):
         feature_pyramid = self.routings(inputs)

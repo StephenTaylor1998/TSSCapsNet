@@ -17,8 +17,8 @@ import numpy as np
 import tensorflow as tf
 from models.layers import RoutingA
 from models.layers.layers_efficient import PrimaryCaps, Length, Mask, generator_graph_mnist
-from models.layers.operators import Heterogeneous
-from models.layers.routing import Routing
+from models.layers.operators_vector import Heterogeneous
+from models.layers.routing_vector import RoutingVector
 from models.layers.transform import DWT
 
 
@@ -47,7 +47,7 @@ def dwt_capsnet_graph(input_shape, num_classes=10, routing_name_list=None, regul
     x = DWT()(x)
     x = PrimaryCaps(128, x.shape[1], 16, 8)(x)
 
-    digit_caps = Routing(num_classes, routing_name_list, regularize)(x)
+    digit_caps = RoutingVector(num_classes, routing_name_list, regularize)(x)
 
     # x = layers.LayerNormalization()(x)
     # digit_caps = FCCaps(10, 16)(x)

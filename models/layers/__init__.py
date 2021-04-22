@@ -6,5 +6,5 @@ from .transform import Block2Channel2d, Block2Channel3d, DCTLayer2d, DCTLayer3d,
 from .gumbel import GumbelSoftmax
 # models/layers/gate.py
 from .gate import GumbelGate
-# models/layers/routing.py
-from .routing import RoutingA, RoutingTiny
+# models/layers/routing_vector.py
+from .routing_vector import RoutingA, RoutingTiny
