@@ -115,6 +115,8 @@ def get_terminal_args():
                         help='test model after training (default: "True")')
     parser.add_argument('--heterogeneous', type=bool, default=False,
                         help='Add heterogeneous component to model (default: "False")')
+    parser.add_argument('--softmax', type=bool, default=False,
+                        help='Add softmax component to model (default: "False")')
     parser.add_argument('--optimizer', type=str, default="Adam",
                         choices=["Adam", "SGD"],
                         help='optimizer (default: Adam)')

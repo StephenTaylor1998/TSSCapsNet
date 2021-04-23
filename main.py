@@ -38,17 +38,18 @@ if __name__ == '__main__':
 
     # 2.0 Load the Model
     if args.arch == "CapsNet":
-        model = CapsNet(args.data_name, model_name=args.model_name,
-                        mode='test', verbose=True, gpu_number=gpu_number)
+        model = CapsNet(args.data_name, model_name=args.model_name, mode='test', verbose=True,
+                        gpu_number=gpu_number)
     elif args.arch == "EfficientCapsNet":
-        model = EfficientCapsNet(args.data_name, model_name=args.model_name,
-                                 mode='test', verbose=True, gpu_number=gpu_number)
+        model = EfficientCapsNet(args.data_name, model_name=args.model_name, mode='test', verbose=True,
+                                 gpu_number=gpu_number)
     elif args.arch == "TSSCapsNet":
-        model = TSSCapsNet(args.data_name, model_name=args.model_name,
-                           mode='test', verbose=True, gpu_number=gpu_number, optimizer=args.optimizer)
+        model = TSSCapsNet(args.data_name, model_name=args.model_name, mode='test', verbose=True,
+                           gpu_number=gpu_number, optimizer=args.optimizer, heterogeneous=args.heterogeneous)
     elif args.arch == "ETCModel":
-        model = ETCModel(args.data_name, model_name=args.model_name,
-                           mode='test', verbose=True, gpu_number=gpu_number, optimizer=args.optimizer)
+        model = ETCModel(args.data_name, model_name=args.model_name, mode='test', verbose=True,
+                         gpu_number=gpu_number, optimizer=args.optimizer, heterogeneous=args.heterogeneous,
+                         softmax=args.softmax)
     else:
         raise NotImplementedError
 

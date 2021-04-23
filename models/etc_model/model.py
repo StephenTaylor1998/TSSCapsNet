@@ -32,8 +32,8 @@ from ..layers.model_base import Model
 class ETCModel(Model):
 
     def __init__(self, data_name, model_name='DCT_Efficient_CapsNet', mode='test', config_path='config.json',
-                 custom_path=None, verbose=True, gpu_number=None, optimizer='Adam', half_filter_in_resnet=True,
-                 use_tiny_block=True, heterogeneous=False, **kwargs):
+                 custom_path=None, verbose=True, gpu_number=None, optimizer='Adam', heterogeneous=False,
+                 softmax=False, **kwargs):
         Model.__init__(self, data_name, mode, config_path, verbose)
         self.model_name = model_name
         if custom_path is not None:
@@ -49,9 +49,8 @@ class ETCModel(Model):
                                                  f"{self.model_name}",
                                                  f"{self.model_name}_{self.data_name}_{'{epoch:03d}'}.h5")
         self.tb_path = os.path.join(self.config['tb_log_save_dir'], f"{self.model_name}_{self.data_name}")
-        self.half = half_filter_in_resnet
-        self.tiny = use_tiny_block
         self.heterogeneous = heterogeneous
+        self.softmax = softmax
         self.load_graph()
         if gpu_number:
             self.model = multi_gpu_model(self.model, gpu_number)
@@ -101,7 +100,8 @@ class ETCModel(Model):
 
             self.model = dwt_resnet_capsule_with_fpn_routing.build_graph(
                 input_shape, num_classes=10, routing_name_list=routing_name_list, regularize=1e-4, tiny=tiny, half=half,
-                depth=get_resnet_depth_from_name(self.model_name), heterogeneous=self.heterogeneous)
+                depth=get_resnet_depth_from_name(self.model_name), heterogeneous=self.heterogeneous,
+                softmax=self.softmax)
 
         else:
             raise NotImplemented

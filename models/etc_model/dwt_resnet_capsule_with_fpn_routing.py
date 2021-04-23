@@ -23,7 +23,7 @@ from models.etc_model.resnet_cifar_dwt import build_graph as build_resnet_dwt_ba
 
 
 def capsnet_graph(input_shape, num_classes, routing_name_list=None,
-                  regularize=1e-4, depth=18, tiny=True, half=True, heterogeneous=False):
+                  regularize=1e-4, depth=18, tiny=True, half=True, heterogeneous=False, softmax=False):
     routing_name_list = ['FPN', 'FPN', 'FPN'] if routing_name_list is None else routing_name_list
     inputs = tf.keras.Input(input_shape)
     # (32, 32, 3) ==>> (8, 8, 128)
@@ -40,12 +40,15 @@ def capsnet_graph(input_shape, num_classes, routing_name_list=None,
     if heterogeneous:
         digit_caps_len = Heterogeneous(num_class=num_classes)((x, digit_caps_len))
 
+    if softmax:
+        digit_caps_len = tf.math.softmax(digit_caps_len)
+
     return tf.keras.Model(inputs=[inputs], outputs=[digit_caps_len])
 
 
 def build_graph(input_shape, num_classes, routing_name_list, regularize=1e-4,
-                depth=18, tiny=True, half=True, heterogeneous=False):
+                depth=18, tiny=True, half=True, heterogeneous=False, softmax=False):
     efficient_capsnet = capsnet_graph(input_shape, num_classes, routing_name_list,
-                  regularize, depth, tiny, half, heterogeneous)
+                  regularize, depth, tiny, half, heterogeneous, softmax)
     efficient_capsnet.summary()
     return efficient_capsnet
