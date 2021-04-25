@@ -30,6 +30,7 @@ def capsnet_graph(input_shape, num_classes, routing_name, depth=18):
     # (4, 4, 256) ==>> (1, 1, 256) ==>> (32, 8)
     x = PrimaryCaps(256, x.shape[1], 32, 8)(x)
     if routing_name == "Hinton":
+        x = tf.reshape(x, (-1, 1, 1, 32, 8))
         digit_caps = DigitCaps(10, 16, routing=3)(x)
     elif routing_name == "Efficient":
         digit_caps = FCCaps(10, 16)(x)

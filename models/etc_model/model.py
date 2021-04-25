@@ -22,6 +22,7 @@ from tensorflow.python.keras.utils.multi_gpu_utils import multi_gpu_model
 from utils.dataset import Dataset
 from utils.get_resnet_layer import get_resnet_depth_from_name
 from . import dwt_resnet_capsule_with_fpn_routing
+from . import dwt_resnet_capsule_others
 from . import mobilenet_v2_cifar
 from . import resnet_cifar
 from . import resnet_cifar_dwt
@@ -102,6 +103,12 @@ class ETCModel(Model):
                 input_shape, num_classes=10, routing_name_list=routing_name_list, regularize=1e-4, tiny=tiny, half=half,
                 depth=get_resnet_depth_from_name(self.model_name), heterogeneous=self.heterogeneous,
                 softmax=self.softmax)
+
+        elif self.model_name.startswith("DWT_") and self.model_name.endswith("_CIFAR"):
+            self.model = mobilenet_v2_cifar.build_graph(input_shape, num_classes)
+            routing_name = "Hinton" if "Hinton" in self.model_name else "Efficient"
+            self.model = dwt_resnet_capsule_others.build_graph(input_shape, num_classes, routing_name,
+                                                               get_resnet_depth_from_name(self.model_name))
 
         else:
             raise NotImplemented

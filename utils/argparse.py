@@ -69,6 +69,8 @@ def get_terminal_args():
                             "RESNET34_DWT_Tiny_Half",
                             "RESNET50_DWT_Tiny_Half",
                             "MOBILENETv2",
+                            "DWT_Tiny_Half_R18_Hinton_CIFAR",
+                            "DWT_Tiny_Half_R18_Efficient_CIFAR",
 
                             # ETCModel AND TSSCapsNet SUPPORT
                             "DWT_Tiny_Half_R18_Tiny_FPN_CIFAR",
