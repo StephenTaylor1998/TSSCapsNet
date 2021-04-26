@@ -23,6 +23,7 @@ from utils.dataset import Dataset
 from utils.get_resnet_layer import get_resnet_depth_from_name
 from . import dwt_resnet_capsule_with_fpn_routing
 from . import dwt_resnet_capsule_others
+from . import resnet_capsule_others
 from . import mobilenet_v2_cifar
 from . import resnet_cifar
 from . import resnet_cifar_dwt
@@ -109,6 +110,12 @@ class ETCModel(Model):
             routing_name = "Hinton" if "Hinton" in self.model_name else "Efficient"
             self.model = dwt_resnet_capsule_others.build_graph(input_shape, num_classes, routing_name,
                                                                get_resnet_depth_from_name(self.model_name))
+
+        elif self.model_name.startswith("R") and self.model_name.endswith("_CIFAR"):
+            self.model = mobilenet_v2_cifar.build_graph(input_shape, num_classes)
+            routing_name = "Hinton" if "Hinton" in self.model_name else "Efficient"
+            self.model = resnet_capsule_others.build_graph(input_shape, num_classes, routing_name,
+                                                           get_resnet_depth_from_name(self.model_name))
 
         else:
             raise NotImplemented

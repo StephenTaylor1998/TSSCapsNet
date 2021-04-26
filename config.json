@@ -34,7 +34,7 @@
   "n_overlay_multimnist": 1000,
   "shift_multimnist": 6,
   "pad_multimnist": 4,
-  "num_workers": 4,
+  "num_workers": 8,
   "<<<ETC_MODEL_PARAMETERS": "^^^^^^^^^^^^^^^^^^^ETC_MODEL_PARAMETERS^^^^^^^^^^^^^^^^^^^^^^^",
   "ETC_MODEL_LR": 1e-1,
   "ETC_MODEL_EPOCHS": 400,

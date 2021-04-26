@@ -18,23 +18,24 @@ from models.layers.backbone import resnet18_cifar, resnet34_cifar, resnet50_cifa
     resnet101_cifar, resnet152_cifar
 
 
-def build_graph(input_shape, num_classes=10, depth=18, half=True):
+def build_graph(input_shape, num_classes=10, depth=18, half=True, backbone=False):
     if depth == 18:
-        model = resnet18_cifar(num_classes=num_classes, half=half)
+        model = resnet18_cifar(num_classes=num_classes, half=half, backbone=backbone)
 
     elif depth == 34:
-        model = resnet34_cifar(num_classes=num_classes, half=half)
+        model = resnet34_cifar(num_classes=num_classes, half=half, backbone=backbone)
 
     elif depth == 50:
-        model = resnet50_cifar(num_classes=num_classes, half=half)
+        model = resnet50_cifar(num_classes=num_classes, half=half, backbone=backbone)
 
     elif depth == 101:
-        model = resnet101_cifar(num_classes=num_classes, half=half)
+        model = resnet101_cifar(num_classes=num_classes, half=half, backbone=backbone)
 
     elif depth == 152:
-        model = resnet152_cifar(num_classes=num_classes, half=half)
+        model = resnet152_cifar(num_classes=num_classes, half=half, backbone=backbone)
 
     else:
+        print(f"depth: {depth} is not support!")
         raise NotImplemented
 
     print(model.name)
